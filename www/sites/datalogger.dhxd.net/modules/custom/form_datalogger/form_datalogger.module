@@ -1,0 +1,93 @@
+<?php
+
+function form_datalogger_menu() {
+  $items['form_datalogger'] = array(
+      'title' => 'Form Datalogger',
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array(
+          '_datalogger_form'
+      ),
+      'access callback' => TRUE
+  );
+  
+  return $items;
+
+}
+
+function _datalogger_form($form, &$form_submit) {
+  $form['station_name'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Station Name'),
+      '#cols' => 30,
+      '#rows' => 1
+  );
+  
+  $form['station_sim_number'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Station Sim Number'),
+      '#cols' => 30,
+      '#rows' => 1
+  );
+  
+  $form['station_address'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Station Address'),
+      '#cols' => 30,
+      '#rows' => 1
+  );
+  
+  $form['station_password'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Station Password'),
+      '#cols' => 30,
+      '#rows' => 1
+  );
+  
+  $form['station_longitude'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Station Longitude'),
+      '#cols' => 30,
+      '#rows' => 1
+  );
+  
+  $form['Station_latitude'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Station Latitude'),
+      '#cols' => 30,
+      '#rows' => 1
+  );
+  
+  $form['station_transmission_speed'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Station Transmission Speed'),
+      '#cols' => 30,
+      '#rows' => 1
+  );
+  
+  $form['Station_power'] = array(
+      '#type' => 'textfield',
+      '#title' => t('Station Power'),
+      '#cols' => 30,
+      '#rows' => 1
+  );
+  
+  $form['submit'] = array(
+      '#type' => 'submit',
+      '#value' => t('Save'),
+      '#submit' => array(
+          'deductible_submit'
+      )
+  );
+  
+  $form['delete'] = array(
+      '#type' => 'button',
+      '#value' => t('Delete')
+  );
+  $form['edit'] = array(
+      '#type' => 'button',
+      '#value' => t('Edit')
+  );
+  
+  return $form;
+
+}

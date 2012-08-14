@@ -1,0 +1,52 @@
+<?php
+
+function datalogger_menu() {
+  $items['datalogger'] = array(
+      'title' => 'Datalogger',
+      'page callback' => '_datalogger_nodes',
+      'access callback' => TRUE
+  );
+  
+  return $items;
+}
+
+function _datalogger_init_node($title, $field_station_code, 
+    $field_station_sim_number, $field_station_address, $field_station_longitude, 
+    $field_station_latitude, $field_station_password, 
+    $field_station_transmission_speed, $field_station_power, 
+    $field_station_diagnostic_error) {
+  $node = new stdClass();
+  $node->title = $title;
+  $node->type = 'station';
+  $node->created = time();
+  $node->changed = $node->created;
+  $node->status = 1; // Published?
+  $node->promote = 0; // Display on front page?
+  $node->sticky = 0; // Display top of page?
+  $node->format = 1; // Filtered HTML?
+  $node->uid = 1; // Content owner uid (author)?
+  $node->language = 'und';
+  
+  node_object_prepare($node);
+  $node->field_station_code[$node->language][0]['value'] = $field_station_code;
+  $node->field_station_address[$node->language][0]['value'] = $field_station_address;
+  $node->field_station_diagnostic_error[$node->language][0]['value'] = $field_station_diagnostic_error;
+  $node->field_station_latitude[$node->language][0]['value'] = $field_station_latitude;
+  $node->field_station_longitude[$node->language][0]['value'] = $field_station_longitude;
+  $node->field_station_password[$node->language][0]['value'] = $field_station_password;
+  $node->field_station_power[$node->language][0]['value'] = $field_station_power;
+  $node->field_station_sim_number[$node->language][0]['value'] = $field_station_sim_number;
+  $node->field_station_transmission_speed[$node->language][0]['value'] = $field_station_transmission_speed;
+  
+  $node = node_submit($node);
+  node_save($node);
+}
+
+function _datalogger_nodes() {
+  // for ($i = 0; $i < 25; $i ++) {
+    // _datalogger_init_node("Station - " . $i, "Code - " . $i, "Address - " . $i, 1, $i, $i, 
+        // "Password" . $i, $i, "0168123456" . (78 + $i), $i);
+  // }
+  
+  return "Hoan thanh.";
+}
