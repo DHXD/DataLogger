@@ -43,7 +43,7 @@ function _datalogger_init_node($title, $field_station_code,
 }
 
 function _datalogger_nodes() {
-  // for ($i = 0; $i < 25; $i ++) {
+  // for ($i = 1; $i < 227; $i ++) {
     // _datalogger_init_node("Station - " . $i, "Code - " . $i, "Address - " . $i, 1, $i, $i, 
         // "Password" . $i, $i, "0168123456" . (78 + $i), $i);
   // }
