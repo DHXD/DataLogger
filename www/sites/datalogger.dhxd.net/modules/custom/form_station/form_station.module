@@ -1,0 +1,15 @@
+<?php
+
+function form_station_menu() {
+  $items['form_station'] = array(
+      'title' => 'Form Station',
+      'page callback' => '_xyz',
+      'access callback' => TRUE
+  );
+  
+  return $items;
+}
+
+function _xyz() {  
+  return "Hoan thanh.";
+}
