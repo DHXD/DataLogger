@@ -16,7 +16,7 @@ function datalogger_menu() {
       'access callback' => TRUE
   );
   
-  $items['create/form/command'] = array(
+  $items['command'] = array(
       'title' => 'Station',
       'page callback' => 'drupal_get_form',
       'page arguments' => array(
