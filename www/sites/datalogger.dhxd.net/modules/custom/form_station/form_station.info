@@ -1,5 +1,0 @@
-name = Form Station
-description = Display Form Station.
-core = 7.x
-package = Form Station
-version = 1.7

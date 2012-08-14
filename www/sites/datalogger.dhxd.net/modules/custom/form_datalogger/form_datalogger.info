@@ -1,5 +1,0 @@
-name = Form Datalogger
-description = Display Form Datalogger.
-core = 7.x
-package = Form Datalogger
-version = 1.2
