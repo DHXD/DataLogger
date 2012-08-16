@@ -62,61 +62,98 @@ function _datalogger_nodes() {
 
 function _command_form($form, &$form_submit) {
 
-  $commands = array(
-      'date_time_set' => 'Date & Time Set',
-      'gprs_network_time_synchronization'=>'GPRS Network Time Synchronization',
-      'set_id'=>'Set ID',
-      'get_id'=>'Get ID',
-      'set_password'=>'Set Password',
-      'get_password'=>'Get Password',
-      'all_database_buffer_clear' => 'All Database Buffer Clear',
-      'specific_date_database_buffer_clear' => 'Specific Date Database Buffer Clear',
-      'accumulated_rain_fall_value_set' => 'Accumulated Rain Fall Value Set',
-      'set_rain_fall_clear_time' => 'Set Rain Fall Clear Time',
-      'get_rain_fall_clear_time' => 'Get Rain Fall Clear Time',
-      'self_power_reset'=>'Self Power Reset',
-      'set_active_deactive_battery_power_volt'=>'Set Active Deactive Battery Power Volt',
-      'get_active_deactive_battery_power_volt'=>'Get Active Deactive Battery Power Volt',
-      'set_battery_volt_offset'=>'Set Battery Volt Offset',
-      'get_battery_volt_offset'=>'Get Battery Volt Offset',
-      'set_auto_power_management_nable'=>'Set Auto Power Management Nable',
-      'get_auto_power_management_nable'=>'Get Auto Power Management Nable',
-      'goto_sleep_mode'=>'Goto Sleep Mode',
-      'set_data_send_interval_minutes'=>'Set Data Send Interval Minutes',
-      'get_data_send_interval_minutes'=>'Get Data Send Interval Minutes',
-      'set_communication_type'=>'Set Communication Type',
-      'get_communication_type'=>'Get Communication Type',
-      'set_gprs_network_setting'=>'Set GPRS Network Setting',
-      'get_gprs_network_setting'=>'Get GPRS Network Setting',
-      'set_host_netword_information'=>'Set Host Netword Information',
-      'get_host_netword_information'=>'Get Host Netword Information',
-      'set_host_phone_number'=>'Set Host Phone Number',
-      'get_host_phone_number'=>'Get Host Phone Number',
-      'get_data_logger_firmware'=>'Get Data Logger Firmware Version',
+  // $commands = array(
+      // 'date_time_set' => 'Date & Time Set',
+      // 'gprs_network_time_synchronization'=>'GPRS Network Time Synchronization',
+      // 'set_id'=>'Set ID',
+      // 'get_id'=>'Get ID',
+      // 'set_password'=>'Set Password',
+      // 'get_password'=>'Get Password',
+      // 'all_database_buffer_clear' => 'All Database Buffer Clear',
+      // 'specific_date_database_buffer_clear' => 'Specific Date Database Buffer Clear',
+      // 'accumulated_rain_fall_value_set' => 'Accumulated Rain Fall Value Set',
+      // 'set_rain_fall_clear_time' => 'Set Rain Fall Clear Time',
+      // 'get_rain_fall_clear_time' => 'Get Rain Fall Clear Time',
+      // 'self_power_reset'=>'Self Power Reset',
+      // 'set_active_deactive_battery_power_volt'=>'Set Active Deactive Battery Power Volt',
+      // 'get_active_deactive_battery_power_volt'=>'Get Active Deactive Battery Power Volt',
+      // 'set_battery_volt_offset'=>'Set Battery Volt Offset',
+      // 'get_battery_volt_offset'=>'Get Battery Volt Offset',
+      // 'set_auto_power_management_nable'=>'Set Auto Power Management Nable',
+      // 'get_auto_power_management_nable'=>'Get Auto Power Management Nable',
+      // 'goto_sleep_mode'=>'Goto Sleep Mode',
+      // 'set_data_send_interval_minutes'=>'Set Data Send Interval Minutes',
+      // 'get_data_send_interval_minutes'=>'Get Data Send Interval Minutes',
+      // 'set_communication_type'=>'Set Communication Type',
+      // 'get_communication_type'=>'Get Communication Type',
+      // 'set_gprs_network_setting'=>'Set GPRS Network Setting',
+      // 'get_gprs_network_setting'=>'Get GPRS Network Setting',
+      // 'set_host_netword_information'=>'Set Host Netword Information',
+      // 'get_host_netword_information'=>'Get Host Netword Information',
+      // 'set_host_phone_number'=>'Set Host Phone Number',
+      // 'get_host_phone_number'=>'Get Host Phone Number',
+      // 'get_data_logger_firmware'=>'Get Data Logger Firmware Version',
+  // );
+
+  // $form['command_first'] = array(
+      // '#type' => 'select',
+      // '#title' => 'Command',
+      // '#options' => $commands,
+
+  // );
+
+  // $form['host_phone_number'] = array(
+      // '#type' => 'textfield',
+      // '#title' => t('Host Phone Number'),
+      // '#cols' => 30,
+      // '#rows' => 1
+  // );
+
+  // $form['submit'] = array(
+      // '#type' => 'submit',
+      // '#value' => t('Send Now!'),
+      // '#submit' => array(
+          // 'deductible_submit'
+      // )
+  // );
+
+  // return $form;
+  $form = array();
+  $form['changethis'] = array(
+    '#title' => t("Choose something and explain why"),
+    '#type' => 'select',
+    '#options' => array(
+      'one' => 'one',
+      'two' => 'two',
+      'three' => 'three',
+    ),
+    '#ajax' => array(
+      // #ajax has two required keys: callback and wrapper.
+      // 'callback' is a function that will be called when this element changes.
+      'callback' => 'ajax_example_simplest_callback',
+      // 'wrapper' is the HTML id of the page element that will be replaced.
+      'wrapper' => 'replace_textfield_div',
+      // There are also several optional keys - see ajax_example_autocheckboxes
+      // below for details on 'method', 'effect' and 'speed' and
+      // ajax_example_dependent_dropdown for 'event'.
+     ),
   );
 
-  $form['command_first'] = array(
-      '#type' => 'select',
-      '#title' => 'Command',
-      '#options' => $commands,
-
+  // This entire form element will be replaced whenever 'changethis' is updated.
+  $form['replace_textfield'] = array(
+    '#type' => 'textfield',
+    '#title' => t("Why"),
+    // The prefix/suffix provide the div that we're replacing, named by
+    // #ajax['wrapper'] above.
+    '#prefix' => '<div id="replace_textfield_div">',
+    '#suffix' => '</div>',
   );
 
-  $form['host_phone_number'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Host Phone Number'),
-      '#cols' => 30,
-      '#rows' => 1
-  );
-
-  $form['submit'] = array(
-      '#type' => 'submit',
-      '#value' => t('Send Now!'),
-      '#submit' => array(
-          'deductible_submit'
-      )
-  );
-
+  // An AJAX request calls the form builder function for every change.
+  // We can change how we build the form based on $form_state.
+  if (!empty($form_state['values']['changethis'])) {
+    $form['replace_textfield']['#description'] = t("Say why you chose '@value'", array('@value' => $form_state['values']['changethis']));
+  }
   return $form;
 
 }
