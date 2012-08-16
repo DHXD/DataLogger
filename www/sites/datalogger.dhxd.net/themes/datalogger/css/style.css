@@ -289,10 +289,6 @@ ul.tips {
 }
 
 /* new line logo */
-#logo img {
-	height: 80px;
-	width: 140px;
-}
 
 }
 #name-and-slogan {
@@ -313,6 +309,7 @@ h1#site-name {
 
 #site-name a {
 	font-weight: normal;
+  padding-top:40px;
 }
 
 #site-slogan {
