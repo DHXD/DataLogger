@@ -60,69 +60,14 @@ function _datalogger_nodes() {
   return "Finished Create Stations.";
 }
 
-function _command_form($form, &$form_submit) {
-
-  // $commands = array(
-      // 'date_time_set' => 'Date & Time Set',
-      // 'gprs_network_time_synchronization'=>'GPRS Network Time Synchronization',
-      // 'set_id'=>'Set ID',
-      // 'get_id'=>'Get ID',
-      // 'set_password'=>'Set Password',
-      // 'get_password'=>'Get Password',
-      // 'all_database_buffer_clear' => 'All Database Buffer Clear',
-      // 'specific_date_database_buffer_clear' => 'Specific Date Database Buffer Clear',
-      // 'accumulated_rain_fall_value_set' => 'Accumulated Rain Fall Value Set',
-      // 'set_rain_fall_clear_time' => 'Set Rain Fall Clear Time',
-      // 'get_rain_fall_clear_time' => 'Get Rain Fall Clear Time',
-      // 'self_power_reset'=>'Self Power Reset',
-      // 'set_active_deactive_battery_power_volt'=>'Set Active Deactive Battery Power Volt',
-      // 'get_active_deactive_battery_power_volt'=>'Get Active Deactive Battery Power Volt',
-      // 'set_battery_volt_offset'=>'Set Battery Volt Offset',
-      // 'get_battery_volt_offset'=>'Get Battery Volt Offset',
-      // 'set_auto_power_management_nable'=>'Set Auto Power Management Nable',
-      // 'get_auto_power_management_nable'=>'Get Auto Power Management Nable',
-      // 'goto_sleep_mode'=>'Goto Sleep Mode',
-      // 'set_data_send_interval_minutes'=>'Set Data Send Interval Minutes',
-      // 'get_data_send_interval_minutes'=>'Get Data Send Interval Minutes',
-      // 'set_communication_type'=>'Set Communication Type',
-      // 'get_communication_type'=>'Get Communication Type',
-      // 'set_gprs_network_setting'=>'Set GPRS Network Setting',
-      // 'get_gprs_network_setting'=>'Get GPRS Network Setting',
-      // 'set_host_netword_information'=>'Set Host Netword Information',
-      // 'get_host_netword_information'=>'Get Host Netword Information',
-      // 'set_host_phone_number'=>'Set Host Phone Number',
-      // 'get_host_phone_number'=>'Get Host Phone Number',
-      // 'get_data_logger_firmware'=>'Get Data Logger Firmware Version',
-  // );
-
-  // $form['command_first'] = array(
-      // '#type' => 'select',
-      // '#title' => 'Command',
-      // '#options' => $commands,
-
-  // );
-
-  // $form['host_phone_number'] = array(
-      // '#type' => 'textfield',
-      // '#title' => t('Host Phone Number'),
-      // '#cols' => 30,
-      // '#rows' => 1
-  // );
-
-  // $form['submit'] = array(
-      // '#type' => 'submit',
-      // '#value' => t('Send Now!'),
-      // '#submit' => array(
-          // 'deductible_submit'
-      // )
-  // );
+function _command_form($form, &$form_state) {
 
   // return $form;
-  $commands = array(
+  $options_commands = array(
       'date_time_set' => 'Date & Time Set',
-      'gprs_network_time_synchronization'=>'GPRS Network Time Synchronization',
-      'set_id'=>'Set ID',
-      'get_id'=>'Get ID',
+      'gprs_network_time_synchronization' => 'GPRS Network Time Synchronization',
+      'set_id' => 'Set ID',
+      'get_id' => 'Get ID',
       'set_password'=>'Set Password',
       'get_password'=>'Get Password',
       'all_database_buffer_clear' => 'All Database Buffer Clear',
@@ -154,16 +99,50 @@ function _command_form($form, &$form_submit) {
   $form['command_first'] = array(
       '#type' => 'select',
       '#title' => 'Command',
-      '#options' => $commands,
-
+      '#options' => $options_commands,
+      '#ajax' => array(
+        // #ajax has two required keys: callback and wrapper.
+        // 'callback' is a function that will be called when this element changes.
+        'callback' => '_datalogger_command_form_ajax_callback',
+        // 'wrapper' is the HTML id of the page element that will be replaced.
+        'wrapper' => 'command_form_replace_textfield_div',
+        // There are also several optional keys - see ajax_example_autocheckboxes
+        // below for details on 'method', 'effect' and 'speed' and
+        // ajax_example_dependent_dropdown for 'event'.
+       ),
   );
+  
+  switch ($form_state['values']['command_first']) {
+  case 'date_time_set':
+    $title = 'Date Time';
+    break;
+    
+  case 'set_host_phone_number':
+    $title = 'Host Phone Number';
+    break;
+  default:
+    $title = 'Parameter';
+  }
+  
+  
+  // This entire form element will be replaced whenever 'changethis' is updated.
+  $form['replace_textfield'] = array(
+    '#type' => 'textfield',
+    '#title' => t($title),
+    // The prefix/suffix provide the div that we're replacing, named by
+    // #ajax['wrapper'] above.
+    '#prefix' => '<div id="command_form_replace_textfield_div">',
+    '#suffix' => '</div>',
+  );
+  
 
+  /*
   $form['host_phone_number'] = array(
       '#type' => 'textfield',
       '#title' => t('Host Phone Number'),
       '#cols' => 30,
       '#rows' => 1
-  );
+  );*/
 
   $form['submit'] = array(
       '#type' => 'submit',
@@ -176,3 +155,22 @@ function _command_form($form, &$form_submit) {
   return $form;
 
 }
+
+
+
+/**
+ * Callback for ajax_example_simplest.
+ *
+ * On an ajax submit, the form builder function is called again, then the $form
+ * and $form_state are passed to this callback function so it can select which
+ * portion of the form to send on to the client.
+ *
+ * @return renderable array (the textfield element)
+ */
+function _datalogger_command_form_ajax_callback($form, $form_state) {
+  // The form has already been submitted and updated. We can return the replaced
+  // item as it is.
+  return $form['replace_textfield'];
+}
+
+
