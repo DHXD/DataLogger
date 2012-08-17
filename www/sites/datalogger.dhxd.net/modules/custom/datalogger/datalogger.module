@@ -2,14 +2,14 @@
 
 function datalogger_menu() {
   $items['create/stations'] = array(
-      'title' => 'Station',
-      'page callback' => '_datalogger_nodes',
+      'title' => t('Station'),
+      'page callback' => t('_datalogger_nodes'),
       'access callback' => TRUE
   );
 
   $items['command'] = array(
-      'title' => 'Station',
-      'page callback' => 'drupal_get_form',
+      'title' => t('Station'),
+      'page callback' => t('drupal_get_form'),
       'page arguments' => array(
           '_command_form'
       ),
@@ -64,8 +64,8 @@ function _command_form($form, &$form_state) {
 
   // return $form;
   $options_commands = array(
-      'date_time_set' => 'Date & Time Set',
       'gprs_network_time_synchronization' => 'GPRS Network Time Synchronization',
+      'date_time_set' => 'Date & Time Set',
       'set_id' => 'Set ID',
       'get_id' => 'Get ID',
       'set_password'=>'Set Password',
@@ -96,53 +96,129 @@ function _command_form($form, &$form_state) {
       'get_data_logger_firmware'=>'Get Data Logger Firmware Version',
   );
 
-  $form['command_first'] = array(
+  $form['command_selects'] = array(
       '#type' => 'select',
       '#title' => 'Command',
       '#options' => $options_commands,
       '#ajax' => array(
-        // #ajax has two required keys: callback and wrapper.
-        // 'callback' is a function that will be called when this element changes.
-        'callback' => '_datalogger_command_form_ajax_callback',
-        // 'wrapper' is the HTML id of the page element that will be replaced.
-        'wrapper' => 'command_form_replace_textfield_div',
-        // There are also several optional keys - see ajax_example_autocheckboxes
-        // below for details on 'method', 'effect' and 'speed' and
-        // ajax_example_dependent_dropdown for 'event'.
-       ),
+          'callback' => '_datalogger_command_form_ajax_callback',
+          'wrapper' => 'command_form_replace_textfield_div',
+      ),
   );
-  
-  switch ($form_state['values']['command_first']) {
-  case 'date_time_set':
-    $title = 'Date Time';
-    break;
-    
-  case 'set_host_phone_number':
-    $title = 'Host Phone Number';
-    break;
-  default:
-    $title = 'Parameter';
+
+  switch ($form_state['values']['command_selects']) {
+    case 'gprs_network_time_synchronization':
+      //       $title = 'GPRS Network Time Synchronization';
+      break;
+    case 'set_id':
+      $title = 'Set ID';
+      break;
+    case 'get_id':
+      $title = t("Get ID");
+      break;
+    case 'set_password':
+      $title = t("Set Password");
+      break;
+    case 'get_password':
+      $title = t("Get Password");
+      break;
+    case 'all_database_buffer_clear':
+      $title = t("All Database Buffer Clear");
+      break;
+    case 'specific_date_database_buffer_clear':
+      $title = t("Specific Date Database Buffer Clear");
+      break;
+    case 'accumulated_rain_fall_value_set':
+      $title = t("Accumulated Rain Fall Value Set");
+      break;
+    case 'set_rain_fall_clear_time' :
+      $title = 'Set Rain Fall Clear Time';
+      break;
+    case 'get_rain_fall_clear_time' :
+      $title = t("Get Rain Fall Clear Time");
+      break;
+    case 'self_power_reset':
+      $title = t("Self Power Reset");
+      break;
+    case 'set_active_deactive_battery_power_volt':
+      $title = 'Set Active Deactive Battery Power Volt';
+      break;
+    case 'get_active_deactive_battery_power_volt':
+      $title = t("Get Active Deactive Battery Power Volt");
+      break;
+    case 'set_battery_volt_offset':
+      $title = 'Set Battery Volt Offset';
+      break;
+    case 'get_battery_volt_offset':
+      $title = t("Get Battery Volt Offset");
+      break;
+    case 'set_auto_power_management_nable':
+      $title = 'Set Auto Power Management Nable';
+      break;
+    case 'get_auto_power_management_nable':
+      $title = t("Get Auto Power Manager Nable");
+      break;
+    case 'goto_sleep_mode':
+      $title = t("Goto Sleep Mode");
+      break;
+    case 'set_data_send_interval_minutes':
+      $title = 'Set Data Send Interval Minutes';
+      break;
+    case 'get_data_send_interval_minutes':
+      $title = t("Get Data Send Interval Minutes");
+      break;
+    case 'set_communication_type':
+      $title = 'Set Communication Type';
+      break;
+    case 'get_communication_type':
+      $title = t("Get Communication Type");
+      break;
+    case 'set_gprs_network_setting':
+      $title = 'Set GPRS Network Setting';
+      break;
+    case 'get_gprs_network_setting':
+      $title = t("Get GPRS Network Setting");
+      break;
+    case 'set_host_netword_information':
+      $title = 'Set Host Netword Information';
+      break;
+    case 'get_host_netword_information':
+      $title = t("Get Host netword Information");
+      break;
+    case 'get_host_phone_number':
+      $title = t("Get Host Phone Number");
+      break;
+    case 'get_data_logger_firmware':
+      $title = t("Get Data Logger Firmware");
+      break;
+    case 'date_time_set':
+      $title = 'Date Time';
+      break;
+    case 'set_host_phone_number':
+      $title = 'Host Phone Number';
+      break;
+    default:
+      $title = 'Parameter';
   }
-  
-  
+
   // This entire form element will be replaced whenever 'changethis' is updated.
   $form['replace_textfield'] = array(
-    '#type' => 'textfield',
-    '#title' => t($title),
-    // The prefix/suffix provide the div that we're replacing, named by
-    // #ajax['wrapper'] above.
-    '#prefix' => '<div id="command_form_replace_textfield_div">',
-    '#suffix' => '</div>',
+        '#type' => 'textfield',
+        '#title' => t($title),
+      // The prefix/suffix provide the div that we're replacing, named by
+      // #ajax['wrapper'] above.
+      '#prefix' => '<div id="command_form_replace_textfield_div">',
+      '#suffix' => '</div>',
   );
-  
+
 
   /*
-  $form['host_phone_number'] = array(
-      '#type' => 'textfield',
-      '#title' => t('Host Phone Number'),
-      '#cols' => 30,
-      '#rows' => 1
-  );*/
+   $form['host_phone_number'] = array(
+       '#type' => 'textfield',
+       '#title' => t('Host Phone Number'),
+       '#cols' => 30,
+       '#rows' => 1
+   );*/
 
   $form['submit'] = array(
       '#type' => 'submit',
@@ -172,5 +248,3 @@ function _datalogger_command_form_ajax_callback($form, $form_state) {
   // item as it is.
   return $form['replace_textfield'];
 }
-
-
