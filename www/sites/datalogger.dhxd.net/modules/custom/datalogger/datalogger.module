@@ -3,7 +3,7 @@
 function datalogger_menu() {
   $items['create/stations'] = array(
       'title' => t('Station'),
-      'page callback' => t('_datalogger_nodes'),
+      'page callback' => "_datalogger_nodes",
       'access callback' => TRUE
   );
 
@@ -17,7 +17,7 @@ function datalogger_menu() {
   );
   
   $items['logs'] = array(
-      'title' => t("Logs"),
+      'title' => t('Logs'),
       'page callback' => "drupal_get_form",
       'page arguments' => array(
           '_log_nodes'
@@ -103,41 +103,41 @@ function _command_form($form, &$form_state) {
 
   // return $form;
   $options_commands = array(
-      'gprs_network_time_synchronization' => 'GPRS Network Time Synchronization',
-      'date_time_set' => 'Date & Time Set',
-      'set_id' => 'Set ID',
-      'get_id' => 'Get ID',
-      'set_password'=>'Set Password',
-      'get_password'=>'Get Password',
-      'all_database_buffer_clear' => 'All Database Buffer Clear',
-      'specific_date_database_buffer_clear' => 'Specific Date Database Buffer Clear',
-      'accumulated_rain_fall_value_set' => 'Accumulated Rain Fall Value Set',
-      'set_rain_fall_clear_time' => 'Set Rain Fall Clear Time',
-      'get_rain_fall_clear_time' => 'Get Rain Fall Clear Time',
-      'self_power_reset'=>'Self Power Reset',
-      'set_active_deactive_battery_power_volt'=>'Set Active Deactive Battery Power Volt',
-      'get_active_deactive_battery_power_volt'=>'Get Active Deactive Battery Power Volt',
-      'set_battery_volt_offset'=>'Set Battery Volt Offset',
-      'get_battery_volt_offset'=>'Get Battery Volt Offset',
-      'set_auto_power_management_nable'=>'Set Auto Power Management Nable',
-      'get_auto_power_management_nable'=>'Get Auto Power Management Nable',
-      'goto_sleep_mode'=>'Goto Sleep Mode',
-      'set_data_send_interval_minutes'=>'Set Data Send Interval Minutes',
-      'get_data_send_interval_minutes'=>'Get Data Send Interval Minutes',
-      'set_communication_type'=>'Set Communication Type',
-      'get_communication_type'=>'Get Communication Type',
-      'set_gprs_network_setting'=>'Set GPRS Network Setting',
-      'get_gprs_network_setting'=>'Get GPRS Network Setting',
-      'set_host_netword_information'=>'Set Host Netword Information',
-      'get_host_netword_information'=>'Get Host Netword Information',
-      'set_host_phone_number'=>'Set Host Phone Number',
-      'get_host_phone_number'=>'Get Host Phone Number',
-      'get_data_logger_firmware'=>'Get Data Logger Firmware Version',
+      'gprs_network_time_synchronization' => t('GPRS Network Time Synchronization'),
+      'date_time_set' => t('Date & Time Set'),
+      'set_id' => t('Set ID'),
+      'get_id' => t('Get ID'),
+      'set_password'=>t('Set Password'),
+      'get_password'=>t('Get Password'),
+      'all_database_buffer_clear' => t('All Database Buffer Clear'),
+      'specific_date_database_buffer_clear' => t('Specific Date Database Buffer Clear'),
+      'accumulated_rain_fall_value_set' => t('Accumulated Rain Fall Value Set'),
+      'set_rain_fall_clear_time' => t('Set Rain Fall Clear Time'),
+      'get_rain_fall_clear_time' => t('Get Rain Fall Clear Time'),
+      'self_power_reset'=>t('Self Power Reset'),
+      'set_active_deactive_battery_power_volt'=>t('Set Active Deactive Battery Power Volt'),
+      'get_active_deactive_battery_power_volt'=>t('Get Active Deactive Battery Power Volt'),
+      'set_battery_volt_offset'=>t('Set Battery Volt Offset'),
+      'get_battery_volt_offset'=>t('Get Battery Volt Offset'),
+      'set_auto_power_management_nable'=>t('Set Auto Power Management Nable'),
+      'get_auto_power_management_nable'=>t('Get Auto Power Management Nable'),
+      'goto_sleep_mode'=>t('Goto Sleep Mode'),
+      'set_data_send_interval_minutes'=>t('Set Data Send Interval Minutes'),
+      'get_data_send_interval_minutes'=>t('Get Data Send Interval Minutes'),
+      'set_communication_type'=>t('Set Communication Type'),
+      'get_communication_type'=>t('Get Communication Type'),
+      'set_gprs_network_setting'=>t('Set GPRS Network Setting'),
+      'get_gprs_network_setting'=>t('Get GPRS Network Setting'),
+      'set_host_netword_information'=>t('Set Host Netword Information'),
+      'get_host_netword_information'=>t('Get Host Netword Information'),
+      'set_host_phone_number'=>t('Set Host Phone Number'),
+      'get_host_phone_number'=>t('Get Host Phone Number'),
+      'get_data_logger_firmware'=>t('Get Data Logger Firmware Version'),
   );
 
   $form['command_selects'] = array(
       '#type' => 'select',
-      '#title' => 'Command',
+      '#title' => t('Command'),
       '#options' => $options_commands,
       '#ajax' => array(
           'callback' => '_datalogger_command_form_ajax_callback',
@@ -150,7 +150,7 @@ function _command_form($form, &$form_state) {
       //       $title = 'GPRS Network Time Synchronization';
       break;
     case 'set_id':
-      $title = 'Set ID';
+      $title = t('Set ID');
       break;
     case 'get_id':
       $title = t("Get ID");
@@ -171,7 +171,7 @@ function _command_form($form, &$form_state) {
       $title = t("Accumulated Rain Fall Value Set");
       break;
     case 'set_rain_fall_clear_time' :
-      $title = 'Set Rain Fall Clear Time';
+      $title = t('Set Rain Fall Clear Time');
       break;
     case 'get_rain_fall_clear_time' :
       $title = t("Get Rain Fall Clear Time");
@@ -180,19 +180,19 @@ function _command_form($form, &$form_state) {
       $title = t("Self Power Reset");
       break;
     case 'set_active_deactive_battery_power_volt':
-      $title = 'Set Active Deactive Battery Power Volt';
+      $title = t('Set Active Deactive Battery Power Volt');
       break;
     case 'get_active_deactive_battery_power_volt':
       $title = t("Get Active Deactive Battery Power Volt");
       break;
     case 'set_battery_volt_offset':
-      $title = 'Set Battery Volt Offset';
+      $title = t('Set Battery Volt Offset');
       break;
     case 'get_battery_volt_offset':
       $title = t("Get Battery Volt Offset");
       break;
     case 'set_auto_power_management_nable':
-      $title = 'Set Auto Power Management Nable';
+      $title = t('Set Auto Power Management Nable');
       break;
     case 'get_auto_power_management_nable':
       $title = t("Get Auto Power Manager Nable");
@@ -201,25 +201,25 @@ function _command_form($form, &$form_state) {
       $title = t("Goto Sleep Mode");
       break;
     case 'set_data_send_interval_minutes':
-      $title = 'Set Data Send Interval Minutes';
+      $title = t('Set Data Send Interval Minutes');
       break;
     case 'get_data_send_interval_minutes':
       $title = t("Get Data Send Interval Minutes");
       break;
     case 'set_communication_type':
-      $title = 'Set Communication Type';
+      $title = t('Set Communication Type');
       break;
     case 'get_communication_type':
       $title = t("Get Communication Type");
       break;
     case 'set_gprs_network_setting':
-      $title = 'Set GPRS Network Setting';
+      $title = t('Set GPRS Network Setting');
       break;
     case 'get_gprs_network_setting':
       $title = t("Get GPRS Network Setting");
       break;
     case 'set_host_netword_information':
-      $title = 'Set Host Netword Information';
+      $title = t('Set Host Netword Information');
       break;
     case 'get_host_netword_information':
       $title = t("Get Host netword Information");
@@ -231,13 +231,13 @@ function _command_form($form, &$form_state) {
       $title = t("Get Data Logger Firmware");
       break;
     case 'date_time_set':
-      $title = 'Date Time';
+      $title = t('Date Time');
       break;
     case 'set_host_phone_number':
-      $title = 'Host Phone Number';
+      $title = t('Host Phone Number');
       break;
     default:
-      $title = 'Parameter';
+      $title = t('Parameter';)
   }
 
   // This entire form element will be replaced whenever 'changethis' is updated.
@@ -291,13 +291,13 @@ function _datalogger_command_form_ajax_callback($form, $form_state) {
  * Implementation of hook_action_info().
  */
 function datalogger_action_info() {
-  return array(
+  return array(    
     'datalogger_command_action' => array(
-      'description' => t('Send Command Multiple Stations'),
-      'type' => 'system',       // this should probably be changed to something else!
-      'aggregate' => TRUE,       // tell Drupal this action operates on all nodes at once (not one by one)
-      'configurable' => TRUE,    // tell Drupal this action requires form input
-      'hooks' => array(),
-    ),
+      'type' => 'comment', 
+      'label' => t('Send Command Multiple Stations'), 
+      'configurable' => FALSE, n
+      'behavior' => array('changes_property'), 
+      'triggers' => array('comment_presave', 'comment_insert', 'comment_update'),
+    ), 
   );
 }
