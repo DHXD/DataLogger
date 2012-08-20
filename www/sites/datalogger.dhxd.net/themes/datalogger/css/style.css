@@ -212,7 +212,7 @@ table ul.links li {
 }
 
 /* ------------------ List Styles ------------------ */
-.block ol,.block ul {
+ ol,.block ul {
 	margin: 0;
 	padding: 0 0 0.25em 1em; /* LTR */
 }
@@ -813,7 +813,7 @@ ul.links {
 
 .sidebar .block {
 	border: 1px solid;
-	padding: 15px 20px;
+	padding: 15px 10px;
 	margin: 0 0 20px;
 }
 

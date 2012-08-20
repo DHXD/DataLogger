@@ -237,7 +237,7 @@ function _command_form($form, &$form_state) {
       $title = t('Host Phone Number');
       break;
     default:
-      $title = t('Parameter';)
+      $title = t('Parameter');
   }
 
   // This entire form element will be replaced whenever 'changethis' is updated.
@@ -295,7 +295,7 @@ function datalogger_action_info() {
     'datalogger_command_action' => array(
       'type' => 'comment', 
       'label' => t('Send Command Multiple Stations'), 
-      'configurable' => FALSE, n
+      'configurable' => FALSE,
       'behavior' => array('changes_property'), 
       'triggers' => array('comment_presave', 'comment_insert', 'comment_update'),
     ), 
