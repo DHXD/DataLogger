@@ -590,6 +590,7 @@ h1#site-name {
 /* ----------------- Content ------------------ */
 .content {
 	margin-top: 10px;
+  width: 130px;
 }
 
 h1#page-title {
