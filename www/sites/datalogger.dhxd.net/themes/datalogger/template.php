@@ -4,6 +4,13 @@
  * Add body classes if certain regions have content.
  */
 function datalogger_preprocess_html(&$variables) {
+
+  // switch ($_REQUEST['q']) {
+  // case '/stations':
+    // drupal_set_title(t('List All Datalogger'));
+    // break;
+  // }
+
   if (!empty($variables['page']['featured'])) {
     $variables['classes_array'][] = 'featured';
   }
@@ -154,3 +161,11 @@ function datalogger_field__taxonomy_term_reference($variables) {
 
   return $output;
 }
+
+// function datalogger_preprocess_page(&$variables) {
+  // switch ($_REQUEST['q']) {
+  // case '/stations':
+    // drupal_set_title(t('List All Datalogger'));
+    // break;
+  // }
+// }
