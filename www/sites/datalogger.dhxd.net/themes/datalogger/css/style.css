@@ -235,6 +235,7 @@ ul.contextual-links {
 
 ul.menu li {
 	margin: 0;
+  width:140px;
 }
 
 .region-content ul,.region-content ol {
@@ -1349,6 +1350,11 @@ textarea.form-textarea,select.form-select {
 
 input.form-text,textarea.form-textarea,select.form-select {
 	border: 1px solid #ccc;
+}
+
+/*new line value*/
+select.form-select {
+width:170px;
 }
 
 input.form-submit:hover,input.form-submit:focus {
