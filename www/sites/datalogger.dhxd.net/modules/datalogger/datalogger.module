@@ -1,0 +1,303 @@
+<?php
+
+/**
+ * Implements hook_menu().
+ */
+ 
+function datalogger_menu() {
+/**
+ *Begin date:12-09-12
+ *tạo dữ liệu Mưa.
+ */
+  $items['manage/user'] = array(
+    'title' => 'Quản lý thông tin người dùng',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_user_form'),
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+    // 'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,  
+  );
+  
+  $items['manage/user/user'] = array(
+    'title' => 'Quản lý quyền hạn',
+    // 'title' => 'User',
+    // 'page callback' => 'drupal_get_form',
+    // 'page arguments' => array('_user_form'),
+    // 'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+    // // 'access callback' => TRUE,
+    'type' => MENU_DEFAULT_LOCAL_TASK,   
+    
+  );
+  $items['manage/user/group'] = array(
+    'title' => 'Quản lý nhóm',   
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_user_group_form'),
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -25,
+  );
+   
+  $items['manage/user/pass'] = array(
+    'title' => 'Quản lý password',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_user_pass_form'),
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+    // 'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -24,
+  );
+   
+  $items['manage/user/profile'] = array(
+    'title' => 'Quản lý profile',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_user_profile_form'),
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+    // 'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -23,
+  ); 
+  $items['manage/user/add'] = array(
+    'title' => 'Tạo người dùng',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_user_add_form'),
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+    // 'access callback' => TRUE,
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -22,
+  ); 
+  
+ 
+/**
+ *Begin date:11-09-12
+ *tạo dữ liệu Mưa.
+ */
+
+ /*nhat ki tich hop du lieu*/
+ $items['manage/log/rainfall'] = array(
+    'title' => 'Nhật ký tích hợp số liệu',
+    'page callback' => '_log_rainfall_form',
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+  );
+ 
+ $items['manage/report/rainfalls'] = array(
+    'title' => 'Báo cáo số liệu Mưa',
+    'page callback' => '_report_rainfall_form',
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+  );
+ 
+ $items['manage/init/rainfalls'] = array(
+    'title' => 'Tạo dữ liệu Mưa',
+    'page callback' => '_insert_rainfall_nodes',
+    'file' => 'datalogger.admin.inc',
+    // 'access arguments' => array('manage data'),
+    'access callback' => TRUE,
+  );
+ 
+ /**
+ *Begin date:10-09-12
+ *phát triển giao diện quản lý dữ liệu
+ */
+
+  $items['manage/statistics'] = array(
+    'title' => 'Thống kê lượng Mưa',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_tab_statistics_form'),
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+    // 'access callback' => TRUE,
+    'type' => MENU_NORMAL_ITEM,  
+  );
+  $items['manage/statistics/rainfall'] = array(
+    'title' => 'Thống kê lượng Mưa',   
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_tab_statistics_form'),
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+    'type' => MENU_DEFAULT_LOCAL_TASK,  
+    'weight' => -25,
+  );
+   
+  $items['manage/statistics/search'] = array(
+    'title' => 'Tra cứu số liệu Mưa',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_tab_statistics_search_form'),
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+    // 'access callback' => TRUE,
+    'description' => 'Biểu đồ lượng Mưa',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -24,
+  );
+   
+  $items['manage/statistics/chart'] = array(
+    'title' => 'Biểu đồ',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_tab_statistics_chart_form'),
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+    // 'access callback' => TRUE,
+    'description' => 'Biểu đồ lượng Mưa',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -23,
+  ); 
+ 
+/**
+ *Begin date:09-09-12
+ *phát triển giao diện quản lý dữ liệu
+ */
+  $items['manage/data'] = array(
+    'title' => 'Quản lý dữ liệu',
+    'page callback' => '_manage_data',
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data', 1),
+    'access callback' => '_datalogger_menu_access_callback',
+  );
+  
+  // $items['node/%node'] = array(
+    // 'title' => 'Thông tin trạm đo Mưa',
+    // 'title callback' => '_set_title_node',
+    // 'title arguments' => array(1),
+    // 'page callback' => 'drupal_get_form',
+    // 'page arguments' => array('_manage_statistics_form',1),
+    // // 'access callback' => TRUE,
+    // 'access arguments' => array('manage data'),
+    // 'description' => 'Thông tin tram',
+    // 'file' => 'datalogger.admin.inc',
+    // 'type' => MENU_NORMAL_ITEM,
+  // );
+  
+  $items['node/%node/statistics'] = array(
+    'title' => 'Thống kê',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_manage_statistics_form', 1),
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data', 1),
+    'access callback' => '_datalogger_menu_access_callback',
+    'description' => 'Thống kê lượng Mưa',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -25,
+  );
+   
+  $items['node/%node/chart'] = array(
+    'title' => 'Biểu đồ',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_manage_chart_form',1),
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data', 1),
+    'access callback' => '_datalogger_menu_access_callback',
+    // 'access callback' => TRUE,
+    'description' => 'Biểu đồ lượng Mưa',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -24,
+  );
+   
+  $items['node/%node/rainfall'] = array(
+    'title' => 'Chi tiết lượng Mưa',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_manage_rainfall_form',1),
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data', 1),
+    'access callback' => '_datalogger_menu_access_callback',
+    'description' => 'Chi tiết lượng Mưa',
+    'type' => MENU_LOCAL_TASK,
+    'weight' => -23,
+  );
+       
+/**
+ *Begin date:old
+ */
+  $items['create/stations'] = array(
+      'title' => t('Station'),
+      'page callback' => '_datalogger_nodes',
+      'file' => 'datalogger.admin.inc',
+      'access callback' => TRUE
+  );
+
+  $items['command'] = array(
+      'title' => t('Command'),
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array(
+          '_command_form'
+      ),
+      'file' => 'datalogger.admin.inc',
+      'access callback' => TRUE
+  );
+
+  $items['logs'] = array(
+      'title' => t('Logs'),
+      'page callback' => 'drupal_get_form',
+      'page arguments' => array(
+          '_log_nodes'
+      ),
+      'file' => 'datalogger.admin.inc',
+      'access callback' => TRUE
+  );
+
+  $items['view/stations'] = array(
+      'title' => t('List All Station'),
+      'page callback' => '_view_translate_station',
+      'file' => 'datalogger.admin.inc',
+      'access callback' => TRUE
+  );
+
+  $items['view/logs'] = array(
+      'title' => t('Log Manage'),
+      'page callback' => '_view_translate_log',
+      'file' => 'datalogger.admin.inc',
+      'access callback' => TRUE
+  );
+ 
+  return $items;
+}
+
+function _datalogger_menu_access_callback($permission, $node) {
+  //dpm($permission);
+  //dpm($node);
+  
+  return user_access($permission) && $node->type == 'station';
+}
+
+/**
+ * Implements hook_permission().
+ */
+ 
+function datalogger_permission() {
+  return array(
+    'manage data' => array(
+      'title' => t('Manage data'), 
+      'description' => t('Perform manage data.'),
+      'restrict access' => TRUE,
+    ),
+  );
+}
+
+/**
+ * Implements hook_menu_alter().
+ */
+function datalogger_menu_alter(&$items) {
+  // Example - disable the page at node/add
+  // $items['node/add']['access callback'] = FALSE;
+  //dpm($items);
+  
+  $items['node/%node/view']['title callback'] = '_datalogger_station_title_callback';
+  $items['node/%node/view']['title arguments'] = array(1);
+  
+} 
+
+function _datalogger_station_title_callback($node) {
+  if ($node->type == 'station') {
+    drupal_set_title('Thông tin trạm: '.$node->title);
+    return 'Thông tin trạm';
+  }
+  else {
+    return 'View';
+  }
+}
