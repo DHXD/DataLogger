@@ -96,7 +96,7 @@ pre {
 
 /* ------------------ Fonts ------------------ */
 body,#site-slogan,.ui-widget,.comment-form label {
-	font-family: Georgia, "Times New Roman", Times, serif;
+	font-family: "Lucida Grande", "Lucida Sans Unicode", Verdana, sans-serif;
 }
 
 #header,#footer-wrapper,#skip-link,ul.contextual-links,ul.links,ul.primary,.item-list .pager,div.field-type-taxonomy-term-reference,div.messages,div.meta,p.comment-time,table,.breadcrumb
@@ -311,6 +311,7 @@ h1#site-name {
 
 #site-name a {
 	font-weight: normal;  
+  text-transform: uppercase;
 }
 
 #site-slogan {
@@ -318,6 +319,7 @@ h1#site-name {
 	margin-top: 7px;
 	word-spacing: 0.1em;
 	font-style: italic;
+  text-transform: uppercase;
 }
 /* Region header blocks. */
 .region-header .block {
@@ -1355,6 +1357,14 @@ input.form-text,textarea.form-textarea,select.form-select {
 /*new line value*/
 select.form-select {
 width:170px;
+}
+
+#edit-field-station-regions-value-wrapper,
+#edit-field-station-code-value-wrapper,
+#edit-field-rainfall-type-statistics-value-wrapper,
+#edit-field-rainfall-time-value-wrapper
+{
+  width:650px;
 }
 
 input.form-submit:hover,input.form-submit:focus {

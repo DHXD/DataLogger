@@ -3776,9 +3776,7 @@ function _menu_router_save($menu, $masks) {
       'weight',
       'include_file',
     ));
-
   $num_records = 0;
-
   foreach ($menu as $path => $item) {
     // Fill in insert object values.
     $insert->values(array(
@@ -3813,7 +3811,7 @@ function _menu_router_save($menu, $masks) {
       $insert->execute();
       $num_records = 0;
     }
-  }
+  }  
   // Insert any remaining records.
   $insert->execute();
   // Store the masks.

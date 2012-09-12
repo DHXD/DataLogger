@@ -1,8 +1,15 @@
 <?php
+  
+global $user;
+global $site_name;
 
-/**
- * Add body classes if certain regions have content.
- */
+if (in_array('administrator', array_values($user->roles))) {
+  variable_set('site_name', t('Phần mềm điều khiển trạm đo mưa tự động'));
+}
+else{
+  variable_set('site_name', t('Hệ thống khai thác dữ liệu đo mưa tự động 2012'));
+}
+
 function datalogger_preprocess_html(&$variables) {
 
   // switch ($_REQUEST['q']) {
@@ -74,7 +81,7 @@ function datalogger_process_page(&$variables) {
     $variables['title_suffix']['shortcut_wrapper'] = array(
       '#markup' => '</div>',
       '#weight' => -99,
-    );
+      );
     // Make sure the shortcut link is the first item in title_suffix.
     $variables['title_suffix']['add_or_remove_shortcut']['#weight'] = -100;
   }
@@ -118,6 +125,7 @@ function datalogger_process_maintenance_page(&$variables) {
 function datalogger_preprocess_node(&$variables) {
   if ($variables['view_mode'] == 'full' && node_is_page($variables['node'])) {
     $variables['classes_array'][] = 'node-full';
+    
   }
 }
 
