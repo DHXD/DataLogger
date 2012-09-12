@@ -131,6 +131,6 @@ DirectoryIndex index.php index.html index.htm
 </IfModule>
 
 
-php_value memory_limit 512M
+#php_value memory_limit 512M
 
 
