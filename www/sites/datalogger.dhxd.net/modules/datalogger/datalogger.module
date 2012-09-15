@@ -100,55 +100,7 @@ function datalogger_menu() {
     // 'access arguments' => array('manage data'),
     'access callback' => TRUE,
   );
- 
- /**
- *Begin date:10-09-12
- *phát triển giao diện quản lý dữ liệu
- */
-
-  $items['manage/statistics'] = array(
-    'title' => 'Thống kê lượng Mưa',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('_tab_statistics_form'),
-    'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
-    // 'access callback' => TRUE,
-    'type' => MENU_NORMAL_ITEM,  
-  );
-  $items['manage/statistics/rainfall'] = array(
-    'title' => 'Thống kê lượng Mưa',   
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('_tab_statistics_form'),
-    'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
-    'type' => MENU_DEFAULT_LOCAL_TASK,  
-    'weight' => -25,
-  );
-   
-  $items['manage/statistics/search'] = array(
-    'title' => 'Tra cứu số liệu Mưa',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('_tab_statistics_search_form'),
-    'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
-    // 'access callback' => TRUE,
-    'description' => 'Biểu đồ lượng Mưa',
-    'type' => MENU_LOCAL_TASK,
-    'weight' => -24,
-  );
-   
-  $items['manage/statistics/chart'] = array(
-    'title' => 'Biểu đồ',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('_tab_statistics_chart_form'),
-    'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
-    // 'access callback' => TRUE,
-    'description' => 'Biểu đồ lượng Mưa',
-    'type' => MENU_LOCAL_TASK,
-    'weight' => -23,
-  ); 
- 
+  
 /**
  *Begin date:09-09-12
  *phát triển giao diện quản lý dữ liệu

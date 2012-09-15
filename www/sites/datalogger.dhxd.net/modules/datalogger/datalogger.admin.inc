@@ -31,66 +31,54 @@ function _user_form(){
   );
   
   $form['u_createDate'] = array(
-    // '#type' => 'textfield',
     '#type' => 'item',
     '#title' => t('Ngày được tạo: '.date('d/m/Y h:m:s')),
   );
   
   $form['u_loginDate'] = array(
-    // '#type' => 'textfield',
     '#type' => 'item',
     '#title' => t('Ngày đăng nhập gần nhất: '.date('d/m/Y h:m:s')),
   );
   
   $form['u_actionDate'] = array(
-    // '#type' => 'textfield',
     '#type' => 'item',
     '#title' => t('Ngày hoạt động gần nhất: '.date('d/m/Y h:m:s')),
   );
   
   $form['u_changePassDate'] = array(
-    // '#type' => 'textfield',
     '#type' => 'item',
     '#title' => t('Thời điểm thay đổi password: '.date('d/m/Y h:m:s')),
   );
   
   $form['u_lockDate'] = array(
-    // '#type' => 'textfield',
     '#type' => 'item',
     '#title' => t('Ngày bị khóa gần nhất:never'),
   );
   
   $form['u_isOnl'] = array(
-    // '#type' => 'textfield',
     '#type' => 'item',
     '#title' => t('Người dùng đang online: true'),
   );
   
   $form['u_isLock'] = array(
-    // '#type' => 'textfield',
     '#type' => 'item',
     '#title' => t('Bị khóa:false'),
   );
   
   $form['u_isAccept'] = array(
-    // '#type' => 'textfield',
     '#type' => 'item',
     '#title' => t('Chấp nhận:false'),
   );
   
   $form['u_updatePass'] = array(
-    // '#type' => 'textfield',
     '#type' => 'item',
     '#title' => t('Cập nhật password:false'),
   );
   
   $form['u_delete'] = array(
-    // '#type' => 'textfield',
     '#type' => 'item',
     '#title' => t('Xóa bỏ:false'),
   );
-  
- 
   
   $form['sub_add'] = array(
      '#type' => 'submit',
@@ -207,16 +195,10 @@ function _user_add_form(){
   $form['u_rand_pass'] = array(
     '#type' => 'checkbox',
     '#title' => t('Password ngẫu nhiên: '),
-  );  
-  
-  // $form['u_pass'] = array(
-    // '#type' => 'password',
-    // '#title' => t('Password: '),
-  // );
+  );    
   
   $form['u_pass_confirm'] = array(
     '#type' => 'password_confirm',
-    // '#title' => t('Xác nhận Password: '),
   );
   
   $form['sub_add'] = array(
@@ -241,13 +223,13 @@ function _log_rainfall_form(){
      '#type' => 'select',
      '#title' => t('Chọn trạm: '),
      '#options' => array(
-        0 => t('Tất cả các trạm'),
+       0 => t('Tất cả các trạm'),
        1 => t('Kỳ Trinh'),
      ),
   ); 
   
    $form['logDate'] = array(
-     '#type' => 'date',
+     '#type' => 'date_popup',
      '#title' => t('Chọn ngày: '),
   );
   
@@ -265,12 +247,36 @@ function _log_rainfall_form(){
   );
   
   $rows = array(
-    array(1,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827'),    
-    array('18/08/2012 16:17:00','1','0,8'),    
-    array('18/08/2012 16:18:00','1','0,8'),    
-    array('18/08/2012 16:19:00','1','0,8'),    
-    array('18/08/2012 16:20:00','1','0,8'),    
-    array('18/08/2012 16:21:00','1','0,8'),     
+    array(1,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(2,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(3,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(4,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(5,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(6,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(7,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(8,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(9,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(10,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(11,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(12,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(13,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(14,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(15,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(16,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(17,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(18,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(19,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(20,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(21,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(22,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(23,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(24,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(25,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(26,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(27,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(28,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+    array(29,'18/08/2012 16:17:00','D:\SETUP\devc++\binutils-2.15.91-20040904-1\include\091253_20120818165827','Thành công',''),    
+   
   );
   
   $form['table'] = array(
@@ -399,247 +405,6 @@ function _insert_rainfall_nodes() {
     // return 'View';
   // }
 // }
-
-function _tab_statistics_form() {  
-  $form['selectArea'] = array(
-    '#type' => 'select',
-    '#title' => t('Chọn khu vực: '),
-    '#options' => array(
-      0 => t('No'),
-      1 => t('Yes'),
-    ),
-  );
-   
-  $form['selectProvince'] = array(
-     '#type' => 'select',
-     '#title' => t('Chọn Tỉnh/ Thành phố: '),
-     '#options' => array(
-        0 => t('No'),
-       1 => t('Yes'),
-     ),
-  ); 
-   
-  $form['selectStation'] = array(
-     '#type' => 'select',
-     '#title' => t('Chọn trạm: '),
-     '#options' => array(
-        0 => t('Tất cả các trạm'),
-       1 => t('Kỳ Trinh'),
-     ),
-  );     
-  
-  $form['selectStation'] = array(
-     '#type' => 'select',
-     '#title' => t('Kiểu thống kê: '),
-     '#options' => array(
-        0 => t('Kiểu thống kê TK1'),
-       1 => t('Kiểu thống kê KT2'),
-     ),
-  );
-   
-  $form['selectDate'] = array(
-     '#type' => 'date',
-     '#title' => t('Chọn ngày: '),
-  );
-  
-  $form['searchSubmit'] = array(
-     '#type' => 'submit',
-     '#value' => t('Thống kê'),    
-  );
-  
-  $headers = array(
-    1 => 'Thời điểm',
-    2 => 'ObsRp (phút)',
-    3 => 'Rp (mm)',
-  );
-  
-  $rows = array(
-    array('18/08/2012 16:16:00','1','0,8'),    
-    array('18/08/2012 16:17:00','1','0,8'),    
-    array('18/08/2012 16:18:00','1','0,8'),    
-    array('18/08/2012 16:19:00','1','0,8'),    
-    array('18/08/2012 16:20:00','1','0,8'),    
-    array('18/08/2012 16:21:00','1','0,8'),     
-  );
-  
-  $form['table'] = array(
-    '#theme' => 'table',
-    '#header' => $headers,
-    '#rows' => $rows,
-    '#empty' => t('Hiện tại không có thông tin trong ngay'),
-  );
-  
-  $form['description'] = array(
-    '#type' => 'item',
-    '#title' => t('Tổng lượng mưa: 1,7mm'),
-  );
-  
-  $form['submitExportData'] = array(
-     '#type' => 'submit',
-     '#value' => t('Xuất dữ liệu'),    
-  );
-  
-  return $form;
-}
-
-function _tab_statistics_search_form() {
-  drupal_set_title('Tra cứu số liệu mưa');
-  $form['selectArea'] = array(
-    '#type' => 'select',
-    '#title' => t('Chọn khu vực: '),
-    '#options' => array(
-      0 => t('No'),
-      1 => t('Yes'),
-    ),
-  );
-   
-  $form['selectProvince'] = array(
-     '#type' => 'select',
-     '#title' => t('Chọn Tỉnh/ Thành phố: '),
-     '#options' => array(
-        0 => t('No'),
-       1 => t('Yes'),
-     ),
-  ); 
-   
-  $form['selectStation'] = array(
-     '#type' => 'select',
-     '#title' => t('Chọn trạm: '),
-     '#options' => array(
-        0 => t('Tất cả các trạm'),
-       1 => t('Kỳ Trinh'),
-     ),
-  );    
-   
-   $form['selectToDate'] = array(
-     '#type' => 'date',
-     '#title' => t('Từ ngày: '),
-  );
-  
-  $form['selectFromDate'] = array(
-     '#type' => 'date',
-     '#title' => t('Tới ngày: '),
-  );
-  
-  $form['searchSubmit'] = array(
-     '#type' => 'submit',
-     '#value' => t('Tra cứu'),    
-  );
-  
-  $headers = array(
-    1 => 'Thời điểm',
-    2 => 'ObsRp (phút)',
-    3 => 'Rp (mm)',
-  );
-  
-  $rows = array(
-    array('18/08/2012 16:16:00','1','0,8'),    
-    array('18/08/2012 16:17:00','1','0,8'),    
-    array('18/08/2012 16:18:00','1','0,8'),    
-    array('18/08/2012 16:19:00','1','0,8'),    
-    array('18/08/2012 16:20:00','1','0,8'),    
-    array('18/08/2012 16:21:00','1','0,8'),     
-  );
-  
-  $form['table'] = array(
-    '#theme' => 'table',
-    '#header' => $headers,
-    '#rows' => $rows,
-    '#empty' => t('Hiện tại không có thông tin trong ngay'),
-  );
-  
-  $form['description'] = array(
-    '#type' => 'item',
-    '#title' => t('Tổng lượng mưa: 1,7mm'),
-  );
-    
-  return $form;
-}
-
-function _tab_statistics_chart_form() {
-  drupal_set_title('Biểu đồ lượng mưa');
-  $form['selectArea'] = array(
-    '#type' => 'select',
-    '#title' => t('Chọn khu vực: '),
-    '#options' => array(
-      0 => t('No'),
-      1 => t('Yes'),
-    ),
-  );
-   
-  $form['selectProvince'] = array(
-     '#type' => 'select',
-     '#title' => t('Chọn Tỉnh/ Thành phố: '),
-     '#options' => array(
-        0 => t('No'),
-       1 => t('Yes'),
-     ),
-  ); 
-   
-  $form['selectStation'] = array(
-     '#type' => 'select',
-     '#title' => t('Chọn trạm: '),
-     '#options' => array(
-        0 => t('Tất cả các trạm'),
-       1 => t('Kỳ Trinh'),
-     ),
-  );
-  
-  $form['selectStation'] = array(
-     '#type' => 'select',
-     '#title' => t('Loại biểu đồ: '),
-     '#options' => array(
-        0 => t('Biểu đồ lượng mưa dạng BD1'),
-        1 => t('Biểu đồ lượng mưa dạng BD2'),
-     ),
-  );   
-  
-  $form['selectChartDate'] = array(
-     '#type' => 'date',
-     '#title' => t('Chọn ngày: '),
-  );
-  
-  $form['searchSubmit'] = array(
-     '#type' => 'submit',
-     '#value' => t('Vẽ biểu đồ'),    
-  );
-  
-  $headers = array(
-    1 => 'Thời điểm',
-    2 => 'ObsRp (phút)',
-    3 => 'Rp (mm)',
-  );
-  
-  $rows = array(
-    array('18/08/2012 16:16:00','1','0,8'),    
-    array('18/08/2012 16:17:00','1','0,8'),    
-    array('18/08/2012 16:18:00','1','0,8'),    
-    array('18/08/2012 16:19:00','1','0,8'),    
-    array('18/08/2012 16:20:00','1','0,8'),    
-    array('18/08/2012 16:21:00','1','0,8'),     
-  );
-  
-  $form['table'] = array(
-    '#theme' => 'table',
-    '#header' => $headers,
-    '#rows' => $rows,
-    '#empty' => t('Hiện tại không có thông tin trong ngay'),
-  );
-  
-  $form['description'] = array(
-    '#type' => 'item',
-    '#title' => t('Tổng lượng mưa: 1,7mm'),
-  );
-    
-  return $form;
-}
-
-
-function custom_form_alter(&$form, &$form_state, $form_id) {
-  if ($form_id == 'mynodetype_node_form') {
-    drupal_set_title('My new title');
-  }
-}
 
 /**
 *begin: 09-09-12
