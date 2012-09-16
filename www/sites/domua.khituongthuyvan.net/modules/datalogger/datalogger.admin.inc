@@ -825,126 +825,126 @@ function _command_form($form, &$form_state) {
 function _datalogger_command_form_ajax_callback($form, $form_state) {
   // The form has already been submitted and updated. We can return the replaced
   // item as it is.
-  $form['set_parameter'] = array(
-    '#type' => 'fieldset',
-    '#title' => 'Set parameter',
-    '#description' => 'Set parameter',
-  );
-  switch ($form_state["values"]["command_selects"]) {
-    case "gprs_network_time_synchronization":
-      $title = t("GPRS Network Time Synchronization");
-       $form['set_parameter'][''] = array(
-    '#type' => 'fieldset',
-    '#title' => 'Set parameter',
-    '#description' => 'Set parameter',
-  );
-      break;
-    case "date_time_set":
-      $title = t("Date & Time Set");
-      break;
-    case "set_id":
-      $title = t("Set ID");
-      $form['set_id'] = array(
-        '#type' => 'fielset',
-        '#title' => $title,
-        '#description' => 'Set ID for Station.',        
-      );
+  // $form['set_parameter'] = array(
+    // '#type' => 'fieldset',
+    // '#title' => 'Set parameter',
+    // '#description' => 'Set parameter',
+  // );
+  // switch ($form_state["values"]["command_selects"]) {
+    // case "gprs_network_time_synchronization":
+      // $title = t("GPRS Network Time Synchronization");
+       // $form['set_parameter'][''] = array(
+    // '#type' => 'fieldset',
+    // '#title' => 'Set parameter',
+    // '#description' => 'Set parameter',
+  // );
+      // break;
+    // case "date_time_set":
+      // $title = t("Date & Time Set");
+      // break;
+    // case "set_id":
+      // $title = t("Set ID");
+      // $form['set_id'] = array(
+        // '#type' => 'fielset',
+        // '#title' => $title,
+        // '#description' => 'Set ID for Station.',        
+      // );
       
-      $form['set_id'] = array(
-        '#title' => $title,
-        '#type' => 'textfield',
-        '#description' => 'Set ID for Station.',        
-      );
-      return $form;
-      break;
-    // case "get_id":
-    // $title = t("Get ID");
-    // break;
-    case "set_password":
-      $title = t("Set Password");
-      break;
-    // case "get_password":
-    // $title = t("Get Password");
-    // break;
-    case "all_database_buffer_clear":
-      $title = t("All Database Buffer Clear");
-      break;
-    case "specific_date_database_buffer_clear":
-      $title = t("Specific Date Database Buffer Clear");
-      break;
-    case "accumulated_rain_fall_value_set":
-      $title = t("Accumulated Rain Fall Value Set");
-      break;
-    // case "set_rain_fall_clear_time" :
-    // $title = t("Set Rain Fall Clear Time");
-    // break;
-    // case "get_rain_fall_clear_time" :
-    // $title = t("Get Rain Fall Clear Time");
-    // break;
-    case "self_power_reset":
-      $title = t("Self Power Reset");
-      break;
-    case "set_active_deactive_battery_power_volt":
-      $title = t("Set Active/Deactive Battery Power Volt");
-      break;
-    // case "get_active_deactive_battery_power_volt":
-    // $title = t("Get Active/Deactive Battery Power Volt");
-    // break;
-    case "set_battery_volt_offset":
-      $title = t("Set Battery Volt Offset");
-      break;
-    // case "get_battery_volt_offset":
-    // $title = t("Get Battery Volt Offset");
-    // break;
-    case "set_auto_power_management_nable":
-      $title = t("Set Auto Power Management Enable/Disable");
-      break;
-    // case "get_auto_power_management_nable":
-    // $title = t("Get Auto Power Manager Enable/Disable");
-    // break;
-    case "goto_sleep_mode":
-      $title = t("Goto Sleep Mode");
-      break;
-    case "set_data_send_interval_minutes":
-      $title = t("Set Data Send Interval Minutes");
-      break;
-    // case "get_data_send_interval_minutes":
-    // $title = t("Get Data Send Interval Minutes");
-    // break;
-    case "set_communication_type":
-      $title = t("Set Communication Type");
-      break;
-    // case "get_communication_type":
-    // $title = t("Get Communication Type");
-    // break;
-    case "set_gprs_network_setting":
-      $title = t("Set GPRS Network Setting");
-      break;
-    // case "get_gprs_network_setting":
-    // $title = t("Get GPRS Network Setting");
-    // break;
-    case "set_host_netword_information":
-      $title = t("Set Host Netword Information");
-      break;
-    // case "get_host_netword_information":
-    // $title = t("Get Host netword Information");
-    // break;
-    // case "get_host_phone_number":
-    // $title = t("Get Host Phone Number");
-    // break;
-    // case "get_data_logger_firmware":
-    // $title = t("Get Data Logger Firmware");
-    // break;
-    case "date_time_set":
-      $title = t("Date Time");
-      break;
-    case "set_host_phone_number":
-      $title = t("Host Phone Number");
-      break;
-    default:
-      $title = t("Parameter");
-  }
-  // return $form["replace_textfield"];
+      // $form['set_id'] = array(
+        // '#title' => $title,
+        // '#type' => 'textfield',
+        // '#description' => 'Set ID for Station.',        
+      // );
+      // return $form;
+      // break;
+    // // case "get_id":
+    // // $title = t("Get ID");
+    // // break;
+    // case "set_password":
+      // $title = t("Set Password");
+      // break;
+    // // case "get_password":
+    // // $title = t("Get Password");
+    // // break;
+    // case "all_database_buffer_clear":
+      // $title = t("All Database Buffer Clear");
+      // break;
+    // case "specific_date_database_buffer_clear":
+      // $title = t("Specific Date Database Buffer Clear");
+      // break;
+    // case "accumulated_rain_fall_value_set":
+      // $title = t("Accumulated Rain Fall Value Set");
+      // break;
+    // // case "set_rain_fall_clear_time" :
+    // // $title = t("Set Rain Fall Clear Time");
+    // // break;
+    // // case "get_rain_fall_clear_time" :
+    // // $title = t("Get Rain Fall Clear Time");
+    // // break;
+    // case "self_power_reset":
+      // $title = t("Self Power Reset");
+      // break;
+    // case "set_active_deactive_battery_power_volt":
+      // $title = t("Set Active/Deactive Battery Power Volt");
+      // break;
+    // // case "get_active_deactive_battery_power_volt":
+    // // $title = t("Get Active/Deactive Battery Power Volt");
+    // // break;
+    // case "set_battery_volt_offset":
+      // $title = t("Set Battery Volt Offset");
+      // break;
+    // // case "get_battery_volt_offset":
+    // // $title = t("Get Battery Volt Offset");
+    // // break;
+    // case "set_auto_power_management_nable":
+      // $title = t("Set Auto Power Management Enable/Disable");
+      // break;
+    // // case "get_auto_power_management_nable":
+    // // $title = t("Get Auto Power Manager Enable/Disable");
+    // // break;
+    // case "goto_sleep_mode":
+      // $title = t("Goto Sleep Mode");
+      // break;
+    // case "set_data_send_interval_minutes":
+      // $title = t("Set Data Send Interval Minutes");
+      // break;
+    // // case "get_data_send_interval_minutes":
+    // // $title = t("Get Data Send Interval Minutes");
+    // // break;
+    // case "set_communication_type":
+      // $title = t("Set Communication Type");
+      // break;
+    // // case "get_communication_type":
+    // // $title = t("Get Communication Type");
+    // // break;
+    // case "set_gprs_network_setting":
+      // $title = t("Set GPRS Network Setting");
+      // break;
+    // // case "get_gprs_network_setting":
+    // // $title = t("Get GPRS Network Setting");
+    // // break;
+    // case "set_host_netword_information":
+      // $title = t("Set Host Netword Information");
+      // break;
+    // // case "get_host_netword_information":
+    // // $title = t("Get Host netword Information");
+    // // break;
+    // // case "get_host_phone_number":
+    // // $title = t("Get Host Phone Number");
+    // // break;
+    // // case "get_data_logger_firmware":
+    // // $title = t("Get Data Logger Firmware");
+    // // break;
+    // case "date_time_set":
+      // $title = t("Date Time");
+      // break;
+    // case "set_host_phone_number":
+      // $title = t("Host Phone Number");
+      // break;
+    // default:
+      // $title = t("Parameter");
+  // }
+  return $form["replace_textfield"];
 }
 /*
  * Implementation of hook_action_info().
