@@ -3,7 +3,7 @@
 global $user;
 global $site_name;
 
-if (in_array('administrator', array_values($user->roles))) {
+if (in_array('administrator', array_values($user->roles)) || in_array('control datalogger', array_values($user->roles))) {
   variable_set('site_name', t('Phần mềm điều khiển trạm đo mưa tự động'));
 }
 else{
