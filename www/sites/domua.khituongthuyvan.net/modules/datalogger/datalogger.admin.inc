@@ -806,11 +806,15 @@ function _command_form($form, &$form_state) {
       "#type" => "submit",
       "#value" => t("Send Now!"),
       "#submit" => array(
-          "deductible_submit"
+          "_send_command_submit"
       )
   );
 
   return $form;
+}
+
+function _send_command_submit(){
+    drupal_set_message('Gửi lệnh thành công!');
 }
 
 /**
@@ -946,11 +950,13 @@ function _datalogger_command_form_ajax_callback($form, $form_state) {
   // }
   return $form["replace_textfield"];
 }
+
 /*
  * Implementation of hook_action_info().
  */
+
 function datalogger_action_info() {
-  dpm('into go');
+  // dpm('into go');
   return array(
     "datalogger_command_action" => array(
       "type" => "comment",
