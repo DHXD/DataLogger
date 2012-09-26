@@ -1,6 +1,14 @@
 <?php
   
 /**
+*begin: 25-09-12
+*/
+
+function _convert_strdate_to_date($strFormat = 'ymdhis', $strDate){
+  return date($strFormat, strtotime($strDate));
+}
+
+/**
 *begin: 11-09-12
 */
 
@@ -152,6 +160,7 @@ function _user_group_form(){
 }
 
 function _user_add_form(){
+  drupal_set_title('Quản lý thông tin người dùng');
   $form['u_nameLogin'] = array(
     '#type' => 'textfield',
     '#title' => t('Tên đăng nhập: '),
@@ -210,7 +219,6 @@ function _user_add_form(){
      '#type' => 'submit',
      '#value' => t('Hủy bỏ'),    
   );
-  
   return $form;  
 }
 
@@ -641,167 +649,432 @@ function _log_nodes() {
 
 function _command_form($form, &$form_state) {
   $options_commands = array(
-    "gprs_network_time_synchronization" => t(
-      "GPRS Network Time Synchronization"),
-    "date_time_set" => t("Date & Time Set"),
-    "set_id" => t("Set ID"),
-    "get_id" => t("Get ID"),
-    "set_password" => t("Set Password"),
-    "get_password" => t("Get Password"),
-    "all_database_buffer_clear" => t("All Database Buffer Clear"),
-    "specific_date_database_buffer_clear" => t(
-      "Specific Date Database Buffer Clear"),
-    "accumulated_rain_fall_value_set" => t("Accumulated Rain Fall Value Set"),
-    "set_rain_fall_clear_time" => t("Set Rain Fall Clear Time"),
-    "get_rain_fall_clear_time" => t("Get Rain Fall Clear Time"),
-    "self_power_reset" => t("Self Power Reset"),
-    "set_active_deactive_battery_power_volt" => t(
-      "Set Active/Deactive Battery Power Volt"),
-    "get_active_deactive_battery_power_volt" => t(
-      "Get Active/Deactive Battery Power Volt"),
-    "set_battery_volt_offset" => t("Set Battery Volt Offset"),
-    "get_battery_volt_offset" => t("Get Battery Volt Offset"),
-    "set_auto_power_management_nable" => t(
-      "Set Auto Power Management Enable/Disable"),
-    "get_auto_power_management_nable" => t(
-      "Get Auto Power Management Enable/Disable"),
-    "goto_sleep_mode" => t("Goto Sleep Mode"),
-    "set_data_send_interval_minutes" => t("Set Data Send Interval Minutes"),
-    "get_data_send_interval_minutes" => t("Get Data Send Interval Minutes"),
-    "set_communication_type" => t("Set Communication Type"),
-    "get_communication_type" => t("Get Communication Type"),
-    "set_gprs_network_setting" => t("Set GPRS Network Setting"),
-    "get_gprs_network_setting" => t("Get GPRS Network Setting"),
-    "set_host_netword_information" => t("Set Host Netword Information"),
-    "get_host_netword_information" => t("Get Host Netword Information"),
-    "set_host_phone_number" => t("Set Host Phone Number"),
-    "get_host_phone_number" => t("Get Host Phone Number"),
-    "get_data_logger_firmware" => t("Get Data Logger Firmware Version")
+    //Data call command
+    1 => t('Real Data Call'),
+    2 => t('Save Data Call'),
+    //Date and Time Set
+    3 => t('Date $ Time Set'),
+    4 => t('GPRS Network Time Synchronization'),
+    //ID $ Password Set
+    5 => t('Set ID'),
+    6 => t('Get ID'),
+    7 => t('Set Password'),
+    8 => t('Get Password'),
+    //database Buffer Clear
+    9 => t('All Database Buffer Clear'),
+    10 => t('Specific Date Database Buffer Clear'),
+    //Rain fall config
+    11 => t('Accumulated Rain Fall Value Set'),
+    12 => t('Set Rain Fall Clear Time'),
+    13 => t('Get Rain Fall Clear Time'),
+    //Datalogger config
+    14 => t('Self Power Reset'),
+    15 => t('Set Active / De-Active Battery Power Voltage'),
+    16 => t('Get Active / De-Active Battery Power Voltage'),
+    17 => t('Set Battery Voltage Offset'),
+    18 => t('Get Battery Voltage Offset'),
+    19 => t('Set Auto Power Management Enable'),
+    20 => t('Set Auto Power Management Disable'),
+    21 => t('Get Auto Power Management Enable / Disable'),
+    22 => t('Go To Sleep Mode'),
+    //Communication setting
+    23 => t('Set Data Send Interval Minutes'),
+    24 => t('Get Data Send Interval Minutes'),
+    25 => t('Set Communication Type GSM'),
+    26 => t('Set Communication Type GPRS'),
+    27 => t('Set Communication Type Auto'),
+    28 => t('Get Communication Type'),
+    //GPRS network setting
+    29 => t('Set GPRS Network Setting'),
+    30 => t('Get GPRS Network Setting'),
+    31 => t('Set Host Network Infomation'),
+    32 => t('Get Host Network Infomation'),
+    33 => t('Set Host Phone Number'),
+    34 => t('Get Host Phone Number'),
+    //Get datalogger firmware version
+    35 => t('Get Datalogger Firmware Version'),
   );
 
-  $form["command_selects"] = array(
-    "#type" => "select",
-    "#title" => t("Command"),
-    "#options" => $options_commands,
-    "#ajax" => array(
-      "callback" => "_datalogger_command_form_ajax_callback",
-      "wrapper" => "command_form_replace_textfield_div"
-    )
-  );
-
+  $default = !empty($form_state['values']['command_selects']) ? $form_state['values']['command_selects'] : 1;
   switch ($form_state["values"]["command_selects"]) {
-    case "gprs_network_time_synchronization":
-      $title = t("GPRS Network Time Synchronization");
+    //Data call command
+    case 1 :
+      $title =  t('Real Data Call');
       break;
-    case "date_time_set":
-      $title = t("Date & Time Set");
+    case 2 :
+      $title =  t('Save Data Call');
       break;
-    case "set_id":
-      $title = t("Set ID");
+    //Date and Time Set
+    case 3 : 
+      $title =  t('Date $ Time Set');
       break;
-    // case "get_id":
-    // $title = t("Get ID");
-    // break;
-    case "set_password":
-      $title = t("Set Password");
+    case 4 : 
+      $title =  t('GPRS Network Time Synchronization');
       break;
-    // case "get_password":
-    // $title = t("Get Password");
-    // break;
-    case "all_database_buffer_clear":
-      $title = t("All Database Buffer Clear");
+    //ID $ Password Set
+    case 5 :
+      $title =  t('Set ID');
       break;
-    case "specific_date_database_buffer_clear":
-      $title = t("Specific Date Database Buffer Clear");
+    case 6 :
+      $title =  t('Get ID');
       break;
-    case "accumulated_rain_fall_value_set":
-      $title = t("Accumulated Rain Fall Value Set");
+    case 7 :
+      $title =  t('Set Password');
       break;
-    // case "set_rain_fall_clear_time" :
-    // $title = t("Set Rain Fall Clear Time");
-    // break;
-    // case "get_rain_fall_clear_time" :
-    // $title = t("Get Rain Fall Clear Time");
-    // break;
-    case "self_power_reset":
-      $title = t("Self Power Reset");
+    case 8 :
+      $title =  t('Get Password');
       break;
-    case "set_active_deactive_battery_power_volt":
-      $title = t("Set Active/Deactive Battery Power Volt");
+    //database Buffer Clear
+    case 9 :
+      $title =  t('All Database Buffer Clear');
       break;
-    // case "get_active_deactive_battery_power_volt":
-    // $title = t("Get Active/Deactive Battery Power Volt");
-    // break;
-    case "set_battery_volt_offset":
-      $title = t("Set Battery Volt Offset");
+    case 10 :
+      $title =  t('Specific Date Database Buffer Clear');
       break;
-    // case "get_battery_volt_offset":
-    // $title = t("Get Battery Volt Offset");
-    // break;
-    case "set_auto_power_management_nable":
-      $title = t("Set Auto Power Management Enable/Disable");
+    //Rain fall config
+    case 11 :
+      $title =  t('Accumulated Rain Fall Value Set');
       break;
-    // case "get_auto_power_management_nable":
-    // $title = t("Get Auto Power Manager Enable/Disable");
-    // break;
-    case "goto_sleep_mode":
-      $title = t("Goto Sleep Mode");
+    case 12 :
+      $title =  t('Set Rain Fall Clear Time');
       break;
-    case "set_data_send_interval_minutes":
-      $title = t("Set Data Send Interval Minutes");
+    case 13 :
+      $title =  t('Get Rain Fall Clear Time');
       break;
-    // case "get_data_send_interval_minutes":
-    // $title = t("Get Data Send Interval Minutes");
-    // break;
-    case "set_communication_type":
-      $title = t("Set Communication Type");
+    //Datalogger config
+    case 14 :
+      $title =  t('Self Power Reset');
       break;
-    // case "get_communication_type":
-    // $title = t("Get Communication Type");
-    // break;
-    case "set_gprs_network_setting":
-      $title = t("Set GPRS Network Setting");
+    case 15 :
+      $title =  t('Set Active / De-Active Battery Power Voltage');
       break;
-    // case "get_gprs_network_setting":
-    // $title = t("Get GPRS Network Setting");
-    // break;
-    case "set_host_netword_information":
-      $title = t("Set Host Netword Information");
+    case 16 :
+      $title =  t('Get Active / De-Active Battery Power Voltage');
       break;
-    // case "get_host_netword_information":
-    // $title = t("Get Host netword Information");
-    // break;
-    // case "get_host_phone_number":
-    // $title = t("Get Host Phone Number");
-    // break;
-    // case "get_data_logger_firmware":
-    // $title = t("Get Data Logger Firmware");
-    // break;
-    case "date_time_set":
-      $title = t("Date Time");
+    case 17 :
+      $title =  t('Set Battery Voltage Offset');
       break;
-    case "set_host_phone_number":
-      $title = t("Host Phone Number");
+    case 18 :
+      $title =  t('Get Battery Voltage Offset');
+      break;
+    case 19 :
+      $title =  t('Set Auto Power Management Enable');
+      break;
+    case 20 :
+      $title =  t('Set Auto Power Management Disable');
+      break;
+    case 21 :
+      $title =  t('Get Auto Power Management Enable / Disable');
+      break;
+    case 22 :
+      $title =  t('Go To Sleep Mode');
+      break;
+    //Comunication setting
+    case 23 :
+      $title =  t('Set Data Send Interval Minutes');
+      break;
+    case 24 :
+      $title =  t('Get Data Send Interval Minutes');
+      break;
+    case 25 :
+      $title =  t('Set Communication Type GSM');
+      break;
+    case 26 :
+      $title =  t('Set Communication Type GPRS');
+      break;
+    case 27 :
+      $title =  t('Set Communication Type Auto');
+      break;
+    case 28 :
+      $title =  t('Get Communication Type');
+      break;
+    //GPRS network setting
+    case 29 :
+      $title =  t('Set GPRS Network Setting');
+      break;
+    case 30 :
+      $title =  t('Get GPRS Network Setting');
+      break;
+    case 31 :
+      $title =  t('Set Host Network Infomation');
+      break;
+    case 32 :
+      $title =  t('Get Host Network Infomation');
+      break;
+    case 33 :
+      $title =  t('Set Host Phone Number');
+      break;
+    case 34 :
+      $title =  t('Get Host Phone Number');
+      break;
+    //Get datalogger firmware version
+    case 35 :
+      $title =  t('Get Datalogger Firmware Version');
       break;
     default:
-      $title = t("Parameter");
+       $title =  t('Real Data Call');
+  }   
+ 
+  $form['command_selects'] = array(
+    "#type" => "select",
+    "#title" => t("Command"),
+    '#options' => $options_commands,
+    '#default_value' => $default,
+    '#ajax' => array(
+      'callback' => '_command_callback',
+      'wrapper' => '_command-div',
+      'method' => 'replace',
+      'effect' => 'fade',
+    ),
+  );
+  
+  $form['command_fieldset'] = array(
+    '#title' => t("Parameter of ". $title),
+    '#prefix' => '<div id="_command-div">',
+    '#suffix' => '</div>',
+    '#type' => 'fieldset',
+  );
+
+  $num__command = !empty($form_state['values']['command_selects']) ? $form_state['values']['command_selects'] : 1;
+  
+  switch ($num__command) {
+    //Data call command
+    case 1 :     
+      break;
+    case 2 :
+      $form['command_fieldset']['description'] = array(
+        '#type' => 'item',
+        // '#title' => 'a',
+        '#description' => t('<b>Khoảng thời gian không được cách nhau quá 24h</b>'),
+      );
+      $form['command_fieldset']['date_time_from']= array(
+        '#type' => 'date_popup',
+        '#title' => 'Từ Ngày', 
+        '#date_format' => 'd/m/Y H:i:s', 
+        '#default_value' => date('d/m/Y H:i:s', $_SERVER['REQUEST_TIME']),
+        '#required' => TRUE,
+      );
+      
+      $form['command_fieldset']['date_time_to']= array(
+        '#type' => 'date_popup',
+        '#title' => 'Tới Ngày', 
+        '#date_format' => 'd/m/Y H:i:s', 
+        '#default_value' => date('d/m/Y H:i:s', $_SERVER['REQUEST_TIME']),    
+        '#required' => TRUE,
+      );
+      break;
+    case 3 : 
+      $form['command_fieldset']['date_time_set']= array(
+      '#type' => 'date_popup',
+      '#title' => 'Date $ Time', 
+      '#date_format' => 'd/m/Y H:i:s',      
+      );
+      break;
+    case 4 : 
+      break;
+    //ID $ Password Set
+    case 5 :
+      $form['command_fieldset']['set_input_id']= array(
+      '#type' => 'textfield',
+      '#title' => 'ID',
+      '#maxlength' => '6',
+      '#required' => TRUE,
+      );
+      break;
+    case 6 :
+      break;
+    case 7 :
+      $form['command_fieldset']['set_pass'] = array(
+        '#type' => 'password_confirm', 
+        '#size' => 25,
+        '#required' => TRUE,
+      );
+      break;
+    case 8 :
+      break;
+    //database Buffer Clear
+    case 9 :
+      break;
+    case 10 :
+      $form['command_fieldset']['date_buffer_clear']= array(
+      '#type' => 'date_popup',
+      '#date_format' => 'd/m/Y',
+      );
+      break;
+    //Rain fall config
+    case 11 :
+      // $title =  t('Accumulated Rain Fall Value Set');
+      $form['command_fieldset']['accumulated_rain_fall']= array(
+      '#type' => 'textfield',
+      '#title' => t('Accumulated Rain Fall Value'),
+      '#default_value' => '100',
+      '#maxlength' => '5',
+      '#required' => TRUE,
+      );
+      break;
+    case 12 :
+      // $title =  t('Set Rain Fall Clear Time');
+      $form['command_fieldset']['set_rain_fall_clear_time']= array(
+      '#type' => 'date_popup',
+      '#date_format' => 'd:m:Y H:i',
+      );
+      break;
+    case 13 :
+      // $title =  t('Get Rain Fall Clear Time');
+      break;
+    //Datalogger config
+    case 14 :
+      // $title =  t('Self Power Reset');
+      break;
+    case 15 :
+      // $title =  t('Set Active / De-Active Battery Power Voltage');
+      $form['command_fieldset']['bat_on']= array(
+      '#type' => 'textfield',
+      '#title' => 'Active Battery Power Voltage (V)',
+      '#default_value' => 0011.0,
+      '#maxlength' => 5,
+      '#description' => t('Dạng phải nhập: xxx.x'),
+      '#required' => TRUE,
+      );
+      $form['command_fieldset']['bat_off']= array(
+      '#type' => 'textfield',
+      '#title' => 'De-Active Battery Power Voltage (V)',
+      '#default_value' => 0013.0,
+      '#maxlength' => 5,
+      '#description' => t('Dạng phải nhập: xxx.x'),
+      '#required' => TRUE,
+      );
+      break;
+    case 16 :
+      // $title =  t('Get Active / De-Active Battery Power Voltage');
+      break;
+    case 17 :
+      // $title =  t('Set Battery Voltage Offset');
+      $form['command_fieldset']['set_bat_vol']= array(
+      '#type' => 'textfield',
+      '#title' => 'Battery Voltage Offset (V)',
+      '#default_value' => 1.5,
+      '#maxlength' => 5,
+      '#description' => t('Dạng phải nhập: xx.x'),
+      '#required' => TRUE,
+      );
+      break;
+    case 18 :
+      // $title =  t('Get Battery Voltage Offset');
+      $form['command_fieldset']['get_bat_vol']= array(
+      '#type' => 'textfield',
+      '#title' => 'Battery Voltage Offset (V)',
+      '#default_value' => 1.5,
+      '#maxlength' => 5,
+      '#description' => t('Dạng phải nhập: xx.x'),
+      '#required' => TRUE,
+      );
+      break;
+    case 19 :
+      // $title =  t('Set Auto Power Management Enable');
+      break;
+    case 20 :
+      // $title =  t('Set Auto Power Management Disable');
+      break;
+    case 21 :
+      // $title =  t('Get Auto Power Management Enable / Disable');
+      break;
+    case 22 :
+      // $title =  t('Go To Sleep Mode');
+      break;
+    //Comunication setting
+    case 23 :
+      // $title =  t('Set Data Send Interval Minutes');
+      $form['command_fieldset']['set_interval']= array(
+      '#type' => 'textfield',
+      '#title' => 'Data Send Interval Minutes',
+      '#default_value' => 10,
+      '#maxlength' => 5,
+      '#required' => TRUE,
+      );
+      break;
+    case 24 :
+      // $title =  t('Get Data Send Interval Minutes');
+      break;
+    case 25 :
+      // $title =  t('Set Communication Type GSM');
+      break;
+    case 26 :
+      // $title =  t('Set Communication Type GPRS');
+      break;
+    case 27 :
+      // $title =  t('Set Communication Type Auto');
+      break;
+    case 28 :
+      // $title =  t('Get Communication Type');
+      break;
+    //GPRS network setting
+    case 29 :
+      // $title =  t('Set GPRS Network Setting');
+      $form['command_fieldset']['host_gprs']= array(
+        '#type' => 'textfield',
+        '#title' => 'Host',
+        '#default_value' => '192.168.151.255',
+        '#maxlength' => 15,
+        '#required' => true,
+      );
+      
+      $form['command_fieldset']['id_gprs']= array(
+        '#type' => 'textfield',
+        '#title' => 'ID',
+        '#default_value' => 123456,
+        '#maxlength' => 6,
+        '#required' => true,
+      );
+      $form['command_fieldset']['pass_gprs'] = array(
+        '#type' => 'password_confirm',
+        '#maxlength' => 25,
+        '#required' => true,
+      );
+      break;
+    case 30 :
+      // $title =  t('Get GPRS Network Setting');
+      break;
+    case 31 :
+      // $title =  t('Set Host Network Infomation');
+      $form['command_fieldset']['set_host']= array(
+      '#type' => 'textfield',
+      '#title' => 'Host',
+      '#default_value' => '192.168.151.255',
+      '#maxlength' => 15,
+      '#required' => true,
+      );
+      
+      $form['command_fieldset']['set_port']= array(
+      '#type' => 'textfield',
+      '#title' => 'Port',
+      '#default_value' => 8000,
+      '#maxlength' => 6,
+      '#required' => true,
+      );    
+      break;
+    case 32 :
+      // $title =  t('Get Host Network Infomation');
+      break;
+    case 33 :
+      // $title =  t('Set Host Phone Number');
+      $form['command_fieldset']['host_phone']= array(
+      '#type' => 'textfield',
+      '#title' => 'Host Phone Number',
+      '#default_value' => '800010001',
+      '#maxlength' => 15,
+      '#required' => true,
+      );
+      break;
+    case 34 :
+      // $title =  t('Get Host Phone Number');
+      break;
+    //Get datalogger firmware version
+    case 35 :
+      // $title =  t('Get Datalogger Firmware Version');
+      break;
   }
-
-  // This entire form element will be replaced whenever "changethis" is updated.
-  $form["replace_textfield"] = array(
-      "#type" => "textfield",
-      "#title" => t($title),
-      // The prefix/suffix provide the div that we"re replacing, named by
-      // #ajax["wrapper"] above.
-      "#prefix" => "<div id='command_form_replace_textfield_div'>",
-      "#suffix" => "</div>"
-  );   
-
-  /*
-   * $form["host_phone_number"] = array( "#type" => "textfield", "#title" =>
-   * t("Host Phone Number"), "#cols" => 30, "#rows" => 1 );
-   */
-
+  
   $form["submit"] = array(
       "#type" => "submit",
       "#value" => t("Send Now!"),
@@ -810,153 +1083,392 @@ function _command_form($form, &$form_state) {
       )
   );
 
+  $form['#validate'][] = '_command_validate';
+  
   return $form;
 }
 
-function _send_command_submit(){
-    drupal_set_message('Gửi lệnh thành công!');
+function _command_callback($form, &$form_state) {
+  return $form['command_fieldset'];
 }
 
-/**
- * Callback for ajax_example_simplest.
- *
- * On an ajax submit, the form builder function is called again, then the $form
- * and $form_state are passed to this callback function so it can select which
- * portion of the form to send on to the client.
- *
- * @return renderable array (the textfield element)
- */
-function _datalogger_command_form_ajax_callback($form, $form_state) {
-  // The form has already been submitted and updated. We can return the replaced
-  // item as it is.
-  // $form['set_parameter'] = array(
-    // '#type' => 'fieldset',
-    // '#title' => 'Set parameter',
-    // '#description' => 'Set parameter',
-  // );
-  // switch ($form_state["values"]["command_selects"]) {
-    // case "gprs_network_time_synchronization":
-      // $title = t("GPRS Network Time Synchronization");
-       // $form['set_parameter'][''] = array(
-    // '#type' => 'fieldset',
-    // '#title' => 'Set parameter',
-    // '#description' => 'Set parameter',
-  // );
-      // break;
-    // case "date_time_set":
-      // $title = t("Date & Time Set");
-      // break;
-    // case "set_id":
-      // $title = t("Set ID");
-      // $form['set_id'] = array(
-        // '#type' => 'fielset',
-        // '#title' => $title,
-        // '#description' => 'Set ID for Station.',        
-      // );
+function _command_validate($form, &$form_state) {
+  switch ($form_state["values"]["command_selects"]) {
+    case 2 :
+      $dt_from = $form_state['values']['date_time_from'];
+      $dt_to = $form_state['values']['date_time_to'];
+      $interval = (strtotime($dt_to) - strtotime($dt_from))/(24*60*60);
+      if($interval < 0) {
+        form_set_error('command_fieldset[date_time_to]',t("Thời gian <b>Tới ngày</b> không được nhỏ hơn <b>Từ ngày</b>"));
+      }
+      else{
+        if($interval > 1) {
+          form_set_error('command_fieldset[date_time_to]',t("Thời gian <b>Tới ngày</b> không được lớn hơn <b>Từ ngày</b> quá 24h"));
+        }
+      }
+      break;
+    //Date and Time Set
+    case 3 : 
+      break;
+    case 4 : 
+      break;
+    //ID $ Password Set
+    case 5 :
+      $id = $form_state['values']['set_input_id'];
+      if(empty($id)){
+        form_set_error('command_fieldset[set_input_id]',t('Trường <b>ID</b> không được để trống'));
+      }
+      else if (preg_match('/[^a-zA-Z0-9]/i',$id)){
+         form_set_error('command_fieldset[set_input_id]',t('Trường <b>ID</b> không được chứa kí tự đặc biệt.<br>Chỉ được chứa chữ cái, và số'));
+      }
+      break;
+    case 6 :
+      break;
+    case 7 :
+      break;
+    case 8 :
+      break;
+    //database Buffer Clear
+    case 9 :
+      break;
+    case 10 :
+      break;
+    //Rain fall config
+    case 11 :
+    // ['command_fieldset']['accumulated_rain_fall']
+      $number = $form_state['values']['accumulated_rain_fall'];
+      if(empty($number)){
+        form_set_error('command_fieldset[accumulated_rain_fall]',t('Trường <b>').t('Accumulated Rain Fall Value').t('</b> không được để trống'));
+      }
+      else{
+        if(($number%10) != 0){
+          form_set_error('command_fieldset[accumulated_rain_fall]',t('Giá trị trường <b>').t('Accumulated Rain Fall Value').t('</b> phải là bội của 10'));
+        }
+      }
+      break;
+    case 12 :
+      break;
+    case 13 :
+      break;
+    //Datalogger config
+    case 14 :
+      break;
+    case 15 :
+      // $title =  t('Set Active / De-Active Battery Power Voltage');
+      $batOn = $form_state['values']['bat_on'];
+      $batOff = $form_state['values']['bat_off'];
       
-      // $form['set_id'] = array(
-        // '#title' => $title,
-        // '#type' => 'textfield',
-        // '#description' => 'Set ID for Station.',        
-      // );
-      // return $form;
-      // break;
-    // // case "get_id":
-    // // $title = t("Get ID");
-    // // break;
-    // case "set_password":
-      // $title = t("Set Password");
-      // break;
-    // // case "get_password":
-    // // $title = t("Get Password");
-    // // break;
-    // case "all_database_buffer_clear":
-      // $title = t("All Database Buffer Clear");
-      // break;
-    // case "specific_date_database_buffer_clear":
-      // $title = t("Specific Date Database Buffer Clear");
-      // break;
-    // case "accumulated_rain_fall_value_set":
-      // $title = t("Accumulated Rain Fall Value Set");
-      // break;
-    // // case "set_rain_fall_clear_time" :
-    // // $title = t("Set Rain Fall Clear Time");
-    // // break;
-    // // case "get_rain_fall_clear_time" :
-    // // $title = t("Get Rain Fall Clear Time");
-    // // break;
-    // case "self_power_reset":
-      // $title = t("Self Power Reset");
-      // break;
-    // case "set_active_deactive_battery_power_volt":
-      // $title = t("Set Active/Deactive Battery Power Volt");
-      // break;
-    // // case "get_active_deactive_battery_power_volt":
-    // // $title = t("Get Active/Deactive Battery Power Volt");
-    // // break;
-    // case "set_battery_volt_offset":
-      // $title = t("Set Battery Volt Offset");
-      // break;
-    // // case "get_battery_volt_offset":
-    // // $title = t("Get Battery Volt Offset");
-    // // break;
-    // case "set_auto_power_management_nable":
-      // $title = t("Set Auto Power Management Enable/Disable");
-      // break;
-    // // case "get_auto_power_management_nable":
-    // // $title = t("Get Auto Power Manager Enable/Disable");
-    // // break;
-    // case "goto_sleep_mode":
-      // $title = t("Goto Sleep Mode");
-      // break;
-    // case "set_data_send_interval_minutes":
-      // $title = t("Set Data Send Interval Minutes");
-      // break;
-    // // case "get_data_send_interval_minutes":
-    // // $title = t("Get Data Send Interval Minutes");
-    // // break;
-    // case "set_communication_type":
-      // $title = t("Set Communication Type");
-      // break;
-    // // case "get_communication_type":
-    // // $title = t("Get Communication Type");
-    // // break;
-    // case "set_gprs_network_setting":
-      // $title = t("Set GPRS Network Setting");
-      // break;
-    // // case "get_gprs_network_setting":
-    // // $title = t("Get GPRS Network Setting");
-    // // break;
-    // case "set_host_netword_information":
-      // $title = t("Set Host Netword Information");
-      // break;
-    // // case "get_host_netword_information":
-    // // $title = t("Get Host netword Information");
-    // // break;
-    // // case "get_host_phone_number":
-    // // $title = t("Get Host Phone Number");
-    // // break;
-    // // case "get_data_logger_firmware":
-    // // $title = t("Get Data Logger Firmware");
-    // // break;
-    // case "date_time_set":
-      // $title = t("Date Time");
-      // break;
-    // case "set_host_phone_number":
-      // $title = t("Host Phone Number");
-      // break;
-    // default:
-      // $title = t("Parameter");
-  // }
-  return $form["replace_textfield"];
+      if(empty($batOn)){
+        form_set_error('command_fieldset[bat_on]',t('Trường <b>').t('Active Battery Power Voltage (V)').t('</b> không được để trống'));
+      }
+      else if (preg_match('/[^0-9.]/i',$batOn)){
+         form_set_error('command_fieldset[bat_on]',t('Trường <b>').t('Active Battery Power Voltage (V)').t('</b> chỉ được chứa số.'));
+      }
+      
+      if(empty($batOff)){
+        form_set_error('command_fieldset[bat_on]',t('Trường <b>').t('De-Active Battery Power Voltage (V)').t('</b> không được để trống'));
+      }
+      else if (preg_match('/[^0-9.]/i',$batOff)){
+         form_set_error('command_fieldset[bat_off]',t('Trường <b>').t('De-Active Battery Power Voltage (V)').t('</b> chỉ được chứa số.'));
+      }
+      break;
+    case 16 :
+      // $title =  t('Get Active / De-Active Battery Power Voltage');
+      break;
+    case 17 :
+      // $title =  t('Set Battery Voltage Offset');   
+      // set_bat_vol
+      $vol = $form_state['values']['set_bat_vol'];
+      if(empty($vol)){
+        form_set_error('command_fieldset[set_bat_vol]',t('Trường <b>').t('Battery Voltage Offset (V)').t('</b> không được để trống.'));
+      }
+      // else if (preg_match('/[^0-9{1,2}.?0-9$/i',$vol)){
+         // form_set_error('command_fieldset[set_bat_vol]',t('Trường <b>').t('Battery Voltage Offset (V)').t('</b> không đúng định dạng.'));
+      // }
+      break;
+    case 18 :
+      $vol = $form_state['values']['get_bat_vol'];
+      if(empty($vol)){
+        form_set_error('command_fieldset[get_bat_vol]',t('Trường <b>').t('Battery Voltage Offset (V)').t('</b> không được để trống.'));
+      }
+      break;
+    case 19 :
+      // $title =  t('Set Auto Power Management Enable');
+      break;
+    case 20 :
+      // $title =  t('Set Auto Power Management Disable');
+      break;
+    case 21 :
+      // $title =  t('Get Auto Power Management Enable / Disable');
+      break;
+    case 22 :
+      // $title =  t('Go To Sleep Mode');
+      break;
+    //Comunication setting
+    case 23 :
+      // $title =  t('Set Data Send Interval Minutes');
+      $interval = $form_state['values']['set_interval'];
+      if(empty($interval)){
+        form_set_error('command_fieldset[set_interval]',t('Trường <b>').t('Data Send Interval Minutes').t('</b> không được để trống.'));
+      }
+      else{
+        if($interval > 60 || $interval < 0){
+          form_set_error('command_fieldset[set_interval]',t('Trường <b>').t('Data Send Interval Minutes').t('</b> không được đặt lớn hơn 60.'));
+        }
+      }
+      break;
+    case 24 :
+      // $title =  t('Get Data Send Interval Minutes');
+      break;
+    case 25 :
+      // $title =  t('Set Communication Type GSM');      
+      break;
+    case 26 :
+      // $title =  t('Set Communication Type GPRS');
+      break;
+    case 27 :
+      // $title =  t('Set Communication Type Auto');
+      break;
+    case 28 :
+      // $title =  t('Get Communication Type');
+      break;
+    //GPRS network setting
+    case 29 :
+      // $title =  t('Set GPRS Network Setting');
+      $host = $form_state['values']['host_gprs'];
+      if(empty($host)){
+        form_set_error('command_fieldset[id_gprs]',t('Trường <b>').t('Host').t('</b> không được để trống.'));
+      }
+      $id = $form_state['values']['id_gprs'];
+      if(empty($id)){
+        form_set_error('command_fieldset[id_gprs]',t('Trường <b>').t('ID').t('</b> không được để trống.'));
+      }
+      break;
+    case 30 :
+      // $title =  t('Get GPRS Network Setting');
+      break;
+    case 31 :
+      break;
+    case 32 :
+      // $title =  t('Get Host Network Infomation');
+      break;
+    case 33 :
+      // $title =  t('Set Host Phone Number');
+      $host = $form_state['values']['host_phone'];
+      if(empty($host)){
+        form_set_error('command_fieldset[host_phone]',t('Trường <b>').t('Host Phone Number').t('</b> không được để trống.'));
+      }
+      break;
+    case 34 :
+      // $title =  t('Get Host Phone Number');
+      break;
+    //Get datalogger firmware version
+    case 35 :
+      // $title =  t('Get Datalogger Firmware Version');
+      break;
+  }
 }
+
+function _send_command_submit($form, &$form_state) {
+  define('DT', date('ymdHis',time()));  
+  define('DT2', date('ymdHi',time()));  
+  define('DT3', date('YmdHi',time()));  
+  $nid = intval(arg(1)) ? intval(arg(1)) : $form_state['values']['nid'];
+  
+  if($nid) {  
+    $node = node_load($nid);
+    $id = $node->field_station_code['und']['0']['value'];
+    define('ID',$id);
+  }
+    
+  $form['nid'] = array(
+    '#type' => 'hidden', 
+    '#value' => $nid,
+  );
+  
+  switch ($form_state["values"]["command_selects"]) {
+    //Data call command
+    case 1 :
+      // $message = $form_state['complete form']['command_fieldset']['real_data_call']['#markup'];
+      $message = 'HP'.ID.'GET '.DT.'S:STATUS xx;';
+      break;
+    case 2 :
+      $dt_from = $form_state['values']['date_time_from'];
+      $from = _convert_strdate_to_date('ymdHis',$dt_from);
+      $dt_to = $form_state['values']['date_time_to'];
+      $to = _convert_strdate_to_date('ymdHis',$dt_to);
+      $message = 'HP'.ID.'GET '.DT.'I:'.$from.'~'.$to.' xx;';
+      break;
+    //Date and Time Set
+    case 3 : 
+      $date = _convert_strdate_to_date($strFormat = 'Ymdhis', $form_state['values']['date_time_set']);
+      $message = 'HP'.ID.'SET '.DT.'T:'.$date.' xx;';
+      break;
+    case 4 : 
+      // $title =  t('GPRS Network Time Synchronization');
+      $message = 'HP'.ID.'SET '.DT.'T:NITZ xx';
+      break;
+    //ID $ Password Set
+    case 5 :
+      // $title =  t('Set ID');
+      $id = $form_state['values']['set_input_id'];
+      $message = 'HP'.ID.'SET '.DT.'D:'.$id.' xx;';
+      break;
+    case 6 :
+      // $title =  t('Get ID');
+      $message = 'HP'.ID.'GET '.DT.'D:? xx;';
+      break;
+    case 7 :
+      $pass = $form_state['values']['set_pass'];
+      $message = 'HP'.ID.'SET '.DT.'P:'.$pass.' xx;';
+      break;
+    case 8 :
+      // $title =  t('Get Password');
+      $message = 'HP'.ID.'GET '.DT.'P:? xx;';
+      break;
+    //database Buffer Clear
+    case 9 :
+      // $title =  t('All Database Buffer Clear');
+      $message = 'HP'.ID.'SET '.DT.'R:FORMAT_ALL xx;';
+      break;
+    case 10 :
+      // $title =  t('Specific Date Database Buffer Clear');
+      $day = _convert_strdate_to_date('ymd',$form_state['values']['date_buffer_clear']);
+      $message = 'HP'.ID.'SET '.DT.'R:FORMAT_DAY:'.$day.' xx;';
+      break;
+    //Rain fall config
+    case 11 :
+      // $title =  t('Accumulated Rain Fall Value Set');
+      $number = $form_state['values']['accumulated_rain_fall'];
+      $message = 'HP'.ID.'SET '.DT.'R:SET:'.$number.' xx;';
+      break;
+    case 12 :
+      // $title =  t('Set Rain Fall Clear Time');
+      $time = _convert_strdate_to_date('Hi',$form_state['values']['set_rain_fall_clear_time']);
+      $message = 'HP'.ID.'SET '.DT.'R:CLEAR:'.$time.' xx;';
+      break;
+    case 13 :
+      // $title =  t('Get Rain Fall Clear Time');
+      $message = 'HP'.ID.'GET '.DT.'R:CLEAR:? xx;';
+      break;
+    //Datalogger config
+    case 14 :
+      // $title =  t('Self Power Reset');
+      $message = 'HP'.ID.'SET '.DT.'P:RESET xx;';
+      break;
+    case 15 :
+      // $title =  t('Set Active / De-Active Battery Power Voltage');
+      $batOn = $form_state['values']['bat_on'];
+      dsm($batOn);
+      $batOff = $form_state['values']['bat_off'];
+      dsm($batOff);
+      $message = 'HP'.ID.'SET '.DT.'P:BAT_ON'.$batOn.'V,_OFF:'.$batOff.'V xx;';
+      break;
+    case 16 :
+      // $title =  t('Get Active / De-Active Battery Power Voltage');
+      $message = 'HP'.ID.'GET '.DT.'P:BAT_ON:? xx;';
+      break;
+    case 17 :
+      // $title =  t('Set Battery Voltage Offset');
+      $vol = $form_state['values']['set_bat_vol'];
+      $message = 'HP'.ID.'SET '.DT.'P:BAT_OFFSET:+'.$vol.'V xx;';
+      break;
+    case 18 :
+      // $title =  t('Get Battery Voltage Offset');
+      $vol = $form_state['values']['get_bat_vol'];
+      $message = 'HP'.ID.'GET '.DT.'P:BAT_OFFSET:+'.$vol.'V xx;';
+      break;
+    case 19 :
+      // $title =  t('Set Auto Power Management Enable');
+      $message = 'HP'.ID.'SET '.DT.'P:AUTO_PWR_MANAGEMENT:ON xx;';
+      break;
+    case 20 :
+      // $title =  t('Set Auto Power Management Disable');
+      $message = 'HP'.ID.'SET '.DT.'P:AUTO_PWR_MANAGEMENT:OFF xx;';
+      break;
+    case 21 :
+      // $title =  t('Get Auto Power Management Enable / Disable');
+      $message = 'HP'.ID.'GET '.DT.'P:AUTO_PWR_MANAGEMENT:? xx;';
+      break;
+    case 22 :
+      // $title =  t('Go To Sleep Mode');
+      $message = 'HP'.ID.'SET '.DT.'P:GOTO_SLEEP_MODE xx;';
+      break;
+    //Comunication setting
+    case 23 :
+      // $title =  t('Set Data Send Interval Minutes');
+      $interval = $form_state['values']['set_interval'];
+      $message = 'HP'.ID.'SET '.DT.'C:INTERVAL: '.$interval.' xx;';
+      break;
+    case 24 :
+      // $title =  t('Get Data Send Interval Minutes');
+      $message =  'HP'.ID.'GET '.DT.'C:INTERVAL:? xx;';
+      break;
+    case 25 :
+      // $title =  t('Set Communication Type GSM');
+      $message = 'HP'.ID.'SET '.DT.'C:COMM:GSM xx;';
+      break;
+    case 26 :
+      // $title =  t('Set Communication Type GPRS');
+      $message = 'HP'.ID.'SET '.DT.'C:COMM:GPRS xx;';
+      break;
+    case 27 :
+      // $title =  t('Set Communication Type Auto');
+      $message = 'HP'.ID.'SET '.DT.'C:COMM:AUTO xx;';
+      break;
+    case 28 :
+      // $title =  t('Get Communication Type');     
+      $message = 'HP'.ID.'GET '.DT.'C:COMM:? xx;';
+      break;
+    //GPRS network setting
+    case 29 :
+      // $title =  t('Set GPRS Network Setting');
+      $host = $form_state['values']['host_gprs'];
+      $id = $form_state['values']['id_gprs'];
+      $pass = $form_state['values']['pass_gprs'];
+      $message = 'HP'.ID.'SET '.DT.'G:APN'.$host.'ID:'.$id.'PW:'.$pass.' xx;';
+      break;
+    case 30 :
+      // $title =  t('Get GPRS Network Setting');
+      $message = 'HP'.ID.'GET '.DT.'G:APN? xx;';
+      break;
+    case 31 :
+      // $title =  t('Set Host Network Infomation');
+      $host = $form_state['values']['set_host'];
+      $port = $form_state['values']['set_port'];
+      $message = 'HP'.ID.'SET '.DT.'N:HOST'.$host.':'.$port.' xx;';
+      break;
+    case 32 :
+      // $title =  t('Get Host Network Infomation');      
+      $message = 'HP'.ID.'GET '.DT.'N:HOST:? xx;';
+      break;
+    case 33 :
+      // $title =  t('Set Host Phone Number');
+      $sim = $form_state['values']['host_phone'];
+      $message = 'HP'.ID.'SET '.DT.'H:HOST_PHONE_NO:+84'.$sim.' xx;';
+      break;
+    case 34 :
+      // $title =  t('Get Host Phone Number');
+      $message = 'HP'.ID.'SET '.DT.'H:HOST_PHONE_NO:? xx;';
+      break;
+    //Get datalogger firmware version
+    case 35 :
+      // $title =  t('Get Datalogger Firmware Version');
+      $message = 'HP'.ID.'SET '.DT.'V:VERSION:? xx;';
+      break;
+  }
+  drupal_set_message($message.'<br>Gửi lệnh thành công!');
+}
+
+// function _datalogger_command_form_ajax_callback($form, $form_state) {
+  // return $form["replace_textfield"];
+// }
 
 /*
  * Implementation of hook_action_info().
  */
 
 function datalogger_action_info() {
-  // dpm('into go');
   return array(
     "datalogger_command_action" => array(
       "type" => "comment",
@@ -1036,7 +1548,6 @@ function digipro_views_get_view_result($viewname, $display_id = NULL, $args = NU
             $view->field['counter']->options['label'] = 'No.';
             break;
           case "list_all_datalogger":
-            dpm($view);
             $view->field['views_bulk_operations']->options['label'] = 'Select';
             $view->field['title']->options['label'] = 'Station Name';
             $view->field['counter']->options['label'] = 'No.';

@@ -61,16 +61,16 @@ function datalogger_menu() {
     'type' => MENU_LOCAL_TASK,
     'weight' => -23,
   ); 
-  $items['manage/user/add'] = array(
-    'title' => 'Tạo người dùng',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('_user_add_form'),
-    'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
-    // 'access callback' => TRUE,
-    'type' => MENU_LOCAL_TASK,
-    'weight' => -22,
-  ); 
+  // $items['manage/user/add'] = array(
+    // 'title' => 'Tạo người dùng',
+    // 'page callback' => 'drupal_get_form',
+    // 'page arguments' => array('_user_add_form'),
+    // 'file' => 'datalogger.admin.inc',
+    // 'access arguments' => array('manage data'),
+    // // 'access callback' => TRUE,
+    // 'type' => MENU_LOCAL_TASK,
+    // 'weight' => -22,
+  // ); 
   
  
 /**
