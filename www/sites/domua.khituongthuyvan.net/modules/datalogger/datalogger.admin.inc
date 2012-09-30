@@ -1,6 +1,58 @@
 <?php
   
 /**
+*begin: 28-09-12
+*
+*/
+
+function _insert_outbox($phone, $sms){
+  dsm('phone '.$phone);
+  dsm('sms '.$sms);
+  
+  /*cach 1:*/
+  // db_insert('datalogger.outbox')
+    // ->fields(array(
+      // 'UpdatedInDB' => CURRENT_TIMESTAMP, 
+      // 'InsertIntoDB' => date('Y-m-d','0000-00-00 00:00:00'), 
+      // 'SendingDateTime' => date('Y-m-d','0000-00-00 00:00:00'), 
+      // 'SendBefore' => date('H:i:s','23:59:59'), 
+      // 'SendAfter' => date('H:i:s','00:00:00'), 
+      // 'Text' => NULL, 
+      // 'DestinationNumber' => $phone, 
+      // 'Coding' => 'Default_No_Compression', 
+      // 'UDH' => NULL, 
+      // 'Class'=> -1, 
+      // 'TextDecoded' => $sms,
+      // 'ID' => NULL, 
+      // 'MultiPart' => false, 
+      // 'RelativeValidity' => -1, 
+      // 'SenderID' => NULL, 
+      // 'SendingTimeOut' => '0000-00-00 00:00:00', 
+      // 'DeliveryReport' => 'default', 
+      // 'CreatorID' => '',
+      // 'DestinationNumber' => '01664597466',
+      // 'TextDecoded' => 'hello world',
+    // ))
+    // ->execute();
+    
+  /*cach 2:*/ 
+  // db_query('INSERT INTO datalogger.outbox(DestinationNumber, TextDecoded)VALUES(:phone, :sms)',
+    // array(':phone' => $phone,
+          // ':sms' => $sms));
+  
+  
+  /*cach 3:*/
+  $nid = db_insert('datalogger.outbox')
+    ->fields(array('DestinationNumber', 'TextDecoded'))
+    ->values(array(
+      'DestinationNumber' =>  $phone,
+      'TextDecoded' => $sms,
+    ))
+    ->execute();
+  dsm('Inserted '.$nid);
+}
+
+/**
 *begin: 25-09-12
 */
 
@@ -878,6 +930,7 @@ function _command_form($form, &$form_state) {
       '#type' => 'textfield',
       '#title' => 'ID',
       '#maxlength' => '6',
+      '#default_value' => '123456',
       '#required' => TRUE,
       );
       break;
@@ -1115,11 +1168,13 @@ function _command_validate($form, &$form_state) {
     //ID $ Password Set
     case 5 :
       $id = $form_state['values']['set_input_id'];
-      if(empty($id)){
-        form_set_error('command_fieldset[set_input_id]',t('Trường <b>ID</b> không được để trống'));
-      }
-      else if (preg_match('/[^a-zA-Z0-9]/i',$id)){
+      if (preg_match('/[^a-zA-Z0-9]/i',$id)){
          form_set_error('command_fieldset[set_input_id]',t('Trường <b>ID</b> không được chứa kí tự đặc biệt.<br>Chỉ được chứa chữ cái, và số'));
+      }
+      else{
+        if(strlen($id) != 6) {
+          form_set_error('command_fieldset[set_input_id]',t('Trường <b>ID</b> không đúng định dạng.Bắt buộc phải chứa 6 kí tự'));
+        }
       }
       break;
     case 6 :
@@ -1277,8 +1332,12 @@ function _send_command_submit($form, &$form_state) {
   
   if($nid) {  
     $node = node_load($nid);
+    // dsm($node);
     $id = $node->field_station_code['und']['0']['value'];
+    $phone = $node->field_station_sim_number['und']['0']['value'];
+    // dsm($phone);
     define('ID',$id);
+    define('PHONE',$phone);
   }
     
   $form['nid'] = array(
@@ -1290,135 +1349,163 @@ function _send_command_submit($form, &$form_state) {
     //Data call command
     case 1 :
       // $message = $form_state['complete form']['command_fieldset']['real_data_call']['#markup'];
-      $message = 'HP'.ID.'GET '.DT.'S:STATUS xx;';
+      $message = 'HS'.ID.'GET   '.DT.'S:STATUS                                                      xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 2 :
       $dt_from = $form_state['values']['date_time_from'];
       $from = _convert_strdate_to_date('ymdHis',$dt_from);
       $dt_to = $form_state['values']['date_time_to'];
       $to = _convert_strdate_to_date('ymdHis',$dt_to);
-      $message = 'HP'.ID.'GET '.DT.'I:'.$from.'~'.$to.' xx;';
+      $message = 'HS'.ID.'GET  '.DT.'I:'.$from.'~'.$to.'                                   xx;';
+      _insert_outbox(PHONE, $message);
       break;
     //Date and Time Set
     case 3 : 
       $date = _convert_strdate_to_date($strFormat = 'Ymdhis', $form_state['values']['date_time_set']);
-      $message = 'HP'.ID.'SET '.DT.'T:'.$date.' xx;';
+      $message = 'HS'.ID.'SET  '.DT.'T:'.$date.'                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 4 : 
       // $title =  t('GPRS Network Time Synchronization');
-      $message = 'HP'.ID.'SET '.DT.'T:NITZ xx';
+      $message = 'HS'.ID.'SET  '.DT.'T:NITZ                                                        xx;';
+      _insert_outbox(PHONE, $message);
       break;
     //ID $ Password Set
     case 5 :
       // $title =  t('Set ID');
       $id = $form_state['values']['set_input_id'];
-      $message = 'HP'.ID.'SET '.DT.'D:'.$id.' xx;';
+      $message = 'HS'.ID.'SET  '.DT.'D:'.$id.'                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 6 :
       // $title =  t('Get ID');
-      $message = 'HP'.ID.'GET '.DT.'D:? xx;';
+      $message = 'HS'.ID.'GET  '.DT.'D:?                                                           xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 7 :
       $pass = $form_state['values']['set_pass'];
-      $message = 'HP'.ID.'SET '.DT.'P:'.$pass.' xx;';
+      $message = 'HS'.ID.'SET '.DT.'P:'.$pass.'                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 8 :
       // $title =  t('Get Password');
-      $message = 'HP'.ID.'GET '.DT.'P:? xx;';
+      $message = 'HS'.ID.'GET  '.DT.'P:?                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     //database Buffer Clear
     case 9 :
       // $title =  t('All Database Buffer Clear');
-      $message = 'HP'.ID.'SET '.DT.'R:FORMAT_ALL xx;';
+      $message = 'HS'.ID.'SET '.DT.'R:FORMAT_ALL                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 10 :
       // $title =  t('Specific Date Database Buffer Clear');
       $day = _convert_strdate_to_date('ymd',$form_state['values']['date_buffer_clear']);
-      $message = 'HP'.ID.'SET '.DT.'R:FORMAT_DAY:'.$day.' xx;';
+      $message = 'HS'.ID.'SET '.DT.'R:FORMAT_DAY:'.$day.'                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     //Rain fall config
     case 11 :
       // $title =  t('Accumulated Rain Fall Value Set');
       $number = $form_state['values']['accumulated_rain_fall'];
-      $message = 'HP'.ID.'SET '.DT.'R:SET:'.$number.' xx;';
+      $message = 'HS'.ID.'SET '.DT.'R:SET:'.$number.'                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 12 :
       // $title =  t('Set Rain Fall Clear Time');
       $time = _convert_strdate_to_date('Hi',$form_state['values']['set_rain_fall_clear_time']);
-      $message = 'HP'.ID.'SET '.DT.'R:CLEAR:'.$time.' xx;';
+      $message = 'HS'.ID.'SET '.DT.'R:CLEAR:'.$time.'                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 13 :
       // $title =  t('Get Rain Fall Clear Time');
-      $message = 'HP'.ID.'GET '.DT.'R:CLEAR:? xx;';
+      $message = 'HS'.ID.'GET  '.DT.'R:CLEAR:?                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     //Datalogger config
     case 14 :
       // $title =  t('Self Power Reset');
-      $message = 'HP'.ID.'SET '.DT.'P:RESET xx;';
+      $message = 'HS'.ID.'SET '.DT.'P:RESET                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 15 :
       // $title =  t('Set Active / De-Active Battery Power Voltage');
       $batOn = $form_state['values']['bat_on'];
-      dsm($batOn);
+      // dsm($batOn);
       $batOff = $form_state['values']['bat_off'];
-      dsm($batOff);
-      $message = 'HP'.ID.'SET '.DT.'P:BAT_ON'.$batOn.'V,_OFF:'.$batOff.'V xx;';
+      // dsm($batOff);
+      $message = 'HS'.ID.'SET '.DT.'P:BAT_ON'.$batOn.'V,_OFF:'.$batOff.'V                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 16 :
       // $title =  t('Get Active / De-Active Battery Power Voltage');
-      $message = 'HP'.ID.'GET '.DT.'P:BAT_ON:? xx;';
+      $message = 'HS'.ID.'GET  '.DT.'P:BAT_ON:?                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 17 :
       // $title =  t('Set Battery Voltage Offset');
       $vol = $form_state['values']['set_bat_vol'];
-      $message = 'HP'.ID.'SET '.DT.'P:BAT_OFFSET:+'.$vol.'V xx;';
+      $message = 'HS'.ID.'SET '.DT.'P:BAT_OFFSET:+'.$vol.'V                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 18 :
       // $title =  t('Get Battery Voltage Offset');
       $vol = $form_state['values']['get_bat_vol'];
-      $message = 'HP'.ID.'GET '.DT.'P:BAT_OFFSET:+'.$vol.'V xx;';
+      $message = 'HS'.ID.'GET  '.DT.'P:BAT_OFFSET:+'.$vol.'V                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 19 :
       // $title =  t('Set Auto Power Management Enable');
-      $message = 'HP'.ID.'SET '.DT.'P:AUTO_PWR_MANAGEMENT:ON xx;';
+      $message = 'HS'.ID.'SET '.DT.'P:AUTO_PWR_MANAGEMENT:ON                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 20 :
       // $title =  t('Set Auto Power Management Disable');
-      $message = 'HP'.ID.'SET '.DT.'P:AUTO_PWR_MANAGEMENT:OFF xx;';
+      $message = 'HS'.ID.'SET '.DT.'P:AUTO_PWR_MANAGEMENT:OFF                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 21 :
       // $title =  t('Get Auto Power Management Enable / Disable');
-      $message = 'HP'.ID.'GET '.DT.'P:AUTO_PWR_MANAGEMENT:? xx;';
+      $message = 'HS'.ID.'GET  '.DT.'P:AUTO_PWR_MANAGEMENT:?                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 22 :
       // $title =  t('Go To Sleep Mode');
-      $message = 'HP'.ID.'SET '.DT.'P:GOTO_SLEEP_MODE xx;';
+      $message = 'HS'.ID.'SET '.DT.'P:GOTO_SLEEP_MODE                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     //Comunication setting
     case 23 :
       // $title =  t('Set Data Send Interval Minutes');
       $interval = $form_state['values']['set_interval'];
-      $message = 'HP'.ID.'SET '.DT.'C:INTERVAL: '.$interval.' xx;';
+      $message = 'HS'.ID.'SET '.DT.'C:INTERVAL: '.$interval.'                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 24 :
       // $title =  t('Get Data Send Interval Minutes');
-      $message =  'HP'.ID.'GET '.DT.'C:INTERVAL:? xx;';
+      $message =  'HS'.ID.'GET  '.DT.'C:INTERVAL:?                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 25 :
       // $title =  t('Set Communication Type GSM');
-      $message = 'HP'.ID.'SET '.DT.'C:COMM:GSM xx;';
+      $message = 'HS'.ID.'SET '.DT.'C:COMM:GSM                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 26 :
       // $title =  t('Set Communication Type GPRS');
-      $message = 'HP'.ID.'SET '.DT.'C:COMM:GPRS xx;';
+      $message = 'HS'.ID.'SET '.DT.'C:COMM:GPRS                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 27 :
       // $title =  t('Set Communication Type Auto');
-      $message = 'HP'.ID.'SET '.DT.'C:COMM:AUTO xx;';
+      $message = 'HS'.ID.'SET '.DT.'C:COMM:AUTO                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 28 :
       // $title =  t('Get Communication Type');     
-      $message = 'HP'.ID.'GET '.DT.'C:COMM:? xx;';
+      $message = 'HS'.ID.'GET  '.DT.'C:COMM:?                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     //GPRS network setting
     case 29 :
@@ -1426,35 +1513,42 @@ function _send_command_submit($form, &$form_state) {
       $host = $form_state['values']['host_gprs'];
       $id = $form_state['values']['id_gprs'];
       $pass = $form_state['values']['pass_gprs'];
-      $message = 'HP'.ID.'SET '.DT.'G:APN'.$host.'ID:'.$id.'PW:'.$pass.' xx;';
+      $message = 'HS'.ID.'SET '.DT.'G:APN'.$host.'ID:'.$id.'PW:'.$pass.'                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 30 :
       // $title =  t('Get GPRS Network Setting');
-      $message = 'HP'.ID.'GET '.DT.'G:APN? xx;';
+      $message = 'HS'.ID.'GET  '.DT.'G:APN?                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 31 :
       // $title =  t('Set Host Network Infomation');
       $host = $form_state['values']['set_host'];
       $port = $form_state['values']['set_port'];
-      $message = 'HP'.ID.'SET '.DT.'N:HOST'.$host.':'.$port.' xx;';
+      $message = 'HS'.ID.'SET '.DT.'N:HOST'.$host.':'.$port.'                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 32 :
       // $title =  t('Get Host Network Infomation');      
-      $message = 'HP'.ID.'GET '.DT.'N:HOST:? xx;';
+      $message = 'HS'.ID.'GET  '.DT.'N:HOST:?                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 33 :
       // $title =  t('Set Host Phone Number');
       $sim = $form_state['values']['host_phone'];
-      $message = 'HP'.ID.'SET '.DT.'H:HOST_PHONE_NO:+84'.$sim.' xx;';
+      $message = 'HS'.ID.'SET '.DT.'H:HOST_PHONE_NO:+84'.$sim.'                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     case 34 :
       // $title =  t('Get Host Phone Number');
-      $message = 'HP'.ID.'SET '.DT.'H:HOST_PHONE_NO:? xx;';
+      $message = 'HS'.ID.'SET '.DT.'H:HOST_PHONE_NO:?                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
     //Get datalogger firmware version
     case 35 :
       // $title =  t('Get Datalogger Firmware Version');
-      $message = 'HP'.ID.'SET '.DT.'V:VERSION:? xx;';
+      $message = 'HS'.ID.'SET '.DT.'V:VERSION:?                                                     xx;';
+      _insert_outbox(PHONE, $message);
       break;
   }
   drupal_set_message($message.'<br>Gửi lệnh thành công!');
@@ -1484,6 +1578,10 @@ function datalogger_action_info() {
       )
     )
   );
+}
+
+function datalogger_command_action(){
+  // _command_form();
 }
 
 // function datalogger_views_data_alter(&$data) {
