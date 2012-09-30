@@ -43,7 +43,7 @@ function _insert_outbox($phone, $sms){
   
   /*cach 3:*/
   $nid = db_insert('datalogger.outbox')
-    ->fields(array('DestinationNumber', 'TextDecoded'))
+    ->fields(array('DestinationNumber','TextDecoded'))
     ->values(array(
       'DestinationNumber' =>  $phone,
       'TextDecoded' => $sms,
