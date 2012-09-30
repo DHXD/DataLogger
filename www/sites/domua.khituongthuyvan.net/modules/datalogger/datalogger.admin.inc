@@ -10,7 +10,13 @@ function _insert_outbox($phone, $sms){
   dsm('sms '.$sms);
   
   /*cach 1:*/
-  // db_insert('datalogger.outbox')
+  db_insert('datalogger.outbox')
+    ->fields(array(
+      'DestinationNumber' => $phone, 
+      'TextDecoded' => $sms,
+    ))
+    ->execute();
+    // db_insert('datalogger.outbox')
     // ->fields(array(
       // 'UpdatedInDB' => CURRENT_TIMESTAMP, 
       // 'InsertIntoDB' => date('Y-m-d','0000-00-00 00:00:00'), 
