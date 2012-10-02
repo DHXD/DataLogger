@@ -1,1 +1,1 @@
-chrome.exe http://admin.domua.khituongthuyvan.net
+START ""  http://admin.domua.khituongthuyvan.net/gammu/inbox/new
