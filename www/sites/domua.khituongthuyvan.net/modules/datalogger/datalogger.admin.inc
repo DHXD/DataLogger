@@ -8,54 +8,9 @@
 function _insert_outbox($phone, $sms){
   dsm('phone '.$phone);
   dsm('sms '.$sms);
-  
   /*cach 1:*/
-  db_insert('datalogger.outbox')
-    ->fields(array(
-      'DestinationNumber' => $phone, 
-      'TextDecoded' => $sms,
-    ))
-    ->execute();
-    // db_insert('datalogger.outbox')
-    // ->fields(array(
-      // 'UpdatedInDB' => CURRENT_TIMESTAMP, 
-      // 'InsertIntoDB' => date('Y-m-d','0000-00-00 00:00:00'), 
-      // 'SendingDateTime' => date('Y-m-d','0000-00-00 00:00:00'), 
-      // 'SendBefore' => date('H:i:s','23:59:59'), 
-      // 'SendAfter' => date('H:i:s','00:00:00'), 
-      // 'Text' => NULL, 
-      // 'DestinationNumber' => $phone, 
-      // 'Coding' => 'Default_No_Compression', 
-      // 'UDH' => NULL, 
-      // 'Class'=> -1, 
-      // 'TextDecoded' => $sms,
-      // 'ID' => NULL, 
-      // 'MultiPart' => false, 
-      // 'RelativeValidity' => -1, 
-      // 'SenderID' => NULL, 
-      // 'SendingTimeOut' => '0000-00-00 00:00:00', 
-      // 'DeliveryReport' => 'default', 
-      // 'CreatorID' => '',
-      // 'DestinationNumber' => '01664597466',
-      // 'TextDecoded' => 'hello world',
-    // ))
-    // ->execute();
-    
-  /*cach 2:*/ 
-  // db_query('INSERT INTO datalogger.outbox(DestinationNumber, TextDecoded)VALUES(:phone, :sms)',
-    // array(':phone' => $phone,
-          // ':sms' => $sms));
-  
-  
-  /*cach 3:*/
-  $nid = db_insert('datalogger.outbox')
-    ->fields(array('DestinationNumber','TextDecoded'))
-    ->values(array(
-      'DestinationNumber' =>  $phone,
-      'TextDecoded' => $sms,
-    ))
-    ->execute();
-  dsm('Inserted '.$nid);
+  $sql = "INSERT INTO outbox(DestinationNumber, TextDecoded, CreatorID) VALUES('$phone', '$sms', '')";
+  dsm(db_query($sql));
 }
 
 /**
@@ -1338,10 +1293,8 @@ function _send_command_submit($form, &$form_state) {
   
   if($nid) {  
     $node = node_load($nid);
-    // dsm($node);
     $id = $node->field_station_code['und']['0']['value'];
     $phone = $node->field_station_sim_number['und']['0']['value'];
-    // dsm($phone);
     define('ID',$id);
     define('PHONE',$phone);
   }
@@ -1354,7 +1307,6 @@ function _send_command_submit($form, &$form_state) {
   switch ($form_state["values"]["command_selects"]) {
     //Data call command
     case 1 :
-      // $message = $form_state['complete form']['command_fieldset']['real_data_call']['#markup'];
       $message = 'HS'.ID.'GET   '.DT.'S:STATUS                                                      xx;';
       _insert_outbox(PHONE, $message);
       break;
