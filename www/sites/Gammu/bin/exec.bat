@@ -1,0 +1,1 @@
+chrome.exe http://admin.domua.khituongthuyvan.net
