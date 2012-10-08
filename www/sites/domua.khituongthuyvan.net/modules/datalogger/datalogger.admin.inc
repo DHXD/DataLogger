@@ -5,20 +5,112 @@
 *
 */
 
-function _new_sms_form(){
-  return "Có tin nhăn mới";
+function _datalogger_check_station($id){
+  $name = db_query("SELECT count(nid) FROM {}")->fetchField();
 }
 
-function psCheckSum($str)
+function _datalogger_check_str($id, $sms){
+    // $data = "HS123456,121005161045,121005161000,0    0    0  127,0    0    0  127,0    0    0  126,0    0    0  127,0    0    0  127,0    0    0  127,78;";
+  $list = list($code,$timenow,$timestart,$ac1,$ac2,$ac3,$ac4,$ac5,$ac6,$chk) = explode(",", $sms);
+  echo $code."\t"; // foo
+  echo $timenow; // *
+}
+
+
+/**
+*begin: 03-10-12
+*
+*/
+
+function _datalogger_new_sms_form1(){
+  $result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 0 , 30");
+  $headers = array(
+    1 => 'STT',
+    2 => 'Cập nhật DB',
+    3 => 'Tin nhắn tới',
+    4 => 'Số gửi tin',
+    5 => 'Tổng đài',
+    6 => 'Nội dung tin nhắn',
+  );
+  $rows = array();
+  $i = 1;
+    foreach($result as $row) {
+      $rows[] = array (
+        $i++,
+        $row -> UpdatedInDB,
+        $row -> ReceivingDateTime,
+        $row -> SenderNumber,
+        $row -> SMSCNumber,
+        $row -> TextDecoded,
+      );
+    }
+  // Table of Data
+  $form['tbl_inbox'] = array(
+    '#theme' => 'table',
+    '#header' => $headers,
+    '#rows' => $rows,
+    // '#empty' => t('Null')
+  );
+  
+  return $form;
+}
+
+function _datalogger_startsWith($haystack, $needle)
 {
-        $chk = 0;
-        for($k = 0; $k < strlen($str); $k++)
-          {
-          $o = ord(substr($str,$k,1));
-          $chk = $chk ^ $o;
-          }
-        $res = substr("0" . dechex($chk),-2);
-        return $res;
+    return strpos($haystack, $needle) === 0;
+}
+function _datalogger_endsWith($haystack, $needle)
+{
+    return substr($haystack, -strlen($needle)) == $needle;
+}
+
+/*Ham xu ly cac tin nhắn gửi tới*/
+function _datalogger_new_sms_form(){
+  $result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 0 , 30");
+  $headers = array(
+    1 => 'STT',
+    2 => 'Cập nhật DB',
+    3 => 'Tin nhắn tới',
+    4 => 'Số gửi tin',
+    5 => 'Tổng đài',
+    6 => 'Nội dung tin nhắn',
+  );
+  $rows = array();
+  $i = 1;
+    foreach($result as $row) {
+    /*chỉ liệt kê các tin nhắn theo chuẩn:HS.....;*/
+      // if(_datalogger_startsWith($row -> TextDecoded,'HS') && _datalogger_endsWith($row -> TextDecoded,';')){
+        $rows[] = array (
+          $i++,
+          $row -> UpdatedInDB,
+          $row -> ReceivingDateTime,
+          $row -> SenderNumber,
+          $row -> SMSCNumber,
+          $row -> TextDecoded,
+        );
+        $sms = $row -> TextDecoded;
+      // }
+    }
+  // Table of Data
+  $form['tbl_inbox'] = array(
+    '#theme' => 'table',
+    '#header' => $headers,
+    '#rows' => $rows,
+    // '#empty' => t('Null')
+  );
+  
+  return $form;
+}
+
+/*Check sum String*/
+function _datalogger_CheckSum($str){
+  $chk = 0;
+  for($k = 0; $k < strlen($str); $k++){
+    $o = ord(substr($str,$k,1));
+    $chk ^= $o;
+  }
+  $res = substr("0" . dechex($chk),-2);
+  return $res;
 }
 
 /**
@@ -26,12 +118,12 @@ function psCheckSum($str)
 *
 */
 
-function _insert_outbox($phone, $sms){
-  dsm('phone '.$phone);
-  dsm('sms '.$sms);
+function _datalogger_insert_outbox($phone, $sms){
+  // dsm('phone '.$phone);
+  // dsm('sms '.$sms);
   /*cach 1:*/
   $sql = "INSERT INTO outbox(DestinationNumber, TextDecoded, CreatorID) VALUES('$phone', '$sms', '')";
-  dsm(db_query($sql));
+  $nid = db_query($sql);
 }
 
 /**
@@ -989,7 +1081,7 @@ function _command_form($form, &$form_state) {
       '#type' => 'textfield',
       '#title' => 'Battery Voltage Offset (V)',
       '#default_value' => 1.5,
-      '#maxlength' => 5,
+      '#maxlength' => 4,
       '#description' => t('Dạng phải nhập: xx.x'),
       '#required' => TRUE,
       );
@@ -1024,7 +1116,7 @@ function _command_form($form, &$form_state) {
       '#type' => 'textfield',
       '#title' => 'Data Send Interval Minutes',
       '#default_value' => 10,
-      '#maxlength' => 5,
+      '#maxlength' => 4,
       '#required' => TRUE,
       );
       break;
@@ -1051,6 +1143,7 @@ function _command_form($form, &$form_state) {
         '#title' => 'Host',
         '#default_value' => '192.168.151.255',
         '#maxlength' => 15,
+        '#description' => 'xxx.xxx.xxx.xxx',
         '#required' => true,
       );
       
@@ -1060,6 +1153,7 @@ function _command_form($form, &$form_state) {
         '#default_value' => 123456,
         '#maxlength' => 6,
         '#required' => true,
+        '#description' => t('ID phải chứa 6 kí tự.'),
       );
       $form['command_fieldset']['pass_gprs'] = array(
         '#type' => 'password_confirm',
@@ -1219,9 +1313,9 @@ function _command_validate($form, &$form_state) {
       if(empty($vol)){
         form_set_error('command_fieldset[set_bat_vol]',t('Trường <b>').t('Battery Voltage Offset (V)').t('</b> không được để trống.'));
       }
-      // else if (preg_match('/[^0-9{1,2}.?0-9$/i',$vol)){
-         // form_set_error('command_fieldset[set_bat_vol]',t('Trường <b>').t('Battery Voltage Offset (V)').t('</b> không đúng định dạng.'));
-      // }
+      else if (preg_match('/[^0-9.]/i',$vol)){
+         form_set_error('command_fieldset[set_bat_vol]',t('Trường <b>').t('Battery Voltage Offset (V)').t('</b> chỉ được chứa số.'));
+      }
       break;
     case 18 :
       $vol = $form_state['values']['get_bat_vol'];
@@ -1249,9 +1343,15 @@ function _command_validate($form, &$form_state) {
         form_set_error('command_fieldset[set_interval]',t('Trường <b>').t('Data Send Interval Minutes').t('</b> không được để trống.'));
       }
       else{
-        if($interval > 60 || $interval < 0){
-          form_set_error('command_fieldset[set_interval]',t('Trường <b>').t('Data Send Interval Minutes').t('</b> không được đặt lớn hơn 60.'));
+        if(($interval % 10) != 0){
+          form_set_error('command_fieldset[set_interval]',t('Trường <b>').t('Data Send Interval Minutes').t('</b> Phải là bội của 10.')); 
+        }       
+        else if (preg_match('/[^0-9]/i',$interval)){
+          form_set_error('command_fieldset[set_interval]',t('Trường <b>').t('Data Send Interval Minutes').t('</b> chỉ được chứa số.'));
         }
+        // else($interval > 60 || $interval < 0){
+          // form_set_error('command_fieldset[set_interval]',t('Trường <b>').t('Data Send Interval Minutes').t('</b> không được đặt lớn hơn 60.'));
+        // }
       }
       break;
     case 24 :
@@ -1273,18 +1373,36 @@ function _command_validate($form, &$form_state) {
     case 29 :
       // $title =  t('Set GPRS Network Setting');
       $host = $form_state['values']['host_gprs'];
+      $id = $form_state['values']['id_gprs'];
+      $pass = $form_state['values']['pass_gprs']; 
       if(empty($host)){
         form_set_error('command_fieldset[id_gprs]',t('Trường <b>').t('Host').t('</b> không được để trống.'));
       }
-      $id = $form_state['values']['id_gprs'];
-      if(empty($id)){
-        form_set_error('command_fieldset[id_gprs]',t('Trường <b>').t('ID').t('</b> không được để trống.'));
+      else{
+        if(!filter_var($host, FILTER_VALIDATE_IP)){
+          form_set_error('command_fieldset[host_gprs]',t('Trường <b>').t('Host').t('</b> không đúng định dạng. xxx.xxx.xxx.xxx<br>Hay nhập lại.'));
+        }      
+        // else {
+          // if(empty($id)){
+            // form_set_error('command_fieldset[id_gprs]',t('Trường <b>').t('ID').t('</b> không được để trống.'));
+          // }
+        // }
       }
       break;
     case 30 :
       // $title =  t('Get GPRS Network Setting');
       break;
     case 31 :
+      $host = $form_state['values']['set_host'];
+      $port = $form_state['values']['set_port'];
+      if(!filter_var($host, FILTER_VALIDATE_IP)){
+          form_set_error('command_fieldset[set_host]',t('Trường <b>').t('Host').t('</b> không đúng định dạng. xxx.xxx.xxx.xxx<br>Hay nhập lại.'));
+      }
+      else{
+        if (preg_match('/[^0-9]/i',$port)){
+          form_set_error('command_fieldset[set_port]',t('Trường <b>').t('Port').t('</b> chỉ được chứa ký tự số.'));
+        }       
+      }
       break;
     case 32 :
       // $title =  t('Get Host Network Infomation');
@@ -1328,266 +1446,300 @@ function _send_command_submit($form, &$form_state) {
   switch ($form_state["values"]["command_selects"]) {
     //Data call command
     case 1 :
-      $sms = 'S'.ID.'GET   '.DT.'I:STATUS                                                   ';
-      $message = 'H'.$sms.psCheckSum($sms).';';
-      _insert_outbox(PHONE, $message);
+      $sms = 'S0'.ID.'GET  '.DT.'I:STATUS                                                    ';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 2 :
       $dt_from = $form_state['values']['date_time_from'];
       $from = _convert_strdate_to_date('ymdHis',$dt_from);
       $dt_to = $form_state['values']['date_time_to'];
       $to = _convert_strdate_to_date('ymdHis',$dt_to);
-      $sms = 'S'.ID.'GET  '.DT.'S:'.$from.'~'.$to.'                                 ';
-      $message = 'H'.$sms.psCheckSum($sms).';';
-      _insert_outbox(PHONE, $message);
+      $sms = 'S0'.ID.'GET  '.DT.'S:'.$from.'~'.$to.'                                 ';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     //Date and Time Set
     case 3 : 
       $date = _convert_strdate_to_date($strFormat = 'Ymdhis', $form_state['values']['date_time_set']);
-      $sms = 'S'.ID.'SET  '.DT.'T:'.$date.'                                            ';
+      $sms = 'S0'.ID.'SET  '.DT.'T:'.$date.'                                            ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 4 : 
       // $title =  t('GPRS Network Time Synchronization');
-      $sms = 'S'.ID.'SET  '.DT.'T:NITZ                                                      ';
-      $message = 'H'.$sms.psCheckSum($sms).';';
-      _insert_outbox(PHONE, $message);
+      $sms = 'S0'.ID.'SET  '.DT.'T:NITZ                                                      ';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     //ID $ Password Set
     case 5 :
       // $title =  t('Set ID');
       $id = $form_state['values']['set_input_id'];
-      $sms = 'S'.ID.'SET  '.DT.'D:'.$id.'                                                    ';
-      $message = 'H'.$sms.psCheckSum($sms).';';
-      _insert_outbox(PHONE, $message);
+      $sms = 'S0'.ID.'SET  '.DT.'D:'.$id.'                                                    ';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 6 :
       // $title =  t('Get ID');
-      $sms = 'S'.ID.'GET  '.DT.'D:?                                                         ';
-      $message = 'H'.$sms.psCheckSum($sms).';';
-      _insert_outbox(PHONE, $message);
+      $sms = 'S0'.ID.'GET  '.DT.'D:?                                                         ';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 7 :
       $pass = $form_state['values']['set_pass'];
-      $sms = 'S'.ID.'SET '.DT.'P:'.$pass;
+      $sms = 'S0'.ID.'SET  '.DT.'P:'.$pass;
       $len = strlen($sms);
       if($len < 84){
         for($i = 0; $i < (84 - $len); $i++){
-          $sms.'&nbsp';  
+          $sms .= ' ';  
         }
       }
-      dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
-      dsm(strlen($message));
-      dsm($message);
-      // _insert_outbox(PHONE, $message);
+      // dsm(strlen($sms));
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+      // dsm(strlen($message));
+      // dsm($message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 8 :
       // $title =  t('Get Password');
-      $message = 'HS'.ID.'GET  '.DT.'P:?                                                     xx;';
+      $sms = 'S0'.ID.'GET  '.DT.'P:?                                                         ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     //database Buffer Clear
     case 9 :
       // $title =  t('All Database Buffer Clear');
-      $message = 'HS'.ID.'SET '.DT.'R:FORMAT_ALL                                                     xx;';
+      $sms = 'S0'.ID.'SET  '.DT.'R:FORMAT_ALL                                                ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 10 :
       // $title =  t('Specific Date Database Buffer Clear');
       $day = _convert_strdate_to_date('ymd',$form_state['values']['date_buffer_clear']);
-      $message = 'HS'.ID.'SET '.DT.'R:FORMAT_DAY:'.$day.'                                                     xx;';
+      $sms = 'S0'.ID.'SET  '.DT.'R:FORMAT_DAY:'.$day.'                                         ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     //Rain fall config
     case 11 :
       // $title =  t('Accumulated Rain Fall Value Set');
       $number = $form_state['values']['accumulated_rain_fall'];
-      $message = 'HS'.ID.'SET '.DT.'R:SET:'.$number.'                                                     xx;';
+      $len = strlen($number);
+      if($len < 5 ){
+        for($i = 0; $i < (5 - $len); $i++){
+          $number .= ' ';
+        }
+      }
+      $sms = 'S0'.ID.'SET  '.DT.'R:SET:'.$number.'                                                 ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 12 :
       // $title =  t('Set Rain Fall Clear Time');
       $time = _convert_strdate_to_date('Hi',$form_state['values']['set_rain_fall_clear_time']);
-      $message = 'HS'.ID.'SET '.DT.'R:CLEAR:'.$time.'                                                     xx;';
+      $sms = 'S0'.ID.'SET  '.DT.'R:CLEAR:'.$time.'                                                ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 13 :
       // $title =  t('Get Rain Fall Clear Time');
-      $message = 'HS'.ID.'GET  '.DT.'R:CLEAR:?                                                     xx;';
+      $sms = 'S0'.ID.'GET  '.DT.'R:CLEAR:?                                                   ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     //Datalogger config
     case 14 :
       // $title =  t('Self Power Reset');
-      $message = 'HS'.ID.'SET '.DT.'P:RESET                                                     xx;';
+      $sms = 'S0'.ID.'SET  '.DT.'P:RESET                                                     ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 15 :
       // $title =  t('Set Active / De-Active Battery Power Voltage');
-      $batOn = $form_state['values']['bat_on'];
-      // dsm($batOn);
-      $batOff = $form_state['values']['bat_off'];
-      // dsm($batOff);
-      $message = 'HS'.ID.'SET '.DT.'P:BAT_ON'.$batOn.'V,_OFF:'.$batOff.'V                                                     xx;';
+      $batOn = number_format($form_state['values']['bat_on'],1);
+      $lenOn = strlen($batOn);
+      if($lenOn < 5){
+        for($i=0; $i < (5 - $lenOn); $i++){
+          $batOn = '0'.$batOn;
+        }
+      }
+      $batOff = number_format($form_state['values']['bat_off'],1);
+      $lenOff = strlen($batOff);
+      if($lenOff < 5){
+        for($i=0; $i < (5 - $lenOff); $i++){
+          $batOff = '0'.$batOff;
+        }
+      }
+      $sms = 'S0'.ID.'SET  '.DT.'P:BAT ON:'.$batOn.'V, OFF:'.$batOff.'V                                 ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 16 :
       // $title =  t('Get Active / De-Active Battery Power Voltage');
-      $message = 'HS'.ID.'GET  '.DT.'P:BAT_ON:?                                                     xx;';
+      $sms = 'S0'.ID.'GET  '.DT.'P:BAT ON:?                                                  ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 17 :
       // $title =  t('Set Battery Voltage Offset');
-      $vol = $form_state['values']['set_bat_vol'];
-      $message = 'HS'.ID.'SET '.DT.'P:BAT_OFFSET:+'.$vol.'V                                                     xx;';
+      $vol = number_format($form_state['values']['set_bat_vol'],1);
+      $lenVol = strlen($vol);
+      if($lenVol < 4){
+        for($i=0; $i < (4 - $lenVol); $i++){
+          $vol = '0'.$vol;
+        }
+      }
+      $sms = 'S0'.ID.'SET  '.DT.'P:BAT OFFSET:+'.$vol.'V                                         ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 18 :
       // $title =  t('Get Battery Voltage Offset');
-      $vol = $form_state['values']['get_bat_vol'];
-      $message = 'HS'.ID.'GET  '.DT.'P:BAT_OFFSET:+'.$vol.'V                                                     xx;';
+      $vol = number_format($form_state['values']['get_bat_vol'],1);
+      $lenVol = strlen($vol);
+      if($lenVol < 4){
+        for($i=0; $i < (4 - $lenVol); $i++){
+          $vol = '0'.$vol;
+        }
+      }
+      $sms = 'S0'.ID.'GET  '.DT.'P:BAT OFFSET:+'.$vol.'V                                         ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 19 :
       // $title =  t('Set Auto Power Management Enable');
-      $message = 'HS'.ID.'SET '.DT.'P:AUTO_PWR_MANAGEMENT:ON                                                     xx;';
-      // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $sms = 'S0'.ID.'SET  '.DT.'P:AUTO PWR MANAGEMENT:ON                                    ';
+      // // dsm(strlen($sms));
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 20 :
       // $title =  t('Set Auto Power Management Disable');
-      $message = 'HS'.ID.'SET '.DT.'P:AUTO_PWR_MANAGEMENT:OFF                                                     xx;';
+      $sms = 'S0'.ID.'SET  '.DT.'P:AUTO PWR MANAGEMENT:OFF                                   ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 21 :
       // $title =  t('Get Auto Power Management Enable / Disable');
-      $message = 'HS'.ID.'GET  '.DT.'P:AUTO_PWR_MANAGEMENT:?                                                     xx;';
+      $sms = 'S0'.ID.'GET  '.DT.'P:AUTO PWR MANAGEMENT:?                                     ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 22 :
       // $title =  t('Go To Sleep Mode');
-      $message = 'HS'.ID.'SET '.DT.'P:GOTO_SLEEP_MODE                                                     xx;';
+      $sms = 'S0'.ID.'SET  '.DT.'P:GOTO SLEEP MODE                                           ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     //Comunication setting
     case 23 :
       // $title =  t('Set Data Send Interval Minutes');
       $interval = $form_state['values']['set_interval'];
-      $message = 'HS'.ID.'SET '.DT.'C:INTERVAL: '.$interval.'                                                     xx;';
+      $lenint = strlen($interval);
+      if($lenint < 4){
+        for($i = 0; $i < (4 - $lenint); $i++ ){
+          $interval =' '.$interval;
+        }
+      }
+      $sms = 'S0'.ID.'SET  '.DT.'C:INTERVAL:'.$interval.'                                             ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 24 :
       // $title =  t('Get Data Send Interval Minutes');
-      $message =  'HS'.ID.'GET  '.DT.'C:INTERVAL:?                                                     xx;';
+      $sms =  'S0'.ID.'GET  '.DT.'C:INTERVAL:?                                                ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 25 :
       // $title =  t('Set Communication Type GSM');
-      $message = 'HS'.ID.'SET '.DT.'C:COMM:GSM                                                     xx;';
+      $sms = 'S0'.ID.'SET  '.DT.'C:COMM:GSM                                                  ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 26 :
       // $title =  t('Set Communication Type GPRS');
-      $message = 'HS'.ID.'SET '.DT.'C:COMM:GPRS                                                     xx;';
+      $sms = 'S0'.ID.'SET  '.DT.'C:COMM:GPRS                                                 ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 27 :
       // $title =  t('Set Communication Type Auto');
-      $message = 'HS'.ID.'SET '.DT.'C:COMM:AUTO                                                     xx;';
+      $sms = 'S0'.ID.'SET  '.DT.'C:COMM:AUTO                                                 ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 28 :
       // $title =  t('Get Communication Type');     
-      $message = 'HS'.ID.'GET  '.DT.'C:COMM:?                                                     xx;';
+      $sms = 'S0'.ID.'GET  '.DT.'C:COMM:?                                                    ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     //GPRS network setting
     case 29 :
@@ -1595,70 +1747,89 @@ function _send_command_submit($form, &$form_state) {
       $host = $form_state['values']['host_gprs'];
       $id = $form_state['values']['id_gprs'];
       $pass = $form_state['values']['pass_gprs'];
-      $message = 'HS'.ID.'SET '.DT.'G:APN'.$host.'ID:'.$id.'PW:'.$pass.'                                                     xx;';
+      
+      $sms = 'S0'.ID.'SET  '.DT.'G:APN:'.$host.',ID:'.$id.',PW:'.$pass;
+      $lensms = strlen($sms);
+      if($lensms < 84){
+        for($i = 0; $i < (84 - $lensms); $i++){
+          $sms .= ' ';
+        }
+      }
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 30 :
       // $title =  t('Get GPRS Network Setting');
-      $message = 'HS'.ID.'GET  '.DT.'G:APN?                                                     xx;';
+      $sms = 'S0'.ID.'GET  '.DT.'G:APN?                                                      ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 31 :
       // $title =  t('Set Host Network Infomation');
       $host = $form_state['values']['set_host'];
       $port = $form_state['values']['set_port'];
-      $message = 'HS'.ID.'SET '.DT.'N:HOST'.$host.':'.$port.'                                                     xx;';
+      $sms = 'S0'.ID.'SET  '.DT.'N:HOST'.$host.':'.$port;
+      $lensms = strlen($sms);
+      if($lensms < 84){
+        for($i = 0; $i < (84 - $lensms); $i++){
+          $sms .= ' ';
+        }
+      }
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 32 :
       // $title =  t('Get Host Network Infomation');      
-      $message = 'HS'.ID.'GET  '.DT.'N:HOST:?                                                     xx;';
+      $sms = 'S0'.ID.'GET  '.DT.'N:HOST:?                                                    ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 33 :
       // $title =  t('Set Host Phone Number');
       $sim = $form_state['values']['host_phone'];
-      $message = 'HS'.ID.'SET '.DT.'H:HOST_PHONE_NO:+84'.$sim.'                                                     xx;';
+      $sms = 'S0'.ID.'SET  '.DT.'H:HOST PHONE NO:'.$sim;
+      $lensms = strlen($sms);
+      if($lensms < 84){
+        for($i = 0; $i < (84 - $lensms); $i++){
+          $sms .= ' ';
+        }
+      }
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     case 34 :
       // $title =  t('Get Host Phone Number');
-      $message = 'HS'.ID.'SET '.DT.'H:HOST_PHONE_NO:?                                                     xx;';
-      // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $sms = 'S0'.ID.'GET  '.DT.'H:HOST PHONE NO:?                                           '; 
+      // dsm(strlen($sms));      
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
     //Get datalogger firmware version
     case 35 :
       // $title =  t('Get Datalogger Firmware Version');
-      $message = 'HS'.ID.'SET '.DT.'V:VERSION:?                                                     xx;';
+      $sms = 'S0'.ID.'GET '.DT.'V:VERSION:?                                                  ';
       // dsm(strlen($sms));
-      $message = 'H'.$sms.psCheckSum($sms).';';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
       // dsm(strlen($message));
       // dsm($message);
-      _insert_outbox(PHONE, $message);
+      _datalogger_insert_outbox(PHONE, $message);
       break;
   }
   drupal_set_message($message.'<br>Gửi lệnh thành công!');

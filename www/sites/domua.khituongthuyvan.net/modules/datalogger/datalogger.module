@@ -10,10 +10,11 @@ function datalogger_menu() {
  *tạo dữ liệu Mưa.
  */
   $items['gammu/inbox/new'] = array(
-    'title' => 'Tin nhắn mới',
-    // 'page callback' => 'drupal_get_form',
+    'title' => 'Tin nhắn mới cập nhật',
+    'page callback' => 'drupal_get_form',
     // 'page arguments' => array('_new_sms_form'),
-    'page callback' => '_new_sms_form',
+    'page callback' => '_datalogger_new_sms_form',
+    // 'page callback' => '_new_sms_form',
 
     'file' => 'datalogger.admin.inc',
     // 'access arguments' => array('manage data'),
