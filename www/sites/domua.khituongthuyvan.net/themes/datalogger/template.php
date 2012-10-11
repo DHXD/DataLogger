@@ -127,6 +127,14 @@ function datalogger_preprocess_node(&$variables) {
     $variables['classes_array'][] = 'node-full';
     
   }
+	
+	$node = $variables['node'];
+	
+	if ($node->type == 'command') {
+		$module_path = drupal_get_path('module', 'datalogger');
+		drupal_add_js($module_path . '/node_refresh.js');
+		drupal_set_message(t('Trang web sẽ tự động nạp lại sau 5 giây.'));
+	}
 }
 
 /**

@@ -5,6 +5,19 @@
  */
  
 function datalogger_menu() {
+	
+/**
+	*Begin date:10-10-12
+ *Tạo menu gọi lại menu command
+ */
+  $items['command/ajax'] = array(
+    'title' => 'Lấy giá trị lệnh trả về',
+    'page callback' => '_datalogger_check_command_ajax',
+    'file' => 'datalogger.admin.inc',
+    // 'access arguments' => array('control datalogger'),
+    'access callback' => TRUE,
+  );	
+	
 /**
  *Begin date:09-10-12
  *kiểm tra tin nhắn mới trong bang: inbox
