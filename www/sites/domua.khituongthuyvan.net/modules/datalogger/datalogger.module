@@ -5,6 +5,55 @@
  */
  
 function datalogger_menu() {
+	
+/**
+	*Begin date:10-10-12
+ *Tạo menu gọi lại menu command
+ */
+  $items['command/ajax'] = array(
+    'title' => 'Lấy giá trị lệnh trả về',
+    'page callback' => '_datalogger_check_command_ajax',
+    'file' => 'datalogger.admin.inc',
+    // 'access arguments' => array('control datalogger'),
+    'access callback' => TRUE,
+  );	
+	
+/**
+ *Begin date:09-10-12
+ *kiểm tra tin nhắn mới trong bang: inbox
+ */
+  $items['gammu/inbox/checksms'] = array(
+    'title' => 'Kiểm tra inbox',
+    'page callback' => '_datalogger_check_inbox',
+    'file' => 'datalogger.admin.inc',
+    // 'access arguments' => array('manage data'),
+    'access callback' => TRUE,
+  );
+	
+	$items['view/test/view'] = array(
+    'title' => 'Kiem tra cac truong tren view',
+    'page callback' => 'test_view',
+    'file' => 'datalogger.admin.inc',
+    // 'access arguments' => array('manage data'),
+    'access callback' => TRUE,
+  );
+  
+/**
+ *Begin date:03-10-12
+ *tạo dữ liệu Mưa.
+ */
+  $items['gammu/inbox/new'] = array(
+    'title' => 'Tin nhắn mới cập nhật',
+    'page callback' => 'drupal_get_form',
+    // 'page arguments' => array('_new_sms_form'),
+    'page callback' => '_datalogger_new_sms_form',
+    // 'page callback' => '_new_sms_form',
+
+    'file' => 'datalogger.admin.inc',
+    // 'access arguments' => array('manage data'),
+    'access callback' => TRUE,
+  );
+ 
 /**
  *Begin date:12-09-12
  *tạo dữ liệu Mưa.

@@ -86,9 +86,10 @@ function datalogger_schema() {
       ),
       'Processed' => array(
         'description' => 'TODO: please describe this field!',
-        'type' => 'enum',
+        'type' => 'int',
+        'size' => 'small',
         'not null' => TRUE,
-        'default' => 'false',
+        'default' => 0
       ),
     ),
     'primary key' => array('ID'),
