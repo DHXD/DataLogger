@@ -8,12 +8,14 @@ $datalogger_pattern = array(
 		'T:NITZ',
 		'D:',
 		//'D:?',
-		'P:',
+		// 'P:',
+		'W:',
 		//'P:?',
 		'R:FORMAT_ALL',
 		'R:FORMAT_DAY:',
 		'R:SET:',
-		'R:CLEAR:',
+		// 'R:CLEAR:',
+		'R:CLEAR TIME:',
 		//'R:CLEAR:?',
 		'P:RESET',
 		'P:BAT ON:',
@@ -27,6 +29,7 @@ $datalogger_pattern = array(
 		'C:COMM:',
 		//'C:COMM:?',
 		'G:APN:',
+		'A:ALARM INTERVAL:',
 		//'G:APN:?',
 		'N:HOST:',
 		//'N:HOST:?',
@@ -118,19 +121,14 @@ function _datalogger_separate_sms_command($sms, $number){
 			$malenh = $pattern;
 		}
 	}
-	
-	// tach gia tri tra ve
-	//$trave = _datalogger_result($sms, $malenh);
-	
-	dpm(array($number, $malenh, $sms));
-	
+
 	$result = views_get_view_result('admin_command_from_phone_code', 'default', $number, $malenh);
-	
-	$node_command = node_load($result[0]->nid);	
-	$node_command->field_command_result["und"][0]["value"] = _datalogger_result($sms, $malenh);	
-	
-	dpm($node_command);
-	node_save($node_command);
+	$nid = $result[0]->nid;
+	if($nid != 0 || !empty($nid)){
+		$node_command = node_load($nid);	
+		$node_command->field_command_result["und"][0]["value"] = _datalogger_result($sms, $malenh);	
+		node_save($node_command);
+	}
 }
 
 /**
@@ -312,7 +310,7 @@ function _datalogger_endsWith($sms, $needle)
 
 /*Ham xu ly cac tin nhắn gửi tới*/
 function _datalogger_new_sms_form(){
-  $result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 0 , 30");
+  $result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 0 , 50");
   $headers = array(
     1 => 'STT',
     2 => 'Cập nhật DB',
@@ -617,11 +615,11 @@ function _log_rainfall_form(){
   );
   
   $headers = array(
-    1 => 'STT',
-    2 => 'Thời gian',
-    3 => 'Tên file xử lý',
-    4 => 'Trạng thái',
-    5 => 'Mô tả',
+    1 => t('STT'),
+    2 => t('Thời gian'),
+    3 => t('Tên file xử lý'),
+    4 => t('Trạng thái'),
+    5 => t('Mô tả'),
   );
   
   $rows = array(
@@ -1063,6 +1061,9 @@ function _command_form($form, &$form_state) {
     34 => t('Get Host Phone Number'),
     //Get datalogger firmware version
     35 => t('Get Datalogger Firmware Version'),
+		//Alarm Options
+		36 => t('Set the Alarm Interval and Level for rainfall alarming'),
+		37 => t('Get the Alarm Interval and Level for rainfall alarming'),
   );
 
   $default = !empty($form_state['values']['command_selects']) ? $form_state['values']['command_selects'] : 1;
@@ -1180,7 +1181,8 @@ function _command_form($form, &$form_state) {
       // $title =  t('Set Rain Fall Clear Time');
       $form['command_fieldset']['set_rain_fall_clear_time']= array(
       '#type' => 'date_popup',
-      '#date_format' => 'd:m:Y H:i',
+      // '#date_format' => 'd:m:Y H:i',
+      '#date_format' => 'H:i',
 			//'#required' => TRUE,
       );
       break;
@@ -1322,7 +1324,7 @@ function _command_form($form, &$form_state) {
       '#title' => t('Port'),
       '#default_value' => 8000,
       '#maxlength' => 6,
-      '#required' => true,
+      // '#required' => true,
       );    
       break;
     case 32 :
@@ -1344,6 +1346,26 @@ function _command_form($form, &$form_state) {
       break;
     //Get datalogger firmware version
     case 35 :
+      // $title =  t('Get Datalogger Firmware Version');
+      break;
+		case 36 :
+      $form['command_fieldset']['set_alarm']= array(
+      '#type' => 'textfield',
+      '#title' => t('Interval'),
+      '#default_value' => '60',
+      '#maxlength' => 3,
+      '#required' => true,
+      );
+      
+      $form['command_fieldset']['set_level']= array(
+      '#type' => 'textfield',
+      '#title' => t('Level'),
+      '#default_value' => '1000',
+      '#maxlength' => 4,
+      '#required' => true,
+      );    
+      break;
+		case 37 :
       // $title =  t('Get Datalogger Firmware Version');
       break;
   }
@@ -1382,7 +1404,6 @@ function _command_form($form, &$form_state) {
 }
 
 function ajax_example_submit_driven_callback($form, $form_state) {
-	dsm('resul1');
 	$node_submit = _datalogger_insert_node_command($arg);
 	// $element = $form['submit_command_fieldset']['box'];
   // $element['#markup'] =  node_view($node_submit);
@@ -1449,19 +1470,19 @@ function _command_validate($form, &$form_state) {
       $dt_from = $form_state['values']['date_time_from'];
 			$number = $form_state['values']['accumulated_rain_fall'];
       if(empty($dt_from)){
-				_datalogger_check_empty('command_fieldset[date_time_from]', 'Từ ngày');
+				_datalogger_check_empty('date_time_from', 'Từ ngày');
       }
       $dt_to = $form_state['values']['date_time_to'];
 			if(empty($dt_from)){
-				_datalogger_check_empty('command_fieldset[date_time_to]', 'Tới ngày');
+				_datalogger_check_empty('date_time_to', 'Tới ngày');
       }
       $interval = (strtotime($dt_to) - strtotime($dt_from))/(24*60*60);
       if($interval < 0) {
-        form_set_error('command_fieldset[date_time_to]',t("Thời gian <b>Tới ngày</b> không được nhỏ hơn <b>Từ ngày</b>"));
+        form_set_error('date_time_to',t("Thời gian <b>Tới ngày</b> không được nhỏ hơn <b>Từ ngày</b>"));
       }
       else{
         if($interval > 1) {
-          form_set_error('command_fieldset[date_time_to]',t("Thời gian <b>Tới ngày</b> không được lớn hơn <b>Từ ngày</b> quá 24h"));
+          form_set_error('date_time_to',t("Thời gian <b>Tới ngày</b> không được lớn hơn <b>Từ ngày</b> quá 24h"));
         }
       }
       break;
@@ -1474,14 +1495,14 @@ function _command_validate($form, &$form_state) {
     case 5 :
       $id = $form_state['values']['set_input_id'];
 			if(empty($id)){
-				_datalogger_check_empty('command_fieldset[set_input_id]', 'ID');
+				_datalogger_check_empty('set_input_id', 'ID');
       }
       elseif (preg_match('/[^a-zA-Z0-9]/i',$id)){
-         form_set_error('command_fieldset[set_input_id]',t('Trường <b>ID</b> không được chứa kí tự đặc biệt.<br>Chỉ được chứa chữ cái, và số'));
+         form_set_error('set_input_id',t('Trường <b>ID</b> không được chứa kí tự đặc biệt.<br>Chỉ được chứa chữ cái, và số'));
       }
       else
         if(strlen($id) != 6) {
-          form_set_error('command_fieldset[set_input_id]',t('Trường <b>ID</b> không đúng định dạng.Bắt buộc phải chứa 6 kí tự'));
+          form_set_error('set_input_id',t('Trường <b>ID</b> không đúng định dạng.Bắt buộc phải chứa 6 kí tự'));
         }      
       break;
     case 6 :
@@ -1496,7 +1517,7 @@ function _command_validate($form, &$form_state) {
     case 10 :
 			$day = $form_state['values']['date_buffer_clear'];
 			if(empty($day)){
-				_datalogger_check_empty('command_fieldset[date_buffer_clear]','Ngày tháng');
+				_datalogger_check_empty('date_buffer_clear','Ngày tháng');
       }
       break;
     //Rain fall config
@@ -1504,14 +1525,14 @@ function _command_validate($form, &$form_state) {
     // ['command_fieldset']['accumulated_rain_fall']
       $number = $form_state['values']['accumulated_rain_fall'];
 			if(empty($number)){
-				_datalogger_check_empty('command_fieldset[accumulated_rain_fall]', 'Accumulated Rain Fall Value');
+				_datalogger_check_empty('accumulated_rain_fall', 'Accumulated Rain Fall Value');
       }
       else{
         if(($number%10) != 0 || $number < 0){
-          form_set_error('command_fieldset[accumulated_rain_fall]',t('Giá trị trường <b>').t('Accumulated Rain Fall Value').t('</b> phải dương  và là bội của 10'));
+          form_set_error('accumulated_rain_fall',t('Giá trị trường <b>').t('Accumulated Rain Fall Value').t('</b> phải dương  và là bội của 10'));
         }
 				else if (preg_match('/[^0-9.]/i',$number)){
-         form_set_error('command_fieldset[accumulated_rain_fall]',t('Trường <b>').t('Accumulated Rain Fall Value').t('</b> chỉ được chứa số.'));
+         form_set_error('accumulated_rain_fall',t('Trường <b>').t('Accumulated Rain Fall Value').t('</b> chỉ được chứa số.'));
 				}
       }
       break;
@@ -1532,17 +1553,17 @@ function _command_validate($form, &$form_state) {
       $batOff = $form_state['values']['bat_off'];
       
 			if(empty($batOn)){
-				_datalogger_check_empty('command_fieldset[bat_on]', 'Active Battery Power Voltage (V)');
+				_datalogger_check_empty('bat_on', 'Active Battery Power Voltage (V)');
       }
       else if (preg_match('/[^0-9.]/i',$batOn)){
-         form_set_error('command_fieldset[bat_on]',t('Trường <b>').t('Active Battery Power Voltage (V)').t('</b> chỉ được chứa số.'));
+         form_set_error('bat_on',t('Trường <b>').t('Active Battery Power Voltage (V)').t('</b> chỉ được chứa số.'));
       }
       
 			if(empty($batOff)){
-				_datalogger_check_empty('command_fieldset[bat_on]', 'De-Active Battery Power Voltage (V)');
+				_datalogger_check_empty('bat_on', 'De-Active Battery Power Voltage (V)');
       }
       else if (preg_match('/[^0-9.]/i',$batOff)){
-         form_set_error('command_fieldset[bat_off]',t('Trường <b>').t('De-Active Battery Power Voltage (V)').t('</b> chỉ được chứa số.'));
+         form_set_error('bat_off',t('Trường <b>').t('De-Active Battery Power Voltage (V)').t('</b> chỉ được chứa số.'));
       }
       break;
     case 16 :
@@ -1552,16 +1573,16 @@ function _command_validate($form, &$form_state) {
       // $title =  t('Set Battery Voltage Offset');   
       $vol = $form_state['values']['set_bat_vol'];
 			if(empty($vol)){
-				_datalogger_check_empty('command_fieldset[set_bat_vol]', 'Battery Voltage Offset (V)');
+				_datalogger_check_empty('set_bat_vol', 'Battery Voltage Offset (V)');
       }
       else if (preg_match('/[^0-9.]/i',$vol)){
-         form_set_error('command_fieldset[set_bat_vol]',t('Trường <b>').t('Battery Voltage Offset (V)').t('</b> chỉ được chứa số.'));
+         form_set_error('set_bat_vol',t('Trường <b>').t('Battery Voltage Offset (V)').t('</b> chỉ được chứa số.'));
       }
       break;
     case 18 :
       $vol = $form_state['values']['get_bat_vol'];
 			if(empty($vol)){
-				_datalogger_check_empty('command_fieldset[get_bat_vol]', 'Battery Voltage Offset (V)');
+				_datalogger_check_empty('get_bat_vol', 'Battery Voltage Offset (V)');
       }
       break;
     case 19 :
@@ -1582,14 +1603,14 @@ function _command_validate($form, &$form_state) {
       $interval = $form_state['values']['set_interval'];
 			
 			if(empty($interval)){
-				_datalogger_check_empty('command_fieldset[set_interval]', 'Data Send Interval Minutes');
+				_datalogger_check_empty('set_interval', 'Data Send Interval Minutes');
       }
       else{
         if(($interval % 10) != 0  || $interval > 180 || $interval < 0){
-          form_set_error('command_fieldset[set_interval]',t('Trường <b>').t('Data Send Interval Minutes').t('</b> Phải là bội của 10, không âm và nhỏ hơn 180 .')); 
+          form_set_error('set_interval',t('Trường <b>').t('Data Send Interval Minutes').t('</b> Phải là bội của 10, không âm và nhỏ hơn 180 .')); 
         }       
         else if (preg_match('/[^0-9]/i',$interval)){
-          form_set_error('command_fieldset[set_interval]',t('Trường <b>').t('Data Send Interval Minutes').t('</b> chỉ được chứa số.'));
+          form_set_error('set_interval',t('Trường <b>').t('Data Send Interval Minutes').t('</b> chỉ được chứa số.'));
         }
       }
       break;
@@ -1615,11 +1636,11 @@ function _command_validate($form, &$form_state) {
       $id = $form_state['values']['id_gprs'];
       $pass = $form_state['values']['pass_gprs']; 
 			if(empty($host)){
-				_datalogger_check_empty('command_fieldset[id_gprs]', 'Host');
+				_datalogger_check_empty('id_gprs', 'Host');
       }
       else{
         if(!filter_var($host, FILTER_VALIDATE_IP)){
-          form_set_error('command_fieldset[host_gprs]',t('Trường <b>').t('Host').t('</b> không đúng định dạng. xxx.xxx.xxx.xxx<br>Hay nhập lại.'));
+          form_set_error('host_gprs',t('Trường <b>').t('Host').t('</b> không đúng định dạng. xxx.xxx.xxx.xxx<br>Hay nhập lại.'));
         }      
       }
       break;
@@ -1629,18 +1650,18 @@ function _command_validate($form, &$form_state) {
     case 31 :
       $host = $form_state['values']['set_host'];
 			if(empty($host)){
-				_datalogger_check_empty('command_fieldset[set_host]', 'Host');
+				_datalogger_check_empty('set_host', 'Host');
       }
       $port = $form_state['values']['set_port'];
 			if(empty($port)){
-				_datalogger_check_empty('command_fieldset[set_port]', 'Port');
+				_datalogger_check_empty('set_port', 'Port');
       }
       if(!filter_var($host, FILTER_VALIDATE_IP)){
-          form_set_error('command_fieldset[set_host]',t('Trường <b>').t('Host').t('</b> không đúng định dạng. xxx.xxx.xxx.xxx<br>Hay nhập lại.'));
+          form_set_error('set_host',t('Trường <b>').t('Host').t('</b> không đúng định dạng. xxx.xxx.xxx.xxx<br>Hay nhập lại.'));
       }
       else{
         if (preg_match('/[^0-9]/i',$port)){
-          form_set_error('command_fieldset[set_port]',t('Trường <b>').t('Port').t('</b> chỉ được chứa ký tự số.'));
+          form_set_error('set_port',t('Trường <b>').t('Port').t('</b> chỉ được chứa ký tự số.'));
         }       
       }
       break;
@@ -1651,7 +1672,7 @@ function _command_validate($form, &$form_state) {
       // $title =  t('Set Host Phone Number');
       $host = $form_state['values']['host_phone'];
       if(empty($host)){
-        _datalogger_check_empty('command_fieldset[host_phone]','Host Phone Number');
+        _datalogger_check_empty('host_phone','Host Phone Number');
       }
       break;
     case 34 :
@@ -1661,6 +1682,25 @@ function _command_validate($form, &$form_state) {
     case 35 :
       // $title =  t('Get Datalogger Firmware Version');
       break;
+		case 36 :
+			$interval = $form_state['values']['set_alarm'];
+			if(empty($interval)){
+				_datalogger_check_empty('set_alarm', 'Interval');
+      }
+			elseif (preg_match('/[^0-9]/i',$interval)){
+          form_set_error('set_alarm',t('Trường <b>').t('Interval').t('</b> chỉ được chứa ký tự số.'));
+      }
+			
+      $level = $form_state['values']['set_level'];
+			if(empty($level)){
+				_datalogger_check_empty('set_level', 'Level');
+      }
+			elseif (preg_match('/[^0-9]/i',$level)){
+          form_set_error('set_level',t('Trường <b>').t('Level').t('</b> chỉ được chứa ký tự số.'));
+      }
+			break;
+		case 37 :
+			break;
   }
 }
 
@@ -1735,7 +1775,7 @@ function _send_command_submit($form, &$form_state) {
       break;
     case 7 :
       $pass = $form_state['values']['set_pass'];
-      $sms = 'S0'.ID.'SET  '.DT.'P:'.$pass;
+      $sms = 'S0'.ID.'SET  '.DT.'W:'.$pass;
       $len = strlen($sms);
       if($len < 84){
         for($i = 0; $i < (84 - $len); $i++){
@@ -1744,14 +1784,14 @@ function _send_command_submit($form, &$form_state) {
       }
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';
 			// $arg = array('Set Password','7', _datalogger_result($message),'');
-			$arg = array('Thiết lập mật khẩu','P:', _datalogger_result($message,'P:'),'',$nid);
+			$arg = array('Thiết lập mật khẩu','W:', _datalogger_result($message,'W:'),'',$nid);
       break;
     case 8 :
       // $title =  t('Get Password');
-      $sms = 'S0'.ID.'GET  '.DT.'P:?                                                         ';
+      $sms = 'S0'.ID.'GET  '.DT.'W:?                                                         ';
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';
 			// $arg = array('Get Password','8', _datalogger_result($message),'');
-			$arg = array('Lấy thông tin mật khẩu','P:', _datalogger_result($message,'P:?'),'',$nid);
+			$arg = array('Lấy thông tin mật khẩu','P:', _datalogger_result($message,'W:?'),'',$nid);
       break;
     //database Buffer Clear
     case 9 :
@@ -1786,17 +1826,17 @@ function _send_command_submit($form, &$form_state) {
     case 12 :
       // $title =  t('Set Rain Fall Clear Time');
       $time = _datalogger_convert_date('Hi',$form_state['values']['set_rain_fall_clear_time']);
-      $sms = 'S0'.ID.'SET  '.DT.'R:CLEAR:'.$time.'                                                ';
+      $sms = 'S0'.ID.'SET  '.DT.'R:CLEAR TIME:'.$time.'                                           ';
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';
 			// $arg = array('Set Rain Fall Clear Time','12', _datalogger_result($message),'');
 			$arg = array('Thiết lập thời gian xóa dữ liệu mưa','R:CLEAR:', _datalogger_result($message,'R:CLEAR:'),'',$nid);
       break;
     case 13 :
       // $title =  t('Get Rain Fall Clear Time');
-      $sms = 'S0'.ID.'GET  '.DT.'R:CLEAR:?                                                   ';
+      $sms = 'S0'.ID.'GET  '.DT.'R:CLEAR TIME:?                                              ';
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';
 			// $arg = array('Get Rain Fall Clear Time','13', _datalogger_result($message),'');
-			$arg = array('Lấy thời gian xóa dữ liệu mưa','R:CLEAR:', _datalogger_result($message,'R:CLEAR:?'),'',$nid);
+			$arg = array('Lấy thời gian xóa dữ liệu mưa','R:CLEAR TIME:', _datalogger_result($message,'R:CLEAR TIME:?'),'',$nid);
       break;
     //Datalogger config
     case 14 :
@@ -2016,23 +2056,50 @@ function _send_command_submit($form, &$form_state) {
 			// $arg = array('Get Datalogger phiê Version','35', _datalogger_result($message),'');
 			$arg = array('Lấy phiên bản Datalogger hiện tại','V:VERSION:', _datalogger_result($message,'V:VERSION:?'),'',$nid);
       break;
+			
+		case 36 :
+			$interval = $form_state['values']['set_alarm'];
+			if(strlen($interval) < 3){
+				$interval = '0'.$interval;	
+			}
+			
+      $level = $form_state['values']['set_level'];
+			if(strlen($level) < 4){
+				$lenstr = strlen($level);
+				for($i = 0; $i < 4-$lenstr; $i++){
+					$level = ' '.$level;
+				}
+			}
+			$sms = 'S0'.ID.'SET  '.DT.'A:ALARM INTERVAL:'.$interval.', LEVEL:'.$level.'                            ';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
+			// dsm($message);
+			// dsm(strlen($message));
+			// $arg = array('Get Datalogger phiê Version','35', _datalogger_result($message),'');
+			$arg = array('Thiết lập thời gian và lượng mưa cảnh báo','A:ALARM INTERVAL:', _datalogger_result($message,'A:ALARM INTERVAL:'),'',$nid);
+			break;
+		case 37 :
+			$sms = 'S0'.ID.'GET  '.DT.'A:ALARM INTERVAL:?                                          ';
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
+			// dsm($message);
+			// dsm(strlen($message));
+			// $arg = array('Get Datalogger phiê Version','35', _datalogger_result($message),'');
+			$arg = array('Lấy phiên bản Datalogger hiện tại','A:ALARM INTERVAL:?', _datalogger_result($message,'A:ALARM INTERVAL:'),'',$nid);
+			break;
   }
 	
 	$type = substr($sms, 7, 3);
 	$arg['type'] = $type;
 	
 	
-	$node_submit = _datalogger_insert_node_command($arg);
-	// dpm($node_submit);
-  _datalogger_insert_outbox(PHONE, $message);	
+	// $node_submit = _datalogger_insert_node_command($arg);
+  // _datalogger_insert_outbox(PHONE, $message);	
   // drupal_set_message($message.'<br>Gửi lệnh thành công!');
-  // drupal_set_message('Gửi lệnh thành công!');
-	if($check != true){
-		//$form_state['redirect'] = 'view/command/send/station/refresh';
-		$form_state['redirect'] = 'node/' . $node_submit->nid . '/refresh';
-	}else{
-		$form_state['redirect'] = 'view/rainfall/default/refresh';
-	}
+  drupal_set_message('Gửi lệnh thành công!');
+	// if($check != true){
+		// $form_state['redirect'] = 'node/' . $node_submit->nid . '/refresh';
+	// }else{
+		// $form_state['redirect'] = 'view/rainfall/default/refresh';
+	// }
 }
 
 /*
@@ -2058,15 +2125,12 @@ function datalogger_action_info() {
 }
 
 function datalogger_command_action(){
-  // _command_form();
 }
 
 
 function _view_translate_station() {
   return digipro_views_get_view_result("arg_all_datalogger", "page", null,
       true, false);
-  // return digipro_views_get_view_result("logs_management", null, null, false,
-// false);
 }
 
 function _view_translate_log() {
@@ -2090,14 +2154,11 @@ function digipro_views_get_view_result($viewname, $display_id = NULL, $args = NU
     }
     $view->pre_execute();
     $view->execute();
-    // dpm($view);
     global $language_content;
     switch ($language_content->language) {
       case "en":
         switch ($view->name) {
           case "logs_management":
-            // dpm($view);
-            // dpm($view);
             $view->field['title']->options['label'] = 'Name Log';
             $view->field['field_event_type']->options['label'] = 'Event Type';
             $view->field['created']->options['label'] = 'Post Date';
