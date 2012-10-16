@@ -4,11 +4,16 @@ global $user;
 global $site_name;
 
 if (in_array('administrator', array_values($user->roles)) || in_array('control datalogger', array_values($user->roles))) {
-  variable_set('site_name', t('Phần mềm điều khiển trạm đo mưa tự động'));
+  // variable_set('site_name', t('Phần mềm điều khiển trạm đo mưa tự động'));
+  variable_set('site_name', t('Software control automatic rain gauge stations'));
 }
 else{
-  variable_set('site_name', t('Hệ thống khai thác dữ liệu đo mưa tự động 2012'));
+  // variable_set('site_name', t('Hệ thống khai thác dữ liệu đo mưa tự động 2012'));
+  variable_set('site_name', t('Data mining system automatic rain gauge 2012'));
 }
+
+
+
 
 function datalogger_preprocess_html(&$variables) {
 
@@ -117,6 +122,11 @@ function datalogger_process_maintenance_page(&$variables) {
     // If toggle_site_slogan is FALSE, the site_slogan will be empty, so we rebuild it.
     $variables['site_slogan'] = filter_xss_admin(variable_get('site_slogan', ''));
   }
+	
+	//Thiết lập title cho các view với các tham số khách nhau
+	// if($variables['nghe_an'])
+	
+	
 }
 
 /**
@@ -178,10 +188,92 @@ function datalogger_field__taxonomy_term_reference($variables) {
   return $output;
 }
 
-// function datalogger_preprocess_page(&$variables) {
-  // switch ($_REQUEST['q']) {
-  // case '/stations':
-    // drupal_set_title(t('List All Datalogger'));
-    // break;
-  // }
-// }
+function datalogger_preprocess_page(&$variables) {
+	$str = arg(3);
+	$provinces = _datalogger_provinces();
+	$areas = _datalogger_areas();
+	if($provinces[$str] != '' || $provinces[$str] != null )
+		// drupal_set_title(t('Danh sách trạm đo mưa tự động  ').t($provinces[$str]));
+		$province = t("Danh sách trạm đo mưa tự động $provinces[$str]");
+		drupal_set_title($province);
+	if($areas[$str] != '' || $areas[$str] != null )
+		// drupal_set_title(t('Danh sách trạm KTTV ').t($areas[$str]));
+		$area = t("Danh sách trạm KTTV $areas[$str]");
+		drupal_set_title($area);
+}
+
+function _datalogger_provinces(){
+	$list = array('ho_chi_minh' => 'TP. Hồ Chí Minh',
+	'hai_phong' => 'TP. Hải Phòng',
+	'da_nang' => 'TP. Đà Nẵng',
+	'ha_giang' => 'Tỉnh Hà Giang',
+	'cao_bang' => 'Tỉnh Cao Bằng',
+	'lai_chau' => 'Tỉnh Lai Châu',
+	'lao_cai' => 'Tỉnh Lào Cai',
+	'tuyen_quang' => 'Tỉnh Tuyên Quang',
+	'lang_son' => 'Tỉnh Lạng Sơn',
+	'bac_kan' => 'Tỉnh Bắc Kạn',
+	'thai_nguyen' => 'Tỉnh Thái Nguyên',
+	'yen_bai' => 'Tỉnh Yên Bái',
+	'son_la' => 'Tỉnh Sơn La',
+	'phu_tho' => 'Tỉnh Phú Thọ',
+	'vinh_phuc' => 'Tỉnh Vĩnh Phúc',
+	'quang_ninh' => 'Tỉnh Quảng Ninh',
+	'bac_giang' => 'Tỉnh Bắc Giang',
+	'bac_ninh' => 'Tỉnh Bắc Ninh',
+	'ha_noi' => 'TP. Hà Nội',
+	'hai_duong' => 'Tỉnh Hải Dương',
+	'hung_yen' => 'Tỉnh Hưng Yên',
+	'hoa_binh' => 'Tỉnh Hòa Bình',
+	'ha_nam' => 'Tỉnh Hà Nam',
+	'nam_dinh' => 'Tỉnh Nam Định',
+	'thai_binh' => 'Tỉnh Thái Bình',
+	'ninh_binh' => 'Tỉnh Ninh Bình',
+	'thanh_hoa' => 'Tỉnh Thanh Hóa',
+	'nghe_an' => 'Tỉnh Nghệ An',
+	'ha_tinh' => 'Tỉnh Hà Tĩnh',
+	'quang_binh' => 'Tỉnh Quảng Bình',
+	'quang_tri' => 'Tỉnh Quảng Trị',
+	'thua_thien_hue' => 'Tỉnh Thừa Thiên - Huế',
+	'quang_nam' => 'Tỉnh Quảng Nam',
+	'quang_ngai' => 'Tỉnh Quảng Ngãi',
+	'kom_tum' => 'Tỉnh Kon Tum',
+	'binh_dinh' => 'Tỉnh Bình Định',
+	'giai_lai' => 'Tỉnh Gia Lai',
+	'phu_yen' => 'Tỉnh Phú Yên',
+	'dak_lak' => 'Tỉnh Đăk Lăk',
+	'khanh_hoa' => 'Tỉnh Khánh Hòa',
+	'lam_dong' => 'Tỉnh Lâm Đồng',
+	'binh_phuoc' => 'Tỉnh Bình Phước',
+	'binh_duong' => 'Tỉnh Bình Dương',
+	'ninh_thuan' => 'Tỉnh Ninh Thuận',
+	'tay_ninh' => 'Tỉnh Tây Ninh',
+	'binh_thuan' => 'Tỉnh Bình Thuận',
+	'dong_nai' => 'Tỉnh Đồng Nai',
+	'long_an' => 'Tỉnh Long An',
+	'dong_thap' => 'Tỉnh Đồng Tháp',
+	'an_giang' => 'Tỉnh An Giang',
+	'ba_ria_vung_tau' => 'Tỉnh Bà Rịa - Vũng Tàu',
+	'tien_gian' => 'Tỉnh Tiền Giang',
+	'kien_giang' => 'Tỉnh Kiên Giang',
+	'can_tho' => 'TP. Cần Thơ',
+	'ben_tre' => 'Tỉnh Bến Tre',
+	'vinh_long' => 'Tỉnh Vĩnh Long',
+	'tra_vinh' => 'Tỉnh Trà Vinh',
+	'soc_trang' => 'Tỉnh Sóc Trăng',
+	'bac_lieu' => 'Tỉnh Bạc Liêu',
+	'ca_mau' => 'Tỉnh Cà Mau',
+	'dien_bien' => 'Tỉnh Điện Biên',
+	'dak_nong' => 'Tỉnh Đăk Nông',
+	'hau_giang' => 'Tỉnh Hậu Giang',);
+	return $list;
+}
+
+function _datalogger_areas(){
+	$list = array('north_central_region' => 'Khu Vực Bắc Trung Bộ',
+		'mid_central_region ' => 'Khu Vực Trung Trung Bộ',
+		'central_highlands' => 'Khu Vực Tây Nguyên',
+		'south_central_region ' => 'Khu Vực Nam Trung Bộ',
+		'south_region' => 'Khu Vực Nam Bộ',);
+	return $list;
+}

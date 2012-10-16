@@ -268,12 +268,12 @@ function _datalogger_insert_node_rainfall($arg){
 function _datalogger_new_sms_form1(){
   $result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 0 , 30");
   $headers = array(
-    1 => 'STT',
-    2 => 'Cập nhật DB',
-    3 => 'Tin nhắn tới',
-    4 => 'Số gửi tin',
-    5 => 'Tổng đài',
-    6 => 'Nội dung tin nhắn',
+    1 => t('STT'),
+    2 => t('Cập nhật DB'),
+    3 => t('Tin nhắn tới'),
+    4 => t('Số gửi tin'),
+    5 => t('Tổng đài'),
+    6 => t('Nội dung tin nhắn'),
   );
   $rows = array();
   $i = 1;
@@ -290,7 +290,7 @@ function _datalogger_new_sms_form1(){
   // Table of Data
   $form['tbl_inbox'] = array(
     '#theme' => 'table',
-    '#header' => $headers,
+    '#header' => t($headers),
     '#rows' => $rows,
     // '#empty' => t('Null')
   );
@@ -312,12 +312,12 @@ function _datalogger_endsWith($sms, $needle)
 function _datalogger_new_sms_form(){
   $result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 0 , 50");
   $headers = array(
-    1 => 'STT',
-    2 => 'Cập nhật DB',
-    3 => 'Tin nhắn tới',
-    4 => 'Số gửi tin',
-    5 => 'Tổng đài',
-    6 => 'Nội dung tin nhắn',
+    1 => t('STT'),
+    2 => t('Cập nhật DB'),
+    3 => t('Tin nhắn tới'),
+    4 => t('Số gửi tin'),
+    5 => t('Tổng đài'),
+    6 => t('Nội dung tin nhắn'),
   );
   $rows = array();
   $i = 1;
@@ -1771,7 +1771,7 @@ function _send_command_submit($form, &$form_state) {
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';
 			
 			// $arg = array('Get ID','6', _datalogger_result($message),'');
-			$arg = array('Lấy thông tin ID','D:', _datalogger_result($message,'D:?'),'',$nid);
+			$arg = array('Lấy thông tin ID','D:', _datalogger_result($message,'D:'),'',$nid);
       break;
     case 7 :
       $pass = $form_state['values']['set_pass'];
@@ -1791,7 +1791,7 @@ function _send_command_submit($form, &$form_state) {
       $sms = 'S0'.ID.'GET  '.DT.'W:?                                                         ';
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';
 			// $arg = array('Get Password','8', _datalogger_result($message),'');
-			$arg = array('Lấy thông tin mật khẩu','P:', _datalogger_result($message,'W:?'),'',$nid);
+			$arg = array('Lấy thông tin mật khẩu','P:', _datalogger_result($message,'W:'),'',$nid);
       break;
     //database Buffer Clear
     case 9 :
@@ -1836,7 +1836,7 @@ function _send_command_submit($form, &$form_state) {
       $sms = 'S0'.ID.'GET  '.DT.'R:CLEAR TIME:?                                              ';
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';
 			// $arg = array('Get Rain Fall Clear Time','13', _datalogger_result($message),'');
-			$arg = array('Lấy thời gian xóa dữ liệu mưa','R:CLEAR TIME:', _datalogger_result($message,'R:CLEAR TIME:?'),'',$nid);
+			$arg = array('Lấy thời gian xóa dữ liệu mưa','R:CLEAR TIME:', _datalogger_result($message,'R:CLEAR TIME:'),'',$nid);
       break;
     //Datalogger config
     case 14 :
@@ -1871,7 +1871,7 @@ function _send_command_submit($form, &$form_state) {
       $sms = 'S0'.ID.'GET  '.DT.'P:BAT ON:?                                                  ';
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';
 			// $arg = array('Get Active / De-Active Battery Power Voltage','16', _datalogger_result($message),'');
-			$arg = array('Lấy điện áp nguồn điện ắc quy hoạt độn/ngừng hoạt động','P:BAT ON:', _datalogger_result($message,'P:BAT ON:?'),'',$nid);
+			$arg = array('Lấy điện áp nguồn điện ắc quy hoạt độn/ngừng hoạt động','P:BAT ON:', _datalogger_result($message,'P:BAT ON:'),'',$nid);
       break;
     case 17 :
       // $title =  t('Set Battery Voltage Offset');
@@ -1920,7 +1920,7 @@ function _send_command_submit($form, &$form_state) {
       $sms = 'S0'.ID.'GET  '.DT.'P:AUTO PWR MANAGEMENT:?                                     ';
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';
 			// $arg = array('Get Auto Power Management Enable / Disable','21', _datalogger_result($message),'');
-			$arg = array('Lấy thông tin quản lý nguồn','P:AUTO PWR MANAGEMENT:', _datalogger_result($message,'P:AUTO PWR MANAGEMENT:?'),'',$nid);
+			$arg = array('Lấy thông tin quản lý nguồn','P:AUTO PWR MANAGEMENT:', _datalogger_result($message,'P:AUTO PWR MANAGEMENT:'),'',$nid);
       break;
     case 22 :
       // $title =  t('Go To Sleep Mode');
@@ -1949,7 +1949,7 @@ function _send_command_submit($form, &$form_state) {
       $sms =  'S0'.ID.'GET  '.DT.'C:INTERVAL:?                                                ';
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';
 			// $arg = array('Get Data Send Interval Minutes','24', _datalogger_result($message),'');
-			$arg = array('Lấy thời gian truyền dữ liệu','C:INTERVAL:', _datalogger_result($message,'C:INTERVAL:?'),'',$nid);
+			$arg = array('Lấy thời gian truyền dữ liệu','C:INTERVAL:', _datalogger_result($message,'C:INTERVAL:'),'',$nid);
       break;
     case 25 :
       // $title =  t('Set Communication Type GSM');
@@ -1977,7 +1977,7 @@ function _send_command_submit($form, &$form_state) {
       $sms = 'S0'.ID.'GET  '.DT.'C:COMM:?                                                    ';
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';
 			// $arg = array('Get Communication Type','28', _datalogger_result($message),'');
-			$arg = array('Lấy về trạng thái kết nối','C:COMM:', _datalogger_result($message,'C:COMM:?'),'',$nid);
+			$arg = array('Lấy về trạng thái kết nối','C:COMM:', _datalogger_result($message,'C:COMM:'),'',$nid);
       break;
     //GPRS network setting
     case 29 :
@@ -2003,7 +2003,7 @@ function _send_command_submit($form, &$form_state) {
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';
 			
 			// $arg = array('Get GPRS Network Setting','30', _datalogger_result($message),'');
-			$arg = array('Lấy thiết lập mạng GPRS','G:APN:', _datalogger_result($message,'G:APN:?'),'',$nid);
+			$arg = array('Lấy thiết lập mạng GPRS','G:APN:', _datalogger_result($message,'G:APN:'),'',$nid);
       break;
     case 31 :
       // $title =  t('Set Host Network Infomation');
@@ -2025,7 +2025,7 @@ function _send_command_submit($form, &$form_state) {
       $sms = 'S0'.ID.'GET  '.DT.'N:HOST:?                                                    ';
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';
 			// $arg = array('Get Host Network Infomation','32', _datalogger_result($message),'');
-			$arg = array('Lấy thông tin mạng máy chủ','N:HOST:', _datalogger_result($message,'N:HOST:?'),'',$nid);
+			$arg = array('Lấy thông tin mạng máy chủ','N:HOST:', _datalogger_result($message,'N:HOST:'),'',$nid);
       break;
     case 33 :
       // $title =  t('Set Host Phone Number');
@@ -2046,7 +2046,7 @@ function _send_command_submit($form, &$form_state) {
       $sms = 'S0'.ID.'GET  '.DT.'H:HOST PHONE NO:?                                           '; 
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';
 			// $arg = array('Get Host Phone Number','34', _datalogger_result($message),'');
-			$arg = array('Lấy số điện thoại máy chủ','H:HOST PHONE NO:', _datalogger_result($message,'H:HOST PHONE NO:?'),'',$nid);
+			$arg = array('Lấy số điện thoại máy chủ','H:HOST PHONE NO:', _datalogger_result($message,'H:HOST PHONE NO:'),'',$nid);
       break;
     //Get datalogger firmware version
     case 35 :
@@ -2054,7 +2054,7 @@ function _send_command_submit($form, &$form_state) {
       $sms = 'S0'.ID.'GET  '.DT.'V:VERSION:?                                                 ';
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
 			// $arg = array('Get Datalogger phiê Version','35', _datalogger_result($message),'');
-			$arg = array('Lấy phiên bản Datalogger hiện tại','V:VERSION:', _datalogger_result($message,'V:VERSION:?'),'',$nid);
+			$arg = array('Lấy phiên bản Datalogger hiện tại','V:VERSION:', _datalogger_result($message,'V:VERSION:'),'',$nid);
       break;
 			
 		case 36 :
@@ -2062,7 +2062,7 @@ function _send_command_submit($form, &$form_state) {
 			if(strlen($interval) < 3){
 				$interval = '0'.$interval;	
 			}
-			
+			dsm($interval);
       $level = $form_state['values']['set_level'];
 			if(strlen($level) < 4){
 				$lenstr = strlen($level);
@@ -2070,6 +2070,7 @@ function _send_command_submit($form, &$form_state) {
 					$level = ' '.$level;
 				}
 			}
+			dsm($level);
 			$sms = 'S0'.ID.'SET  '.DT.'A:ALARM INTERVAL:'.$interval.', LEVEL:'.$level.'                            ';
       $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
 			// dsm($message);
@@ -2083,7 +2084,7 @@ function _send_command_submit($form, &$form_state) {
 			// dsm($message);
 			// dsm(strlen($message));
 			// $arg = array('Get Datalogger phiê Version','35', _datalogger_result($message),'');
-			$arg = array('Lấy phiên bản Datalogger hiện tại','A:ALARM INTERVAL:?', _datalogger_result($message,'A:ALARM INTERVAL:'),'',$nid);
+			$arg = array('Lấy về thời gian và lượng mưa cảnh báo','A:ALARM INTERVAL:?', _datalogger_result($message,'A:ALARM INTERVAL:'),'',$nid);
 			break;
   }
 	
@@ -2091,8 +2092,8 @@ function _send_command_submit($form, &$form_state) {
 	$arg['type'] = $type;
 	
 	
-	// $node_submit = _datalogger_insert_node_command($arg);
-  // _datalogger_insert_outbox(PHONE, $message);	
+	$node_submit = _datalogger_insert_node_command($arg);
+  _datalogger_insert_outbox(PHONE, $message);	
   // drupal_set_message($message.'<br>Gửi lệnh thành công!');
   drupal_set_message('Gửi lệnh thành công!');
 	// if($check != true){
