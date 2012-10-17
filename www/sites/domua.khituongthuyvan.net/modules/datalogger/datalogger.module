@@ -1,6 +1,27 @@
 <?php
 
 /**
+ * 18/10.
+ */
+module_load_include('inc', 'datalogger','datalogger.admin');
+function datalogger_action_info() {
+	GLOBAL $options_commands;
+  return array(
+			'datalogger_send_command_action' => array(
+      'type' => 'node',
+      'label' => $options_commands[1],
+      'configurable' => FALSE,
+      'behavior' => array('changes_property'),
+      'triggers' => array('node_presave', 'node_insert', 'node_update'),
+    ),
+  );
+}
+
+function datalogger_send_command_action(&$object, $context = array()){
+	_datalogger_send_command($object->nid,1,null,null);
+}
+
+ /**
  * Implements hook_menu().
  */
  
@@ -10,6 +31,18 @@ function datalogger_menu() {
 	*Begin date:10-10-12
  *Tạo menu gọi lại menu command
  */
+  $items['sendallcommand'] = array(
+    // 'title' => 'Lấy giá trị lệnh trả về',
+    'page callback' => '_datalogger_send_command',
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('control datalogger'),
+    // 'access callback' => TRUE,
+  );	
+	
+/**
+*Begin date:10-10-12
+*Tạo menu gọi lại menu command
+*/
   $items['command/ajax'] = array(
     'title' => 'Lấy giá trị lệnh trả về',
     'page callback' => '_datalogger_check_command_ajax',

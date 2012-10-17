@@ -36,8 +36,478 @@ $datalogger_pattern = array(
 		'H:HOST PHONE NO:',
 		//'H:HOST PHONE NO:?',
 		//'V:VERSION:?',
-		'V:VERSION:');
- 
+		'V:VERSION:',
+		'R:RESET');
+
+	// GLOBAL $options_commands;
+	// $options_commands = array(
+    // //Data call command
+    // 1 => t('Real Data Call'),
+    // 2 => t('Save Data Call'),
+    // //Date and Time Set
+    // 3 => t('Date $ Time Set'),
+    // 4 => t('GPRS Network Time Synchronization'),
+    // //ID $ Password Set
+    // 5 => t('Set ID'),
+    // 6 => t('Get ID'),
+    // 7 => t('Set Password'),
+    // 8 => t('Get Password'),
+    // //database Buffer Clear
+    // 9 => t('All Database Buffer Clear'),
+    // 10 => t('Specific Date Database Buffer Clear'),
+    // //Rain fall config
+    // 11 => t('Accumulated Rain Fall Value Set'),
+    // 12 => t('Set Rain Fall Clear Time'),
+    // 13 => t('Get Rain Fall Clear Time'),
+    // //Datalogger config
+    // 14 => t('Self Power Reset'),
+    // 15 => t('Set Active / De-Active Battery Power Voltage'),
+    // 16 => t('Get Active / De-Active Battery Power Voltage'),
+    // 17 => t('Set Battery Voltage Offset'),
+    // 18 => t('Get Battery Voltage Offset'),
+    // 19 => t('Set Auto Power Management Enable'),
+    // 20 => t('Set Auto Power Management Disable'),
+    // 21 => t('Get Auto Power Management Enable / Disable'),
+    // 22 => t('Go To Sleep Mode'),
+    // //Communication setting
+    // 23 => t('Set Data Send Interval Minutes'),
+    // 24 => t('Get Data Send Interval Minutes'),
+    // 25 => t('Set Communication Type GSM'),
+    // 26 => t('Set Communication Type GPRS'),
+    // 27 => t('Set Communication Type Auto'),
+    // 28 => t('Get Communication Type'),
+    // //GPRS network setting
+    // 29 => t('Set GPRS Network Setting'),
+    // 30 => t('Get GPRS Network Setting'),
+    // 31 => t('Set Host Network Infomation'),
+    // 32 => t('Get Host Network Infomation'),
+    // 33 => t('Set Host Phone Number'),
+    // 34 => t('Get Host Phone Number'),
+    // //Get datalogger firmware version
+    // 35 => t('Get Datalogger Firmware Version'),
+		// //Alarm Options
+		// 36 => t('Set the Alarm Interval and Level for rainfall alarming'),
+		// 37 => t('Get the Alarm Interval and Level for rainfall alarming'),
+		// 38 => t('Reset All'),);	
+
+
+function _datalogger_send_command($nid, $select,$form, $form_state){
+	// dsm($nid);
+	define('DATEymdHis', date('ymdHis',time()));  
+  define('DATEymdHi', date('ymdHi',time()));  
+  define('DATEYmdHi', date('YmdHi',time()));  
+	
+  if($nid) {  
+    $node = node_load($nid);
+    $code = $node->field_station_code['und']['0']['value'];
+    $phone = $node->field_station_sim_number['und']['0']['value'];
+    define('CODE',$code);
+    define('PHONE',$phone);
+  }
+
+  switch ($select) {
+    //Data call command
+    case 1 :
+      $sms = 'S0'.CODE.'GET  '.DATEymdHis.'I:STATUS ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Real Data Call','1', _datalogger_result($message),'');
+			$arg = array('Lấy số liệu mưa hiện tại','I:STATUS', _datalogger_result($message,'I:STATUS'),'',$nid);
+			$check = true;
+      break;
+    case 2 :
+      $dt_from = $form_state['values']['date_time_from'];
+      $from = _datalogger_convert_date('ymdHi',$dt_from);
+      $dt_to = $form_state['values']['date_time_to'];
+      $to = _datalogger_convert_date('ymdHi',$dt_to);
+      $sms = 'S0'.CODE.'GET  '.DATEymdHis.'S:'.$from.'~'.$to;
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Save Data Call','2', _datalogger_result($message),'');
+			$arg = array('Lấy dữ liệu đã lưu trên Datalogger','S:', _datalogger_result($message,'S:'),'',$nid);
+			break;
+    //Date and Time Set
+    case 3 : 
+      $date = _datalogger_convert_date($strFormat = 'Ymdhis', $form_state['values']['date_time_set']);
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'T:'.$date.'                                            ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array(('Date $ Time Set'),'3', _datalogger_result($message),'');
+			$arg = array(('Thiết lập thời gian'),'T:', _datalogger_result($message,'T:'),'',$nid);
+      break;
+    case 4 : 
+      // $title =  t('GPRS Network Time Synchronization');
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'T:NITZ                                                      ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('GPRS Network Time Synchronization','4', _datalogger_result($message),'');
+			$arg = array('Đồng bộ thời gian mạng GPRS','T:NITZ', _datalogger_result($message,'T:NITZ'),'',$nid);
+      break;
+    //CODE $ Password Set
+    case 5 :
+      // $title =  t('Set CODE');
+      $id = $form_state['values']['set_input_id'];
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'D:'.$id.'                                                    ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Set CODE','5', _datalogger_result($message),'');
+			$arg = array('Thiết lập CODE','D:', _datalogger_result($message,'D:'),'',$nid);
+      break;
+    case 6 :
+      // $title =  t('Get CODE');
+      $sms = 'S0'.CODE.'GET  '.DATEymdHis.'D:?                                                         ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			
+			// $arg = array('Get CODE','6', _datalogger_result($message),'');
+			$arg = array('Lấy thông tin CODE','D:', _datalogger_result($message,'D:'),'',$nid);
+      break;
+    case 7 :
+      $pass = $form_state['values']['set_pass'];
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'W:'.$pass;
+      $sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Set Password','7', _datalogger_result($message),'');
+			$arg = array('Thiết lập mật khẩu','W:', _datalogger_result($message,'W:'),'',$nid);
+      break;
+    case 8 :
+      // $title =  t('Get Password');
+      $sms = 'S0'.CODE.'GET  '.DATEymdHis.'W:?                                                         ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Get Password','8', _datalogger_result($message),'');
+			$arg = array('Lấy thông tin mật khẩu','P:', _datalogger_result($message,'W:'),'',$nid);
+      break;
+    //database Buffer Clear
+    case 9 :
+      // $title =  t('All Database Buffer Clear');
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'R:FORMAT ALL                                                ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('All Database Buffer Clear','9', _datalogger_result($message),'');
+			$arg = array('Xóa bộ đệm dữ liệu','R:FORMAT_ALL', _datalogger_result($message,'R:FORMAT_ALL'),'',$nid);
+      break;
+    case 10 :
+      // $title =  t('Specific Date Database Buffer Clear');
+      $day = _datalogger_convert_date('ymd',$form_state['values']['date_buffer_clear']);
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'R:FORMAT_DAY:'.$day.'                                         ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Specific Date Database Buffer Clear','10', _datalogger_result($message),'');
+			$arg = array('Xóa bộ đệm dữ liệu theo ngày','R:FORMAT_DAY:', _datalogger_result($message,'R:FORMAT_DAY:'),'',$nid);
+    //Rain fall config
+    case 11 :
+      // $title =  t('Accumulated Rain Fall Value Set');
+      $number = $form_state['values']['accumulated_rain_fall'];
+      $len = strlen($number);
+      if($len < 5 ){
+        for($i = 0; $i < (5 - $len); $i++){
+          $number .= ' ';
+        }
+      }
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'R:SET:'.$number.'                                                 ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Accumulated Rain Fall Value Set','11', _datalogger_result($message),'');
+			$arg = array('Thiết lập gía trị lượng mưa tích lũy','R:SET:', _datalogger_result($message,'R:SET:'),'',$nid);
+      break;
+    case 12 :
+      // $title =  t('Set Rain Fall Clear Time');
+      $time = _datalogger_convert_date('Hi',$form_state['values']['set_rain_fall_clear_time']);
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'R:CLEAR TIME:'.$time.'                                           ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Set Rain Fall Clear Time','12', _datalogger_result($message),'');
+			$arg = array('Thiết lập thời gian xóa dữ liệu mưa','R:CLEAR:', _datalogger_result($message,'R:CLEAR:'),'',$nid);
+      break;
+    case 13 :
+      // $title =  t('Get Rain Fall Clear Time');
+      $sms = 'S0'.CODE.'GET  '.DATEymdHis.'R:CLEAR TIME:?                                              ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Get Rain Fall Clear Time','13', _datalogger_result($message),'');
+			$arg = array('Lấy thời gian xóa dữ liệu mưa','R:CLEAR TIME:', _datalogger_result($message,'R:CLEAR TIME:'),'',$nid);
+      break;
+    //Datalogger config
+    case 14 :
+      // $title =  t('Self Power Reset');
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'P:RESET                                                     ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Self Power Reset','14', _datalogger_result($message),'');
+			$arg = array('Thiết lập lại nguồn điện','P:RESET', _datalogger_result($message,'P:RESET'),'',$nid);
+      break;
+    case 15 :
+      // $title =  t('Set Active / De-Active Battery Power Voltage');
+      $batOn = number_format($form_state['values']['bat_on'],1);
+      $lenOn = strlen($batOn);
+      if($lenOn < 5){
+        for($i=0; $i < (5 - $lenOn); $i++){
+          $batOn = '0'.$batOn;
+        }
+      }
+      $batOff = number_format($form_state['values']['bat_off'],1);
+      $lenOff = strlen($batOff);
+      if($lenOff < 5){
+        for($i=0; $i < (5 - $lenOff); $i++){
+          $batOff = '0'.$batOff;
+        }
+      }
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'P:BAT ON:'.$batOn.'V, OFF:'.$batOff.'V                                 ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Set Active / De-Active Battery Power Voltage','15', _datalogger_result($message),'');
+			$arg = array('Thiết lập điện áp nguồn ắc quy hoạt động/ngừng hoạt động','P:BAT ON:', _datalogger_result($message,'P:BAT ON:'),'',$nid);
+			break;
+    case 16 :
+      // $title =  t('Get Active / De-Active Battery Power Voltage');
+      $sms = 'S0'.CODE.'GET  '.DATEymdHis.'P:BAT ON:?                                                  ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Get Active / De-Active Battery Power Voltage','16', _datalogger_result($message),'');
+			$arg = array('Lấy điện áp nguồn điện ắc quy hoạt độn/ngừng hoạt động','P:BAT ON:', _datalogger_result($message,'P:BAT ON:'),'',$nid);
+      break;
+    case 17 :
+      // $title =  t('Set Battery Voltage Offset');
+      $vol = number_format($form_state['values']['set_bat_vol'],1);
+      $lenVol = strlen($vol);
+      if($lenVol < 4){
+        for($i=0; $i < (4 - $lenVol); $i++){
+          $vol = '0'.$vol;
+        }
+      }
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'P:BAT OFFSET:+'.$vol.'V                                         ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Set Battery Voltage Offset','17', _datalogger_result($message),'');
+			$arg = array('Thiết lập phần bù điện áp ắc quy','P:BAT OFFSET:', _datalogger_result($message,'P:BAT OFFSET:'),'',$nid);
+      break;
+    case 18 :
+      // $title =  t('Get Battery Voltage Offset');
+      $vol = number_format($form_state['values']['get_bat_vol'],1);
+      $lenVol = strlen($vol);
+      if($lenVol < 4){
+        for($i=0; $i < (4 - $lenVol); $i++){
+          $vol = '0'.$vol;
+        }
+      }
+      $sms = 'S0'.CODE.'GET  '.DATEymdHis.'P:BAT OFFSET:+'.$vol.'V                                         ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Get Battery Voltage Offset','18', _datalogger_result($message),'');
+			$arg = array('Lấy phần bù điện áp ắc quy','P:BAT OFFSET:', _datalogger_result($message,'P:BAT OFFSET:'),'',$nid);
+      break;
+    case 19 :
+      // $title =  t('Set Auto Power Management Enable');
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'P:AUTO PWR MANAGEMENT:ON                                    ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Set Auto Power Management Enable','19', _datalogger_result($message),'');
+			$arg = array('Thiết lập tự động quản lý nguồn điện áp','P:AUTO PWR MANAGEMENT:ON', _datalogger_result($message,'P:AUTO PWR MANAGEMENT:ON'),'',$nid);
+      break;
+    case 20 :
+      // $title =  t('Set Auto Power Management Disable');
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'P:AUTO PWR MANAGEMENT:OFF                                   ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Set Auto Power Management Disable','20', _datalogger_result($message),'');
+			$arg = array('Thiết lập không tự động quản lý nguồn điện','P:AUTO PWR MANAGEMENT:OFF', _datalogger_result($message,'P:AUTO PWR MANAGEMENT:OFF'),'',$nid);
+      break;
+    case 21 :
+      // $title =  t('Get Auto Power Management Enable / Disable');
+      $sms = 'S0'.CODE.'GET  '.DATEymdHis.'P:AUTO PWR MANAGEMENT:?                                     ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Get Auto Power Management Enable / Disable','21', _datalogger_result($message),'');
+			$arg = array('Lấy thông tin quản lý nguồn','P:AUTO PWR MANAGEMENT:', _datalogger_result($message,'P:AUTO PWR MANAGEMENT:'),'',$nid);
+      break;
+    case 22 :
+      // $title =  t('Go To Sleep Mode');
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'P:GOTO SLEEP MODE                                           ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Go To Sleep Mode','22', _datalogger_result($message),'');
+			$arg = array('Chuyển sang chế độ ngủ','P:GOTO SLEEP MODE', _datalogger_result($message,'P:GOTO SLEEP MODE'),'',$nid);
+      break;
+    //Comunication setting
+    case 23 :
+      // $title =  t('Set Data Send Interval Minutes');
+      $interval = $form_state['values']['set_interval'];
+      $lenint = strlen($interval);
+      if($lenint < 4){
+        for($i = 0; $i < (4 - $lenint); $i++ ){
+          $interval =' '.$interval;
+        }
+      }
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'C:INTERVAL:'.$interval.'                                             ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Set Data Send Interval Minutes','23', _datalogger_result($message),'');
+			$arg = array('Thiết lập thời gian truyền dữ liệu','C:INTERVAL:', _datalogger_result($message,'C:INTERVAL:'),'',$nid);
+      break;
+    case 24 :
+      // $title =  t('Get Data Send Interval Minutes');
+      $sms =  'S0'.CODE.'GET  '.DATEymdHis.'C:INTERVAL:?                                                ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Get Data Send Interval Minutes','24', _datalogger_result($message),'');
+			$arg = array('Lấy thời gian truyền dữ liệu','C:INTERVAL:', _datalogger_result($message,'C:INTERVAL:'),'',$nid);
+      break;
+    case 25 :
+      // $title =  t('Set Communication Type GSM');
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'C:COMM:GSM                                                  ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Set Communication Type GSM','25', _datalogger_result($message),'');
+			$arg = array('Thiết lập kết nối dạng GSM','C:COMM:GSM', _datalogger_result($message,'C:COMM:GSM'),'',$nid);
+      break;
+    case 26 :
+      // $title =  t('Set Communication Type GPRS');
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'C:COMM:GPRS                                                 ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Set Communication Type GPRS','26', _datalogger_result($message),'');
+			$arg = array('Thiết lập kết nối dạng GPRS','C:COMM:GPRS', _datalogger_result($message,'C:COMM:GPRS'),'',$nid);
+      break;
+    case 27 :
+      // $title =  t('Set Communication Type Auto');
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'C:COMM:AUTO                                                 ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Set Communication Type Auto','27', _datalogger_result($message),'');
+			$arg = array('Thiết lập kết nối dạng tự động','C:COMM:AUTO', _datalogger_result($message,'C:COMM:AUTO'),'',$nid);
+      break;
+    case 28 :
+      // $title =  t('Get Communication Type');     
+      $sms = 'S0'.CODE.'GET  '.DATEymdHis.'C:COMM:?                                                    ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Get Communication Type','28', _datalogger_result($message),'');
+			$arg = array('Lấy về trạng thái kết nối','C:COMM:', _datalogger_result($message,'C:COMM:'),'',$nid);
+      break;
+    //GPRS network setting
+    case 29 :
+      // $title =  t('Set GPRS Network Setting');
+      $host = $form_state['values']['host_gprs'];
+      $id = $form_state['values']['id_gprs'];
+      $pass = $form_state['values']['pass_gprs'];
+      
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'G:APN:'.$host.',CODE:'.$id.',PW:'.$pass;
+      $sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Set GPRS Network Setting','29', _datalogger_result($message),'');
+			$arg = array('Thiết lập mạng GPRS','G:APN:', _datalogger_result($message,'G:APN:'),'',$nid);
+      break;
+    case 30 :
+      // $title =  t('Get GPRS Network Setting');
+      $sms = 'S0'.CODE.'GET  '.DATEymdHis.'G:APN:?                                                     ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			
+			// $arg = array('Get GPRS Network Setting','30', _datalogger_result($message),'');
+			$arg = array('Lấy thiết lập mạng GPRS','G:APN:', _datalogger_result($message,'G:APN:'),'',$nid);
+      break;
+    case 31 :
+      // $title =  t('Set Host Network Infomation');
+      $host = $form_state['values']['set_host'];
+      $port = $form_state['values']['set_port'];
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'N:HOST:'.$host.':'.$port;
+      $sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Set Host Network Infomation','31', _datalogger_result($message),'');
+			$arg = array('Thiết lập mạng máy chủ','N:HOST:', _datalogger_result($message,'N:HOST:'),'',$nid);
+      break;
+    case 32 :
+      // $title =  t('Get Host Network Infomation');      
+      $sms = 'S0'.CODE.'GET  '.DATEymdHis.'N:HOST:?                                                    ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Get Host Network Infomation','32', _datalogger_result($message),'');
+			$arg = array('Lấy thông tin mạng máy chủ','N:HOST:', _datalogger_result($message,'N:HOST:'),'',$nid);
+      break;
+    case 33 :
+      // $title =  t('Set Host Phone Number');
+      $sim = $form_state['values']['host_phone'];
+      $sms = 'S0'.CODE.'SET  '.DATEymdHis.'H:HOST PHONE NO:'.$sim;
+      $sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Set Host Phone Number','33', _datalogger_result($message),'');
+			$arg = array('Thiết lập số điện thoại máy chủ','H:HOST PHONE NO:', _datalogger_result($message,'H:HOST PHONE NO:'),'',$nid);
+      break;
+    case 34 :
+      // $title =  t('Get Host Phone Number');
+      $sms = 'S0'.CODE.'GET  '.DATEymdHis.'H:HOST PHONE NO:?                                           '; 
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
+			// $arg = array('Get Host Phone Number','34', _datalogger_result($message),'');
+			$arg = array('Lấy số điện thoại máy chủ','H:HOST PHONE NO:', _datalogger_result($message,'H:HOST PHONE NO:'),'',$nid);
+      break;
+    //Get datalogger firmware version
+    case 35 :
+      // $title =  t('Get Datalogger Firmware Version');
+      $sms = 'S0'.CODE.'GET  '.DATEymdHis.'V:VERSION:?                                                 ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
+			// $arg = array('Get Datalogger phiê Version','35', _datalogger_result($message),'');
+			$arg = array('Lấy phiên bản Datalogger hiện tại','V:VERSION:', _datalogger_result($message,'V:VERSION:'),'',$nid);
+      break;
+			
+		case 36 :
+			$interval = $form_state['values']['set_alarm'];
+			if(strlen($interval) < 3){
+				$interval = '0'.$interval;	
+			}
+      $level = $form_state['values']['set_level'];
+			if(strlen($level) < 4){
+				$lenstr = strlen($level);
+				for($i = 0; $i < 4-$lenstr; $i++){
+					$level = ' '.$level;
+				}
+			}
+			$sms = 'S0'.CODE.'SET  '.DATEymdHis.'A:ALARM INTERVAL:'.$interval.', LEVEL:'.$level.'                            ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
+			// dsm($message);
+			// dsm(strlen($message));
+			// $arg = array('Get Datalogger phiê Version','35', _datalogger_result($message),'');
+			$arg = array('Thiết lập thời gian và lượng mưa cảnh báo','A:ALARM INTERVAL:', _datalogger_result($message,'A:ALARM INTERVAL:'),'',$nid);
+			break;
+		case 37 :
+			$sms = 'S0'.CODE.'GET  '.DATEymdHis.'A:ALARM INTERVAL:?                                          ';
+			$sms = _datalogger_add_space($sms, 84);
+      $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
+			// dsm($message);
+			// dsm(strlen($message));
+			// $arg = array('Get Datalogger phiê Version','35', _datalogger_result($message),'');
+			$arg = array('Lấy về thời gian và lượng mưa cảnh báo','A:ALARM INTERVAL:?', _datalogger_result($message,'A:ALARM INTERVAL:'),'',$nid);
+			break;
+		case 38 :
+		//reset all config
+		// $sms = 'S0'.CODE.'SET  '.DATEymdHis.'R:RESET                                                    ';
+			$sms = 'S0'.CODE.'SET  '.DATEymdHis.'R:RESET';
+			$sms = _datalogger_add_space($sms, 84);
+			$message = 'H'.$sms._datalogger_CheckSum($sms).';';			
+			$arg = array('Thiết lập cấu hình mặc định','R:RESET', _datalogger_result($message,'R:RESET'),'',$nid);
+			break;
+  }
+	
+	$type = substr($sms, 7, 3);
+	$arg['type'] = $type;
+	// dsm(strlen($message));
+	// dsm($message);
+	
+	
+	$node_submit = _datalogger_insert_node_command($arg);
+  _datalogger_insert_outbox(PHONE, $message);	
+  drupal_set_message('Gửi lệnh thành công!');
+	// if($check != true){
+		// $form_state['redirect'] = 'node/' . $node_submit->nid . '/refresh';
+	// }else{
+		// $form_state['redirect'] = 'view/rainfall/default/refresh';
+	// }
+}		
+		
+		
 function _datalogger_check_command_ajax(){
 	return 'Kiểm tra node command';
 }  
@@ -96,13 +566,6 @@ function _datalogger_check_inbox() {
 }
 
 function _datalogger_update_process_inbox($process, $id_inbox){
-	/*Cập nhật đưa tin nhắn vè dạng đã xử lý*/
-	// $number_update = db_update('inbox')
-		// ->fields(array(
-			// 'Processed' => 1,
-		// ))
-		// ->condition('ID',$id_inbox)
-		// ->execute();
 	$query="UPDATE inbox SET Processed=:process WHERE ID=:pr";
 	$result = db_query($query, array(':process'=>$process, ':pr'=>$id_inbox));
 }
@@ -112,9 +575,6 @@ function _datalogger_update_process_inbox($process, $id_inbox){
  **/
 function _datalogger_separate_sms_command($sms, $number){
 	global $datalogger_pattern;
-	//$result = _datalogger_get_station('admin_command_from_phone_code', $number);
-	
-	// tach ma lenh
 	$malenh = '';
 	foreach ($datalogger_pattern as $pattern) {
 		if (substr($sms, 25, strlen($pattern)) == $pattern) {
@@ -311,22 +771,19 @@ function _datalogger_endsWith($sms, $needle)
 /*Ham xu ly cac tin nhắn gửi tới*/
 function _datalogger_new_sms_form(){
   $result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 0 , 50");
-  $headers = array(
-    1 => t('STT'),
-    2 => t('Cập nhật DB'),
-    3 => t('Tin nhắn tới'),
-    4 => t('Số gửi tin'),
-    5 => t('Tổng đài'),
-    6 => t('Nội dung tin nhắn'),
+	
+	$headers = array(
+    1 => t('No.'),
+    3 => t('Receiving Date Time'),
+    4 => t('Sender Number'),
+    5 => t('SMSC Number'),
+    6 => t('Message content'),
   );
   $rows = array();
   $i = 1;
     foreach($result as $row) {
-    /*chỉ liệt kê các tin nhắn theo chuẩn:HS.....;*/
-      // if(_datalogger_startsWith($row -> TextDecoded,'HS') && _datalogger_endsWith($row -> TextDecoded,';')){
         $rows[] = array (
           $i++,
-          $row -> UpdatedInDB,
           $row -> ReceivingDateTime,
           $row -> SenderNumber,
           $row -> SMSCNumber,
@@ -335,12 +792,10 @@ function _datalogger_new_sms_form(){
         $sms = $row -> TextDecoded;
       // }
     }
-  // Table of Data
   $form['tbl_inbox'] = array(
     '#theme' => 'table',
     '#header' => $headers,
     '#rows' => $rows,
-    // '#empty' => t('Null')
   );
   
   return $form;
@@ -1016,7 +1471,8 @@ function _log_nodes() {
 }
 
 function _command_form($form, &$form_state) {
-  $options_commands = array(
+  // GLOBAL $options_commands;
+	$options_commands = array(
     //Data call command
     1 => t('Real Data Call'),
     2 => t('Save Data Call'),
@@ -1064,10 +1520,19 @@ function _command_form($form, &$form_state) {
 		//Alarm Options
 		36 => t('Set the Alarm Interval and Level for rainfall alarming'),
 		37 => t('Get the Alarm Interval and Level for rainfall alarming'),
-  );
-
+		38 => t('Reset All'),);	
+	
+	$nid = intval(arg(1));
+	$select = arg(2);
+	if(!empty($select) && $select == '1' && !empty($nid)){
+		// $form['select'] = array(
+			// '#type' => 'hidden', 
+			// '#value' => $select,
+		// );
+		_datalogger_send_command($nid, $select);
+	}
+	else{
   $default = !empty($form_state['values']['command_selects']) ? $form_state['values']['command_selects'] : 1;
-  // $title = $options_commands[ $form_state["values"]["command_selects"]];
   $title = $options_commands[$default];
   $form['command_selects'] = array(
     "#type" => "select",
@@ -1096,9 +1561,7 @@ function _command_form($form, &$form_state) {
     // '#type' => 'fieldset',
   // );
 
-  $num_command = !empty($form_state['values']['command_selects']) ? $form_state['values']['command_selects'] : 1;
-  
-  switch ($num_command) {
+  switch ($default) {
     //Data call command
     case 1 :     
       break;
@@ -1183,6 +1646,7 @@ function _command_form($form, &$form_state) {
       '#type' => 'date_popup',
       // '#date_format' => 'd:m:Y H:i',
       '#date_format' => 'H:i',
+			'#default_value' => date('H:i', $_SERVER['REQUEST_TIME']),
 			//'#required' => TRUE,
       );
       break;
@@ -1368,9 +1832,13 @@ function _command_form($form, &$form_state) {
 		case 37 :
       // $title =  t('Get Datalogger Firmware Version');
       break;
+		case 38 :
+      // $title =  t('Get Datalogger Firmware Version');
+      break;
   }
   
-  $form["submit"] = array(
+  
+	$form["submit"] = array(
       "#type" => "submit",
       "#value" => t("Send Now!"),
       "#submit" => array(
@@ -1400,6 +1868,7 @@ function _command_form($form, &$form_state) {
   // );
 	
   $form['#validate'][] = '_command_validate';
+	}
   return $form;
 }
 
@@ -1538,8 +2007,9 @@ function _command_validate($form, &$form_state) {
       break;
     case 12 :
 			$time = $form_state['values']['set_rain_fall_clear_time'];
+			dsm($time);
 			if(empty($time)){
-				_datalogger_check_empty('command_fieldset[set_rain_fall_clear_time]','Thời gian');
+				_datalogger_check_empty('set_rain_fall_clear_time','Thời gian');
       }
       break;
     case 13 :
@@ -1701,433 +2171,39 @@ function _command_validate($form, &$form_state) {
 			break;
 		case 37 :
 			break;
+		case 38 :
+			break;
   }
 }
 
 // function _send_command_submit($form, &$form_state) {
+
+function _datalogger_add_space($sms, $length){
+	$len = strlen($sms);
+	if($len < $length){
+		for($i = 0; $i < ($length - $len); $i++){
+			$sms .= ' ';  
+		}
+	}
+	return $sms;
+}
 function _send_command_submit($form, &$form_state) {
-  define('DT', date('ymdHis',time()));  
-  define('DT2', date('ymdHi',time()));  
-  define('DT3', date('YmdHi',time()));  
+	dsm($form_state['values']);
   $nid = intval(arg(1)) ? intval(arg(1)) : $form_state['values']['nid'];
-  if($nid) {  
-    $node = node_load($nid);
-    $id = $node->field_station_code['und']['0']['value'];
-    $phone = $node->field_station_sim_number['und']['0']['value'];
-    define('ID',$id);
-    define('PHONE',$phone);
-  }
-    
   $form['nid'] = array(
     '#type' => 'hidden', 
     '#value' => $nid,
   );
   
-  switch ($form_state["values"]["command_selects"]) {
-    //Data call command
-    case 1 :
-      $sms = 'S0'.ID.'GET  '.DT.'I:STATUS                                                    ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Real Data Call','1', _datalogger_result($message),'');
-			$arg = array('Lấy số liệu mưa hiện tại','I:STATUS', _datalogger_result($message,'I:STATUS'),'',$nid);
-			$check = true;
-      break;
-    case 2 :
-      $dt_from = $form_state['values']['date_time_from'];
-      $from = _datalogger_convert_date('ymdHis',$dt_from);
-      $dt_to = $form_state['values']['date_time_to'];
-      $to = _datalogger_convert_date('ymdHis',$dt_to);
-      $sms = 'S0'.ID.'GET  '.DT.'S:'.$from.'~'.$to.'                                 ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Save Data Call','2', _datalogger_result($message),'');
-			$arg = array('Lưu dữ liệu trên Datalogger','S:', _datalogger_result($message,'S:'),'',$nid);
-    //Date and Time Set
-    case 3 : 
-      $date = _datalogger_convert_date($strFormat = 'Ymdhis', $form_state['values']['date_time_set']);
-      $sms = 'S0'.ID.'SET  '.DT.'T:'.$date.'                                            ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array(('Date $ Time Set'),'3', _datalogger_result($message),'');
-			$arg = array(('Thiết lập thời gian'),'T:', _datalogger_result($message,'T:'),'',$nid);
-      break;
-    case 4 : 
-      // $title =  t('GPRS Network Time Synchronization');
-      $sms = 'S0'.ID.'SET  '.DT.'T:NITZ                                                      ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('GPRS Network Time Synchronization','4', _datalogger_result($message),'');
-			$arg = array('Đồng bộ thời gian mạng GPRS','T:NITZ', _datalogger_result($message,'T:NITZ'),'',$nid);
-      break;
-    //ID $ Password Set
-    case 5 :
-      // $title =  t('Set ID');
-      $id = $form_state['values']['set_input_id'];
-      $sms = 'S0'.ID.'SET  '.DT.'D:'.$id.'                                                    ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Set ID','5', _datalogger_result($message),'');
-			$arg = array('Thiết lập ID','D:', _datalogger_result($message,'D:'),'',$nid);
-      break;
-    case 6 :
-      // $title =  t('Get ID');
-      $sms = 'S0'.ID.'GET  '.DT.'D:?                                                         ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			
-			// $arg = array('Get ID','6', _datalogger_result($message),'');
-			$arg = array('Lấy thông tin ID','D:', _datalogger_result($message,'D:'),'',$nid);
-      break;
-    case 7 :
-      $pass = $form_state['values']['set_pass'];
-      $sms = 'S0'.ID.'SET  '.DT.'W:'.$pass;
-      $len = strlen($sms);
-      if($len < 84){
-        for($i = 0; $i < (84 - $len); $i++){
-          $sms .= ' ';  
-        }
-      }
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Set Password','7', _datalogger_result($message),'');
-			$arg = array('Thiết lập mật khẩu','W:', _datalogger_result($message,'W:'),'',$nid);
-      break;
-    case 8 :
-      // $title =  t('Get Password');
-      $sms = 'S0'.ID.'GET  '.DT.'W:?                                                         ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Get Password','8', _datalogger_result($message),'');
-			$arg = array('Lấy thông tin mật khẩu','P:', _datalogger_result($message,'W:'),'',$nid);
-      break;
-    //database Buffer Clear
-    case 9 :
-      // $title =  t('All Database Buffer Clear');
-      $sms = 'S0'.ID.'SET  '.DT.'R:FORMAT ALL                                                ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('All Database Buffer Clear','9', _datalogger_result($message),'');
-			$arg = array('Xóa bộ đệm dữ liệu','R:FORMAT_ALL', _datalogger_result($message,'R:FORMAT_ALL'),'',$nid);
-      break;
-    case 10 :
-      // $title =  t('Specific Date Database Buffer Clear');
-      $day = _datalogger_convert_date('ymd',$form_state['values']['date_buffer_clear']);
-      $sms = 'S0'.ID.'SET  '.DT.'R:FORMAT_DAY:'.$day.'                                         ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Specific Date Database Buffer Clear','10', _datalogger_result($message),'');
-			$arg = array('Xóa bộ đệm dữ liệu theo ngày','R:FORMAT_DAY:', _datalogger_result($message,'R:FORMAT_DAY:'),'',$nid);
-    //Rain fall config
-    case 11 :
-      // $title =  t('Accumulated Rain Fall Value Set');
-      $number = $form_state['values']['accumulated_rain_fall'];
-      $len = strlen($number);
-      if($len < 5 ){
-        for($i = 0; $i < (5 - $len); $i++){
-          $number .= ' ';
-        }
-      }
-      $sms = 'S0'.ID.'SET  '.DT.'R:SET:'.$number.'                                                 ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Accumulated Rain Fall Value Set','11', _datalogger_result($message),'');
-			$arg = array('Thiết lập gía trị lượng mưa tích lũy','R:SET:', _datalogger_result($message,'R:SET:'),'',$nid);
-      break;
-    case 12 :
-      // $title =  t('Set Rain Fall Clear Time');
-      $time = _datalogger_convert_date('Hi',$form_state['values']['set_rain_fall_clear_time']);
-      $sms = 'S0'.ID.'SET  '.DT.'R:CLEAR TIME:'.$time.'                                           ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Set Rain Fall Clear Time','12', _datalogger_result($message),'');
-			$arg = array('Thiết lập thời gian xóa dữ liệu mưa','R:CLEAR:', _datalogger_result($message,'R:CLEAR:'),'',$nid);
-      break;
-    case 13 :
-      // $title =  t('Get Rain Fall Clear Time');
-      $sms = 'S0'.ID.'GET  '.DT.'R:CLEAR TIME:?                                              ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Get Rain Fall Clear Time','13', _datalogger_result($message),'');
-			$arg = array('Lấy thời gian xóa dữ liệu mưa','R:CLEAR TIME:', _datalogger_result($message,'R:CLEAR TIME:'),'',$nid);
-      break;
-    //Datalogger config
-    case 14 :
-      // $title =  t('Self Power Reset');
-      $sms = 'S0'.ID.'SET  '.DT.'P:RESET                                                     ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Self Power Reset','14', _datalogger_result($message),'');
-			$arg = array('Thiết lập lại nguồn điện','P:RESET', _datalogger_result($message,'P:RESET'),'',$nid);
-      break;
-    case 15 :
-      // $title =  t('Set Active / De-Active Battery Power Voltage');
-      $batOn = number_format($form_state['values']['bat_on'],1);
-      $lenOn = strlen($batOn);
-      if($lenOn < 5){
-        for($i=0; $i < (5 - $lenOn); $i++){
-          $batOn = '0'.$batOn;
-        }
-      }
-      $batOff = number_format($form_state['values']['bat_off'],1);
-      $lenOff = strlen($batOff);
-      if($lenOff < 5){
-        for($i=0; $i < (5 - $lenOff); $i++){
-          $batOff = '0'.$batOff;
-        }
-      }
-      $sms = 'S0'.ID.'SET  '.DT.'P:BAT ON:'.$batOn.'V, OFF:'.$batOff.'V                                 ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Set Active / De-Active Battery Power Voltage','15', _datalogger_result($message),'');
-			$arg = array('Thiết lập điện áp nguồn ắc quy hoạt động/ngừng hoạt động','P:BAT ON:', _datalogger_result($message,'P:BAT ON:'),'',$nid);
-    case 16 :
-      // $title =  t('Get Active / De-Active Battery Power Voltage');
-      $sms = 'S0'.ID.'GET  '.DT.'P:BAT ON:?                                                  ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Get Active / De-Active Battery Power Voltage','16', _datalogger_result($message),'');
-			$arg = array('Lấy điện áp nguồn điện ắc quy hoạt độn/ngừng hoạt động','P:BAT ON:', _datalogger_result($message,'P:BAT ON:'),'',$nid);
-      break;
-    case 17 :
-      // $title =  t('Set Battery Voltage Offset');
-      $vol = number_format($form_state['values']['set_bat_vol'],1);
-      $lenVol = strlen($vol);
-      if($lenVol < 4){
-        for($i=0; $i < (4 - $lenVol); $i++){
-          $vol = '0'.$vol;
-        }
-      }
-      $sms = 'S0'.ID.'SET  '.DT.'P:BAT OFFSET:+'.$vol.'V                                         ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Set Battery Voltage Offset','17', _datalogger_result($message),'');
-			$arg = array('Thiết lập phần bù điện áp ắc quy','P:BAT OFFSET:', _datalogger_result($message,'P:BAT OFFSET:'),'',$nid);
-      break;
-    case 18 :
-      // $title =  t('Get Battery Voltage Offset');
-      $vol = number_format($form_state['values']['get_bat_vol'],1);
-      $lenVol = strlen($vol);
-      if($lenVol < 4){
-        for($i=0; $i < (4 - $lenVol); $i++){
-          $vol = '0'.$vol;
-        }
-      }
-      $sms = 'S0'.ID.'GET  '.DT.'P:BAT OFFSET:+'.$vol.'V                                         ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Get Battery Voltage Offset','18', _datalogger_result($message),'');
-			$arg = array('Lấy phần bù điện áp ắc quy','P:BAT OFFSET:', _datalogger_result($message,'P:BAT OFFSET:'),'',$nid);
-      break;
-    case 19 :
-      // $title =  t('Set Auto Power Management Enable');
-      $sms = 'S0'.ID.'SET  '.DT.'P:AUTO PWR MANAGEMENT:ON                                    ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Set Auto Power Management Enable','19', _datalogger_result($message),'');
-			$arg = array('Thiết lập tự động quản lý nguồn điện áp','P:AUTO PWR MANAGEMENT:ON', _datalogger_result($message,'P:AUTO PWR MANAGEMENT:ON'),'',$nid);
-      break;
-    case 20 :
-      // $title =  t('Set Auto Power Management Disable');
-      $sms = 'S0'.ID.'SET  '.DT.'P:AUTO PWR MANAGEMENT:OFF                                   ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Set Auto Power Management Disable','20', _datalogger_result($message),'');
-			$arg = array('Thiết lập không tự động quản lý nguồn điện','P:AUTO PWR MANAGEMENT:OFF', _datalogger_result($message,'P:AUTO PWR MANAGEMENT:OFF'),'',$nid);
-      break;
-    case 21 :
-      // $title =  t('Get Auto Power Management Enable / Disable');
-      $sms = 'S0'.ID.'GET  '.DT.'P:AUTO PWR MANAGEMENT:?                                     ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Get Auto Power Management Enable / Disable','21', _datalogger_result($message),'');
-			$arg = array('Lấy thông tin quản lý nguồn','P:AUTO PWR MANAGEMENT:', _datalogger_result($message,'P:AUTO PWR MANAGEMENT:'),'',$nid);
-      break;
-    case 22 :
-      // $title =  t('Go To Sleep Mode');
-      $sms = 'S0'.ID.'SET  '.DT.'P:GOTO SLEEP MODE                                           ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Go To Sleep Mode','22', _datalogger_result($message),'');
-			$arg = array('Chuyển sang chế độ ngủ','P:GOTO SLEEP MODE', _datalogger_result($message,'P:GOTO SLEEP MODE'),'',$nid);
-      break;
-    //Comunication setting
-    case 23 :
-      // $title =  t('Set Data Send Interval Minutes');
-      $interval = $form_state['values']['set_interval'];
-      $lenint = strlen($interval);
-      if($lenint < 4){
-        for($i = 0; $i < (4 - $lenint); $i++ ){
-          $interval =' '.$interval;
-        }
-      }
-      $sms = 'S0'.ID.'SET  '.DT.'C:INTERVAL:'.$interval.'                                             ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Set Data Send Interval Minutes','23', _datalogger_result($message),'');
-			$arg = array('Thiết lập thời gian truyền dữ liệu','C:INTERVAL:', _datalogger_result($message,'C:INTERVAL:'),'',$nid);
-      break;
-    case 24 :
-      // $title =  t('Get Data Send Interval Minutes');
-      $sms =  'S0'.ID.'GET  '.DT.'C:INTERVAL:?                                                ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Get Data Send Interval Minutes','24', _datalogger_result($message),'');
-			$arg = array('Lấy thời gian truyền dữ liệu','C:INTERVAL:', _datalogger_result($message,'C:INTERVAL:'),'',$nid);
-      break;
-    case 25 :
-      // $title =  t('Set Communication Type GSM');
-      $sms = 'S0'.ID.'SET  '.DT.'C:COMM:GSM                                                  ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Set Communication Type GSM','25', _datalogger_result($message),'');
-			$arg = array('Thiết lập kết nối dạng GSM','C:COMM:GSM', _datalogger_result($message,'C:COMM:GSM'),'',$nid);
-      break;
-    case 26 :
-      // $title =  t('Set Communication Type GPRS');
-      $sms = 'S0'.ID.'SET  '.DT.'C:COMM:GPRS                                                 ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Set Communication Type GPRS','26', _datalogger_result($message),'');
-			$arg = array('Thiết lập kết nối dạng GPRS','C:COMM:GPRS', _datalogger_result($message,'C:COMM:GPRS'),'',$nid);
-      break;
-    case 27 :
-      // $title =  t('Set Communication Type Auto');
-      $sms = 'S0'.ID.'SET  '.DT.'C:COMM:AUTO                                                 ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Set Communication Type Auto','27', _datalogger_result($message),'');
-			$arg = array('Thiết lập kết nối dạng tự động','C:COMM:AUTO', _datalogger_result($message,'C:COMM:AUTO'),'',$nid);
-      break;
-    case 28 :
-      // $title =  t('Get Communication Type');     
-      $sms = 'S0'.ID.'GET  '.DT.'C:COMM:?                                                    ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Get Communication Type','28', _datalogger_result($message),'');
-			$arg = array('Lấy về trạng thái kết nối','C:COMM:', _datalogger_result($message,'C:COMM:'),'',$nid);
-      break;
-    //GPRS network setting
-    case 29 :
-      // $title =  t('Set GPRS Network Setting');
-      $host = $form_state['values']['host_gprs'];
-      $id = $form_state['values']['id_gprs'];
-      $pass = $form_state['values']['pass_gprs'];
-      
-      $sms = 'S0'.ID.'SET  '.DT.'G:APN:'.$host.',ID:'.$id.',PW:'.$pass;
-      $lensms = strlen($sms);
-      if($lensms < 84){
-        for($i = 0; $i < (84 - $lensms); $i++){
-          $sms .= ' ';
-        }
-      }
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Set GPRS Network Setting','29', _datalogger_result($message),'');
-			$arg = array('Thiết lập mạng GPRS','G:APN:', _datalogger_result($message,'G:APN:'),'',$nid);
-      break;
-    case 30 :
-      // $title =  t('Get GPRS Network Setting');
-      $sms = 'S0'.ID.'GET  '.DT.'G:APN:?                                                     ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			
-			// $arg = array('Get GPRS Network Setting','30', _datalogger_result($message),'');
-			$arg = array('Lấy thiết lập mạng GPRS','G:APN:', _datalogger_result($message,'G:APN:'),'',$nid);
-      break;
-    case 31 :
-      // $title =  t('Set Host Network Infomation');
-      $host = $form_state['values']['set_host'];
-      $port = $form_state['values']['set_port'];
-      $sms = 'S0'.ID.'SET  '.DT.'N:HOST:'.$host.':'.$port;
-      $lensms = strlen($sms);
-      if($lensms < 84){
-        for($i = 0; $i < (84 - $lensms); $i++){
-          $sms .= ' ';
-        }
-      }
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Set Host Network Infomation','31', _datalogger_result($message),'');
-			$arg = array('Thiết lập mạng máy chủ','N:HOST:', _datalogger_result($message,'N:HOST:'),'',$nid);
-      break;
-    case 32 :
-      // $title =  t('Get Host Network Infomation');      
-      $sms = 'S0'.ID.'GET  '.DT.'N:HOST:?                                                    ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Get Host Network Infomation','32', _datalogger_result($message),'');
-			$arg = array('Lấy thông tin mạng máy chủ','N:HOST:', _datalogger_result($message,'N:HOST:'),'',$nid);
-      break;
-    case 33 :
-      // $title =  t('Set Host Phone Number');
-      $sim = $form_state['values']['host_phone'];
-      $sms = 'S0'.ID.'SET  '.DT.'H:HOST PHONE NO:'.$sim;
-      $lensms = strlen($sms);
-      if($lensms < 84){
-        for($i = 0; $i < (84 - $lensms); $i++){
-          $sms .= ' ';
-        }
-      }
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Set Host Phone Number','33', _datalogger_result($message),'');
-			$arg = array('Thiết lập số điện thoại máy chủ','H:HOST PHONE NO:', _datalogger_result($message,'H:HOST PHONE NO:'),'',$nid);
-      break;
-    case 34 :
-      // $title =  t('Get Host Phone Number');
-      $sms = 'S0'.ID.'GET  '.DT.'H:HOST PHONE NO:?                                           '; 
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';
-			// $arg = array('Get Host Phone Number','34', _datalogger_result($message),'');
-			$arg = array('Lấy số điện thoại máy chủ','H:HOST PHONE NO:', _datalogger_result($message,'H:HOST PHONE NO:'),'',$nid);
-      break;
-    //Get datalogger firmware version
-    case 35 :
-      // $title =  t('Get Datalogger Firmware Version');
-      $sms = 'S0'.ID.'GET  '.DT.'V:VERSION:?                                                 ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
-			// $arg = array('Get Datalogger phiê Version','35', _datalogger_result($message),'');
-			$arg = array('Lấy phiên bản Datalogger hiện tại','V:VERSION:', _datalogger_result($message,'V:VERSION:'),'',$nid);
-      break;
-			
-		case 36 :
-			$interval = $form_state['values']['set_alarm'];
-			if(strlen($interval) < 3){
-				$interval = '0'.$interval;	
-			}
-			dsm($interval);
-      $level = $form_state['values']['set_level'];
-			if(strlen($level) < 4){
-				$lenstr = strlen($level);
-				for($i = 0; $i < 4-$lenstr; $i++){
-					$level = ' '.$level;
-				}
-			}
-			dsm($level);
-			$sms = 'S0'.ID.'SET  '.DT.'A:ALARM INTERVAL:'.$interval.', LEVEL:'.$level.'                            ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
-			// dsm($message);
-			// dsm(strlen($message));
-			// $arg = array('Get Datalogger phiê Version','35', _datalogger_result($message),'');
-			$arg = array('Thiết lập thời gian và lượng mưa cảnh báo','A:ALARM INTERVAL:', _datalogger_result($message,'A:ALARM INTERVAL:'),'',$nid);
-			break;
-		case 37 :
-			$sms = 'S0'.ID.'GET  '.DT.'A:ALARM INTERVAL:?                                          ';
-      $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
-			// dsm($message);
-			// dsm(strlen($message));
-			// $arg = array('Get Datalogger phiê Version','35', _datalogger_result($message),'');
-			$arg = array('Lấy về thời gian và lượng mưa cảnh báo','A:ALARM INTERVAL:?', _datalogger_result($message,'A:ALARM INTERVAL:'),'',$nid);
-			break;
-  }
-	
-	$type = substr($sms, 7, 3);
-	$arg['type'] = $type;
-	
-	
-	$node_submit = _datalogger_insert_node_command($arg);
-  _datalogger_insert_outbox(PHONE, $message);	
-  // drupal_set_message($message.'<br>Gửi lệnh thành công!');
-  drupal_set_message('Gửi lệnh thành công!');
-	// if($check != true){
-		// $form_state['redirect'] = 'node/' . $node_submit->nid . '/refresh';
-	// }else{
-		// $form_state['redirect'] = 'view/rainfall/default/refresh';
-	// }
+	if(!empty($form_state['values']['select'])){
+		// $select = $form_state['values']['select'];
+		$select = 1;
+	}
+	else{
+		$select = $form_state["values"]["command_selects"];
+	}
+	_datalogger_send_command($nid, $select,$form, &$form_state);
 }
-
-/*
- * Implementation of hook_action_info().
- */
-
-function datalogger_action_info() {
-  return array(
-    "datalogger_command_action" => array(
-      "type" => "comment",
-      "label" => t("Send Command Multiple Stations"),
-      "configurable" => FALSE,
-      "behavior" => array(
-        "changes_property"
-      ),
-      "triggers" => array(
-        "comment_presave",
-        "comment_insert",
-        "comment_update"
-      )
-    )
-  );
-}
-
-function datalogger_command_action(){
-}
-
 
 function _view_translate_station() {
   return digipro_views_get_view_result("arg_all_datalogger", "page", null,
