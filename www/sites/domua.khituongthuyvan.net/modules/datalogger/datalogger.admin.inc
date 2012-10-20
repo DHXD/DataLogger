@@ -2,6 +2,12 @@
 global $timeInterval ;
 $timeInterval = array('10','20','30','60','120','180');
 
+global $clearTime ;
+$clearTime = array('00:00','01:00','02:00','03:00','04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00');
+
+global $clearTime2 ;
+$clearTime2 = array('0000','0100','0200','0300','0400','0500','0600','0700','0800','0900','1000','1100','1200','1300','1400','1500','1600','1700','1800','1900','2000','2100','2200','2300');
+
 global $datalogger_pattern;
 $datalogger_pattern = array(
 		'I:STATUS',
@@ -104,8 +110,10 @@ function _datalogger_send_command($nid, $select,$form, $form_state){
 			$node = node_load($nid);
 			$code = $node->field_station_code['und']['0']['value'];
 			$phone = $node->field_station_sim_number['und']['0']['value'];
+			$model = $node->field_station_model['und']['0']['value'];
 			define('CODE',$code);
 			define('PHONE',$phone);
+			define('MODEL',$model);
 		}
 		switch ($select) {
 			//Data call command
@@ -214,7 +222,12 @@ function _datalogger_send_command($nid, $select,$form, $form_state){
 				break;
 			case 12 :
 				// $title =  t('Set Rain Fall Clear Time');
-				$time = _datalogger_convert_date('Hi',$form_state['values']['set_rain_fall_clear_time']);
+				global $clearTime2 ;
+				// dsm($form_state['values']['set_rain_fall_clear_time']);
+				$time = $clearTime2[$form_state['values']['set_rain_fall_clear_time']];
+				// dsm($time);
+				// dsm($clearTime2[0]);
+				// $time = _datalogger_convert_date('Hi',$form_state['values']['set_rain_fall_clear_time']);
 				// dsm($time);
 				$sms = 'S0'.CODE.'SET  '.DATEymdHis.'R:CLEAR TIME:'.$time.'                                           ';
 				$sms = _datalogger_add_space($sms, 84);
@@ -504,10 +517,10 @@ function _datalogger_send_command($nid, $select,$form, $form_state){
 	$arg['type'] = $type;
 	// dsm(strlen($message));
 	// dsm($message);
-
-
+	dsm(PHONE);
+	dsm(MODEL);
 	$node_submit = _datalogger_insert_node_command($arg);
-	_datalogger_insert_outbox(PHONE, $message);	
+	_datalogger_insert_outbox(PHONE, $message, MODEL);	
 	// if($check != true){
 		// $form_state['redirect'] = 'node/' . $node_submit->nid . '/refresh';
 	// }else{
@@ -735,42 +748,8 @@ function _datalogger_insert_node_rainfall($arg){
 *
 */
 
-function _datalogger_new_sms_form1(){
-  $result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 0 , 30");
-  $headers = array(
-    1 => t('STT'),
-    2 => t('Cập nhật DB'),
-    3 => t('Tin nhắn tới'),
-    4 => t('Số gửi tin'),
-    5 => t('Tổng đài'),
-    6 => t('Nội dung tin nhắn'),
-  );
-  $rows = array();
-  $i = 1;
-    foreach($result as $row) {
-      $rows[] = array (
-        $i++,
-        $row -> UpdatedInDB,
-        $row -> ReceivingDateTime,
-        $row -> SenderNumber,
-        $row -> SMSCNumber,
-        $row -> TextDecoded,
-      );
-    }
-  // Table of Data
-  $form['tbl_inbox'] = array(
-    '#theme' => 'table',
-    '#header' => t($headers),
-    '#rows' => $rows,
-    // '#empty' => t('Null')
-  );
-  
-  return $form;
-}
-
 function _datalogger_startsWith($sms, $needle)
 {
-  // return strpos($haystack, $needle) === 0;
 	return substr($sms, 0, 2) == $needle;
 }
 function _datalogger_endsWith($sms, $needle)
@@ -788,6 +767,7 @@ function _datalogger_new_sms_form(){
     4 => t('Sender Number'),
     5 => t('SMSC Number'),
     6 => t('Message content'),
+		7 => t('Modem'),
   );
   $rows = array();
   $i = 1;
@@ -798,6 +778,7 @@ function _datalogger_new_sms_form(){
           $row -> SenderNumber,
           $row -> SMSCNumber,
           $row -> TextDecoded,
+					$row -> RecipientID,
         );
         $sms = $row -> TextDecoded;
       // }
@@ -827,13 +808,18 @@ function _datalogger_CheckSum($str){
 *
 */
 
-function _datalogger_insert_outbox($phone, $sms){
+// function _datalogger_insert_outbox($phone, $sms){
+  // /*cach 1:*/
+  // $sql = "INSERT INTO outbox(DestinationNumber, TextDecoded, CreatorID) VALUES('$phone', '$sms', '')";
+  // $nid = db_query($sql);
+// }
+function _datalogger_insert_outbox($phone, $sms, $model){
   /*cach 1:*/
-  $sql = "INSERT INTO outbox(DestinationNumber, TextDecoded, CreatorID) VALUES('$phone', '$sms', '')";
+  $sql = "INSERT INTO outbox(DestinationNumber, TextDecoded, CreatorID, SenderID) VALUES('$phone', '$sms', '', '$model')";
   $nid = db_query($sql);
 }
 
-/**
+/**s
 *begin: 25-09-12
 */
 
@@ -1646,12 +1632,17 @@ function _command_form($form, &$form_state) {
       break;
     case 12 :
       // $title =  t('Set Rain Fall Clear Time');
+			global $clearTime ;
       $form['command_fieldset']['set_rain_fall_clear_time']= array(
-      '#type' => 'date_popup',
-      '#date_format' => 'd:m:Y H:i',
+      // '#type' => 'date_popup',
+      // '#date_format' => 'd:m:Y H:i',
       // '#date_format' => 'Y H:i',
 			// '#default_value' => date('H:i', time()),
 			//'#required' => TRUE,
+			"#type" => "select",
+			// "#title" => t("Command"),
+			'#options' => $clearTime,
+			'#default_value' => 0,
       );
       break;
     case 13 :
@@ -2023,11 +2014,11 @@ function _command_validate($form, &$form_state) {
       }
       break;
     case 12 :
-			$time = $form_state['values']['set_rain_fall_clear_time'];
-			dsm($time);
-			if(empty($time)){
-				_datalogger_check_empty('set_rain_fall_clear_time','Thời gian');
-      }
+			// $time = $form_state['values']['set_rain_fall_clear_time'];
+			// dsm($time);
+			// if(empty($time)){
+				// _datalogger_check_empty('set_rain_fall_clear_time','Thời gian');
+      // }
       break;
     case 13 :
       break;
