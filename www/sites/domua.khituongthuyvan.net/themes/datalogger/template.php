@@ -4,11 +4,16 @@ global $user;
 global $site_name;
 
 if (in_array('administrator', array_values($user->roles)) || in_array('control datalogger', array_values($user->roles))) {
-  variable_set('site_name', t('Phần mềm điều khiển trạm đo mưa tự động'));
+  // variable_set('site_name', t('Phần mềm điều khiển trạm đo mưa tự động'));
+  variable_set('site_name', t('Software control automatic rain gauge stations'));
 }
 else{
-  variable_set('site_name', t('Hệ thống khai thác dữ liệu đo mưa tự động 2012'));
+  // variable_set('site_name', t('Hệ thống khai thác dữ liệu đo mưa tự động 2012'));
+  variable_set('site_name', t('Data mining system automatic rain gauge 2012'));
 }
+
+
+
 
 function datalogger_preprocess_html(&$variables) {
 
@@ -117,6 +122,11 @@ function datalogger_process_maintenance_page(&$variables) {
     // If toggle_site_slogan is FALSE, the site_slogan will be empty, so we rebuild it.
     $variables['site_slogan'] = filter_xss_admin(variable_get('site_slogan', ''));
   }
+	
+	//Thiết lập title cho các view với các tham số khách nhau
+	// if($variables['nghe_an'])
+	
+	
 }
 
 /**
@@ -178,10 +188,94 @@ function datalogger_field__taxonomy_term_reference($variables) {
   return $output;
 }
 
-// function datalogger_preprocess_page(&$variables) {
-  // switch ($_REQUEST['q']) {
-  // case '/stations':
-    // drupal_set_title(t('List All Datalogger'));
-    // break;
-  // }
-// }
+function datalogger_preprocess_page(&$variables) {
+	$str = arg(3);
+	$provinces = _datalogger_provinces();
+	$areas = _datalogger_areas();
+	if($provinces[$str] != '' || $provinces[$str] != null )
+		// drupal_set_title(t('Danh sách trạm đo mưa tự động  ').t($provinces[$str]));
+		// $province = t("Danh sách trạm đo mưa tự động $provinces[$str]");
+		$province = t("List of automatic rainfall stations $provinces[$str]");
+		drupal_set_title($province);
+	if($areas[$str] != '' || $areas[$str] != null )
+		// drupal_set_title(t('Danh sách trạm KTTV ').t($areas[$str]));
+		$area = t("List of meteorological stations $areas[$str]");
+		drupal_set_title($area);
+}
+
+function _datalogger_provinces(){
+	$list = array('ho_chi_minh'=> 'Ho Chi Minh',
+	'hai_phong'=> 'Hai Phong',
+	// 'da_nang'=> 'Da Nẵng',
+	'da_nang'=> 'Da Nang',
+	'ha_giang'=> 'Ha Giang',
+	'cao_bang'=> 'Cao Bang',
+	'lai_chau'=> 'Lai Chau',
+	'lao_cai'=> 'Lao Cai',
+	'tuyen_quang'=> 'Tuyen Quang',
+	'lang_son'=> 'Lang Son',
+	'bac_kan'=> 'Bac Kan',
+	'thai_nguyen'=> 'Thai Nguyen',
+	'yen_bai'=> 'Yen Bai',
+	'son_la'=> 'Son La',
+	'phu_tho'=> 'Phu Tho',
+	'vinh_phuc'=> 'Vinh Phuc',
+	'quang_ninh'=> 'Quang Ninh',
+	'bac_giang'=> 'Bac Giang',
+	'bac_ninh'=> 'Bac Ninh',
+	'ha_noi'=> 'Ha Noi',
+	'hai_duong'=> 'Hai Duong',
+	'hung_yen'=> 'Hung Yen',
+	'hoa_binh'=> 'Hoa Binh',
+	'ha_nam'=> 'Ha Nam',
+	'nam_dinh'=> 'Nam Dinh',
+	'thai_binh'=> 'Thai Binh',
+	'ninh_binh'=> 'Ninh Binh',
+	'thanh_hoa'=> 'Thanh Hoa',
+	'nghe_an'=> 'Nghe An',
+	'ha_tinh'=> 'Ha Tinh',
+	'quang_binh'=> 'Quang Binh',
+	'quang_tri'=> 'Quang Tri',
+	'thua_thien_hue'=> 'Thua Thien Hue',
+	'quang_nam'=> 'Quang Nam',
+	'quang_ngai'=> 'Quang Ngai',
+	'kom_tum'=> 'Kon Tum',
+	'binh_dinh'=> 'Binh Dinh',
+	'giai_lai'=> 'Gia Lai',
+	'phu_yen'=> 'Phu Yen',
+	'dak_lak'=> 'Dak Lak',
+	'khanh_hoa'=> 'Khanh Hoa',
+	'lam_dong'=> 'Lam Dong',
+	'binh_phuoc'=> 'Binh Phuớc',
+	'binh_duong'=> 'Binh Duong',
+	'ninh_thuan'=> 'Ninh Thuan',
+	'tay_ninh'=> 'Tay Ninh',
+	'binh_thuan'=> 'Binh Thuan',
+	'dong_nai'=> 'Dong Nai',
+	'long_an'=> 'Long An',
+	'dong_thap'=> 'Dong Thap',
+	'an_giang'=> 'An Giang',
+	'ba_ria_vung_tau'=> 'Ba Ria - Vung Tau',
+	'tien_gian'=> 'Tien Giang',
+	'kien_giang'=> 'Kien Giang',
+	'can_tho'=> 'Can Tho',
+	'ben_tre'=> 'Ben Tre',
+	'vinh_long'=> 'Vinh Long',
+	'tra_vinh'=> 'Tra Vinh',
+	'soc_trang'=> 'Soc Trang',
+	'bac_lieu'=> 'Bac Lieu',
+	'ca_mau'=> 'Ca Mau',
+	'dien_bien'=> 'Dien Bien',
+	'dak_nong'=> 'Dak Nong',
+	'hau_giang'=> 'Hau Giang',);
+	return $list;
+}
+
+function _datalogger_areas(){
+	$list = array('north_central_region' => 'North Central Region',
+		'mid_central_region' => 'Middle Central Region',
+		'central_highlands' => 'Central Highlands Region',
+		'south_central_region' => 'South Central Region',
+		'south_region' => 'Southern Region',);
+	return $list;
+}

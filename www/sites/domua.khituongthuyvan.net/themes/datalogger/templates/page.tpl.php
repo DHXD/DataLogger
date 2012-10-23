@@ -114,7 +114,7 @@
 
         <?php if ($site_slogan): ?>
           <div id="site-slogan"<?php if ($hide_site_slogan) { print ' class="element-invisible"'; } ?>>
-            <?php print $site_slogan; ?>
+            <?php print t($site_slogan); ?>
           </div>
         <?php endif; ?>
 
