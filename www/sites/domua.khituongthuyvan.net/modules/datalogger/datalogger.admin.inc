@@ -1,11 +1,11 @@
 <?php
-global $timeInterval ;
+global $timeInterval;
 $timeInterval = array('10','20','30','60','120','180');
 
-global $clearTime ;
+global $clearTime;
 $clearTime = array('00:00','01:00','02:00','03:00','04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00');
 
-global $clearTime2 ;
+global $clearTime2;
 $clearTime2 = array('0000','0100','0200','0300','0400','0500','0600','0700','0800','0900','1000','1100','1200','1300','1400','1500','1600','1700','1800','1900','2000','2100','2200','2300');
 
 global $datalogger_pattern;
@@ -190,7 +190,7 @@ function _datalogger_send_command($nid, $select,$form, $form_state){
 			//database Buffer Clear
 			case 9 :
 				// $title =  t('All Database Buffer Clear');
-				$sms = 'S0'.CODE.'SET  '.DATEymdHis.'R:FORMAT ALL                                                ';
+				$sms = 'S0'.CODE.'SET  '.DATEymdHis.'R:FORMAT_ALL                                                ';
 				$sms = _datalogger_add_space($sms, 84);
 				$message = 'H'.$sms._datalogger_CheckSum($sms).';';
 				// $arg = array('All Database Buffer Clear','9', _datalogger_result($message),'');
@@ -204,6 +204,7 @@ function _datalogger_send_command($nid, $select,$form, $form_state){
 				$message = 'H'.$sms._datalogger_CheckSum($sms).';';
 				// $arg = array('Specific Date Database Buffer Clear','10', _datalogger_result($message),'');
 				$arg = array('Xóa bộ đệm dữ liệu theo ngày','R:FORMAT_DAY:', _datalogger_result($message,'R:FORMAT_DAY:'),'',$nid);
+        break;
 			//Rain fall config
 			case 11 :
 				// $title =  t('Accumulated Rain Fall Value Set');
