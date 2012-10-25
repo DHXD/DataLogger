@@ -1,4 +1,5 @@
-<?
+<?php
+
 error_reporting(E_ALL ^ E_NOTICE);
 ini_set('error_reporting', E_ALL ^ E_NOTICE);
 ini_set('display_errors', 1);
@@ -225,7 +226,7 @@ ini_set('display_errors', 1);
         array (
           'database' => 'datalogger',
           'username' => 'root',
-          'password' => 'root',
+          'password' => '123456',
           'host' => 'localhost',
           'port' => '',
           'driver' => 'mysql',

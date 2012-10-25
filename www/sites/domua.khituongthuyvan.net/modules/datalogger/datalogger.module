@@ -4,6 +4,8 @@
  * 18/10.
  */
 module_load_include('inc', 'datalogger','datalogger.admin');
+///drupal_add_js('tiles/OSM_LocalTileProxy.js', array('scope' => 'footer'));
+
 function datalogger_action_info() {
 	GLOBAL $options_commands;
   return array(

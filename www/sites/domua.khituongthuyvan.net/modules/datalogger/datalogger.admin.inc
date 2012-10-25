@@ -25,7 +25,7 @@ $datalogger_pattern = array(
 		// 'R:CLEAR:',
 		'R:CLEAR TIME:',
 		//'R:CLEAR:?',
-		'P:RESET',
+		//////'P:RESET', // duplicated
 		'P:BAT ON:',
 		//'P:BAT ON:?',
 		'P:BAT OFFSET:',
@@ -99,13 +99,15 @@ $datalogger_pattern = array(
 		// 38 => t('Reset All'),);	
 
 
-function _datalogger_send_command($nid, $select,$form, $form_state){
+function _datalogger_send_command($nid, $select, $form, &$form_state){
 	$nids = arg();
 	define('DATEymdHis', date('ymdHis',time()));  
   define('DATEymdHi', date('ymdHi',time()));  
   define('DATEYmdHi', date('YmdHi',time()));  
-	for($i = 1; $i < count($nids); $i++ ){
-	$nid = $nids[$i];
+   
+	for($i_nid = 1; $i_nid < count($nids); $i_nid++ ) {
+  
+    $nid = $nids[$i];
 		if($nid) {  
 			$node = node_load($nid);
 			$code = $node->field_station_code['und']['0']['value'];
@@ -115,7 +117,8 @@ function _datalogger_send_command($nid, $select,$form, $form_state){
 			define('PHONE',$phone);
 			define('MODEL',$model);
 		}
-		switch ($select) {
+    
+		switch ($select + 10000) {
 			//Data call command
 			case 1 :
 				$sms = 'S0'.CODE.'GET  '.DATEymdHis.'I:STATUS ';
@@ -247,6 +250,7 @@ function _datalogger_send_command($nid, $select,$form, $form_state){
 				$arg = array('Lấy thời gian xóa dữ liệu mưa','R:CLEAR TIME:', _datalogger_result($message,'R:CLEAR TIME:'),'',$nid);
 				break;
 			//Datalogger config
+      /*
 			case 14 :
 				// $title =  t('Self Power Reset');
 				$sms = 'S0'.CODE.'SET  '.DATEymdHis.'P:RESET                                                     ';
@@ -254,7 +258,7 @@ function _datalogger_send_command($nid, $select,$form, $form_state){
 				$message = 'H'.$sms._datalogger_CheckSum($sms).';';
 				// $arg = array('Self Power Reset','14', _datalogger_result($message),'');
 				$arg = array('Thiết lập lại nguồn điện','P:RESET', _datalogger_result($message,'P:RESET'),'',$nid);
-				break;
+				break;*/
 			case 15 :
 				// $title =  t('Set Active / De-Active Battery Power Voltage');
 				$batOn = number_format($form_state['values']['bat_on'],1);
@@ -472,7 +476,7 @@ function _datalogger_send_command($nid, $select,$form, $form_state){
 				$sms = 'S0'.CODE.'GET  '.DATEymdHis.'V:VERSION:?                                                 ';
 				$sms = _datalogger_add_space($sms, 84);
 				$message = 'H'.$sms._datalogger_CheckSum($sms).';';			
-				// $arg = array('Get Datalogger phiê Version','35', _datalogger_result($message),'');
+				// $arg = array('Get Datalogger phiên Version','35', _datalogger_result($message),'');
 				$arg = array('Lấy phiên bản Datalogger hiện tại','V:VERSION:', _datalogger_result($message,'V:VERSION:'),'',$nid);
 				break;
 			case 36 :
@@ -481,6 +485,10 @@ function _datalogger_send_command($nid, $select,$form, $form_state){
 					$interval = '0'.$interval;	
 				}
 				$level = $form_state['values']['set_level'];
+        
+        $level = floatval($level) * 10;   
+        $level = intval($level);
+        
 				if(strlen($level) < 4){
 					$lenstr = strlen($level);
 					for($i = 0; $i < 4-$lenstr; $i++){
@@ -493,7 +501,7 @@ function _datalogger_send_command($nid, $select,$form, $form_state){
 				// dsm($message);
 				// dsm(strlen($message));
 				// $arg = array('Get Datalogger phiê Version','35', _datalogger_result($message),'');
-				$arg = array('Thiết lập thời gian và lượng mưa cảnh báo','A:ALARM INTERVAL:', _datalogger_result($message,'A:ALARM INTERVAL:'),'',$nid);
+				$arg = array('Thiết lập thời gian và lượng mưa cảnh báo', 'A:ALARM INTERVAL:', _datalogger_result($message,'A:ALARM INTERVAL:'), '', $nid);
 				break;
 			case 37 :
 				$sms = 'S0'.CODE.'GET  '.DATEymdHis.'A:ALARM INTERVAL:?                                          ';
@@ -510,24 +518,29 @@ function _datalogger_send_command($nid, $select,$form, $form_state){
 				$sms = 'S0'.CODE.'SET  '.DATEymdHis.'P:RESET';
 				$sms = _datalogger_add_space($sms, 84);
 				$message = 'H'.$sms._datalogger_CheckSum($sms).';';			
-				$arg = array('Thiết lập cấu hình mặc định','P:RESET', _datalogger_result($message,'P:RESET'),'',$nid);
+				$arg = array('Khởi động lại Datalogger', 'P:RESET', _datalogger_result($message,'P:RESET'),'',$nid);
 				break;
 	}
 
-	$type = substr($sms, 7, 3);
-	$arg['type'] = $type;
-	// dsm(strlen($message));
-	// dsm($message);
-	dsm(PHONE);
-	dsm(MODEL);
-	$node_submit = _datalogger_insert_node_command($arg);
-	_datalogger_insert_outbox(PHONE, $message, MODEL);	
-	// if($check != true){
-		// $form_state['redirect'] = 'node/' . $node_submit->nid . '/refresh';
-	// }else{
-		// $form_state['redirect'] = 'view/rainfall/default/refresh';
-	// }
+    
+    $type = substr($sms, 7, 3);
+    $arg['type'] = $type;
+    // dsm(strlen($message));
+    // dsm($message);
+    dsm(PHONE);
+    dsm(MODEL);
+    $node_submit = _datalogger_insert_node_command($arg);
+    
+    $message = count($nids);  // trung
+    
+    _datalogger_insert_outbox(PHONE, $message, MODEL);	
+    // if($check != true){
+      // $form_state['redirect'] = 'node/' . $node_submit->nid . '/refresh';
+    // }else{
+      // $form_state['redirect'] = 'view/rainfall/default/refresh';
+    // }
 	}
+  
 	drupal_set_message('Gửi lệnh thành công!');
 }		
 		
@@ -718,6 +731,7 @@ function _datalogger_insert_node_command($arg){
   node_save($node);
 	return $node;
 }
+
 function _datalogger_insert_node_rainfall($arg){
 	$node = new stdClass();
   $node->title = $arg[0];
@@ -1826,7 +1840,7 @@ function _command_form($form, &$form_state) {
       $form['command_fieldset']['set_level']= array(
       '#type' => 'textfield',
       '#title' => t('Level'),
-      '#default_value' => '1000',
+      '#default_value' => '100.0',
       '#maxlength' => 4,
       '#required' => true,
       );    
@@ -2174,8 +2188,9 @@ function _command_validate($form, &$form_state) {
 			if(empty($level)){
 				_datalogger_check_empty('set_level', 'Level');
       }
-			elseif (preg_match('/[^0-9]/i',$level)){
-          form_set_error('set_level',t('Trường <b>').t('Level').t('</b> chỉ được chứa ký tự số.'));
+			//elseif (preg_match('/([0-9]|\.)/i', $level)){
+      if (!preg_match('/^[0-9\.]+$/', $level)){         // include .
+          form_set_error('set_level',t('Trường <b>').t('Level').t('</b> chỉ được chứa ký tự số và dấu chấm thập phân.'));
       }
 			break;
 		case 37 :
@@ -2184,8 +2199,6 @@ function _command_validate($form, &$form_state) {
 			break;
   }
 }
-
-// function _send_command_submit($form, &$form_state) {
 
 function _datalogger_add_space($sms, $length){
 	$len = strlen($sms);
@@ -2196,7 +2209,10 @@ function _datalogger_add_space($sms, $length){
 	}
 	return $sms;
 }
+
 function _send_command_submit($form, &$form_state) {
+
+
 	// dsm($form_state['values']);
   $nid = intval(arg(1)) ? intval(arg(1)) : $form_state['values']['nid'];
   $form['nid'] = array(
@@ -2211,7 +2227,7 @@ function _send_command_submit($form, &$form_state) {
 	else{
 		$select = $form_state["values"]["command_selects"];
 	}
-	_datalogger_send_command($nid, $select,$form, &$form_state);
+	_datalogger_send_command($nid, $select,$form, $form_state);
 }
 
 function _view_translate_station() {

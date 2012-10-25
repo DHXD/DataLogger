@@ -96,6 +96,10 @@ DirectoryIndex index.php index.html index.htm
   # If your site is running in a VirtualDocumentRoot at http://example.com/,
   # uncomment the following line:
   # RewriteBase /
+  
+  
+  # OpenLayer
+  RewriteRule ^tiles/([0-9]+)/([0-9]+)/([0-9]+).png$ tiles.php?z=$1&x=$2&y=$3&r=mapquest_osm [L]
 
   # Pass all requests not referring directly to files in the filesystem to
   # index.php. Clean URLs are handled in drupal_environment_initialize().
@@ -103,6 +107,7 @@ DirectoryIndex index.php index.html index.htm
   RewriteCond %{REQUEST_FILENAME} !-d
   RewriteCond %{REQUEST_URI} !=/favicon.ico
   RewriteRule ^ index.php [L]
+  
 
   # Rules to correctly serve gzip compressed CSS and JS files.
   # Requires both mod_rewrite and mod_headers to be enabled.
@@ -120,6 +125,7 @@ DirectoryIndex index.php index.html index.htm
     # Serve correct content types, and prevent mod_deflate double gzip.
     RewriteRule \.css\.gz$ - [T=text/css,E=no-gzip:1]
     RewriteRule \.js\.gz$ - [T=text/javascript,E=no-gzip:1]
+    
 
     <FilesMatch "(\.js\.gz|\.css\.gz)$">
       # Serve correct encoding type.

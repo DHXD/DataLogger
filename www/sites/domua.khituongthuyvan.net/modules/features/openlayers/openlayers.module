@@ -149,7 +149,8 @@ function openlayers_build_map($map = array()) {
       $map = $loaded_map->data;
     }
   }
-
+  
+  
   // Create ID for map as this will help with alters.
   $map['id'] = !isset($map['id']) ? 
     _openlayers_create_map_id() : $map['id'];
@@ -158,6 +159,8 @@ function openlayers_build_map($map = array()) {
   // layers may all be added here.
   // hook_openlayers_map_preprocess_alter($map)
   drupal_alter('openlayers_map_preprocess', $map);
+  
+  dpm($map);
 
   // Styles and layer styles are not required parameters
   $map['styles'] = isset($map['styles']) ? $map['styles'] : array();
@@ -175,6 +178,17 @@ function openlayers_build_map($map = array()) {
   // behaviors will not get rendered.
   // hook_openlayers_map_alter($map)
   drupal_alter('openlayers_map', $map);
+  
+  dpm($map);
+  
+  //$map['default_layer'] = 'mapquest_osm';  // trung added
+  //$map['layers']['mapquest_osm_offline']['url'] = $map['layers']['mapquest_osm']['url'];
+  ///$map['layers']['mapquest_osm_offline']['url'][0] = 'http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.png';
+  $map['layers']['mapquest_osm_offline']['url'][0] = '/tiles/${z}/${x}/${y}.png';
+  //http://local.domua.khituongthuyvan.net/tiles/15/17024/10792.png
+  
+  $map['layers']['mapquest_osm_offline']['serverResolutions'] = array();
+  
 
   // Check map for errors
   $map['errors'] = openlayers_error_check_map($map);

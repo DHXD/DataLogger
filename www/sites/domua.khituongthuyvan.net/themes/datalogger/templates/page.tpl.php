@@ -1,5 +1,7 @@
 <?php
 
+  echo "\n" . '<script src="openlayers/OSM_LocalTileProxy.js"></script>' . "\n";    // trung
+
 /**
  * @file
  * Bartik's theme implementation to display a single Drupal page.
