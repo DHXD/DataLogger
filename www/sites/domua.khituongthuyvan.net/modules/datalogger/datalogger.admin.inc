@@ -107,7 +107,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
    
 	for($i_nid = 1; $i_nid < count($nids); $i_nid++ ) {
   
-    $nid = $nids[$i];
+    $nid = $nids[$i_nid];
 		if($nid) {  
 			$node = node_load($nid);
 			$code = $node->field_station_code['und']['0']['value'];
