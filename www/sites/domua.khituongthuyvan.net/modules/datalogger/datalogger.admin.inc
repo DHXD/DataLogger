@@ -118,7 +118,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
 			define('MODEL',$model);
 		}
     
-		switch ($select + 10000) {
+		switch ($select) {
 			//Data call command
 			case 1 :
 				$sms = 'S0'.CODE.'GET  '.DATEymdHis.'I:STATUS ';

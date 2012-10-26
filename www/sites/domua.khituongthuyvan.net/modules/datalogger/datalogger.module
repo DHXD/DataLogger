@@ -366,3 +366,17 @@ function _datalogger_station_title_callback($node) {
     return 'View';
   }
 }
+
+/*
+ * Implements hook_openlayers_map_alter().
+ */
+function datalogger_openlayers_map_alter(&$map) {
+  if (isset($map['layers']['mapquest_osm_offline'])) {
+    $map['layers']['mapquest_osm_offline']['url'][0] = '/tiles/${z}/${x}/${y}.png';     // set local URL using special hard coded format.
+    $map['layers']['mapquest_osm_offline']['serverResolutions'] = array();              // empty the array
+    
+    dpm($map);
+  }
+}
+
+

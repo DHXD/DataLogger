@@ -160,8 +160,6 @@ function openlayers_build_map($map = array()) {
   // hook_openlayers_map_preprocess_alter($map)
   drupal_alter('openlayers_map_preprocess', $map);
   
-  dpm($map);
-
   // Styles and layer styles are not required parameters
   $map['styles'] = isset($map['styles']) ? $map['styles'] : array();
   $map['layer_styles'] = isset($map['layer_styles']) ? $map['layer_styles'] : array();
@@ -179,17 +177,6 @@ function openlayers_build_map($map = array()) {
   // hook_openlayers_map_alter($map)
   drupal_alter('openlayers_map', $map);
   
-  dpm($map);
-  
-  //$map['default_layer'] = 'mapquest_osm';  // trung added
-  //$map['layers']['mapquest_osm_offline']['url'] = $map['layers']['mapquest_osm']['url'];
-  ///$map['layers']['mapquest_osm_offline']['url'][0] = 'http://otile1.mqcdn.com/tiles/1.0.0/osm/${z}/${x}/${y}.png';
-  $map['layers']['mapquest_osm_offline']['url'][0] = '/tiles/${z}/${x}/${y}.png';
-  //http://local.domua.khituongthuyvan.net/tiles/15/17024/10792.png
-  
-  $map['layers']['mapquest_osm_offline']['serverResolutions'] = array();
-  
-
   // Check map for errors
   $map['errors'] = openlayers_error_check_map($map);
   return $map;
