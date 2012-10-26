@@ -530,9 +530,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
     dsm(PHONE);
     dsm(MODEL);
     $node_submit = _datalogger_insert_node_command($arg);
-    
-    $message = count($nids);  // trung
-    
+        
     _datalogger_insert_outbox(PHONE, $message, MODEL);	
     // if($check != true){
       // $form_state['redirect'] = 'node/' . $node_submit->nid . '/refresh';
