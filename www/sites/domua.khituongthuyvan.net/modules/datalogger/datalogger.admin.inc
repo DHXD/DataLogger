@@ -1898,43 +1898,43 @@ function ajax_example_submit_driven_callback($form, $form_state) {
   // return $element;
 }
 
-function _datalogger_new_result_sms(){
-	dsm('abc');
-  $result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 1");
-  $headers = array(
-    1 => 'STT',
-    2 => 'Cập nhật DB',
-    3 => 'Tin nhắn tới',
-    4 => 'Số gửi tin',
-    // 5 => 'Tổng đài',
-    6 => 'Nội dung tin nhắn',
-  );
-  $rows = array();
-  $i = 1;
-    foreach($result as $row) {
-    /*chỉ liệt kê các tin nhắn theo chuẩn:HS.....;*/
-      // if(_datalogger_startsWith($row -> TextDecoded,'HS') && _datalogger_endsWith($row -> TextDecoded,';')){
-        $rows[] = array (
-          $i++,
-          $row -> UpdatedInDB,
-          $row -> ReceivingDateTime,
-          $row -> SenderNumber,
-          // $row -> SMSCNumber,
-          $row -> TextDecoded,
-        );
-        $sms = $row -> TextDecoded;
-      // }
-    }
-  // Table of Data
-  $form['tbl_inbox'] = array(
-    '#theme' => 'table',
-    '#header' => $headers,
-    '#rows' => $rows,
-    // '#empty' => t('Null')
-  );
+// function _datalogger_new_result_sms(){
+	// dsm('abc');
+  // $result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 1");
+  // $headers = array(
+    // 1 => 'STT',
+    // 2 => 'Cập nhật DB',
+    // 3 => 'Tin nhắn tới',
+    // 4 => 'Số gửi tin',
+    // // 5 => 'Tổng đài',
+    // 6 => 'Nội dung tin nhắn',
+  // );
+  // $rows = array();
+  // $i = 1;
+    // foreach($result as $row) {
+    // /*chỉ liệt kê các tin nhắn theo chuẩn:HS.....;*/
+      // // if(_datalogger_startsWith($row -> TextDecoded,'HS') && _datalogger_endsWith($row -> TextDecoded,';')){
+        // $rows[] = array (
+          // $i++,
+          // $row -> UpdatedInDB,
+          // $row -> ReceivingDateTime,
+          // $row -> SenderNumber,
+          // // $row -> SMSCNumber,
+          // $row -> TextDecoded,
+        // );
+        // $sms = $row -> TextDecoded;
+      // // }
+    // }
+  // // Table of Data
+  // $form['tbl_inbox'] = array(
+    // '#theme' => 'table',
+    // '#header' => $headers,
+    // '#rows' => $rows,
+    // // '#empty' => t('Null')
+  // );
   
-  return abc;
-}
+  // return abc;
+// }
 
 function _command_callback($form, &$form_state) {
   return $form['command_fieldset'];

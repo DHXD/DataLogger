@@ -358,9 +358,11 @@ function datalogger_menu_alter(&$items) {
 } 
 
 function _datalogger_station_title_callback($node) {
-  if ($node->type == 'station' || $node->type == 'modems') {
-    drupal_set_title('Thông tin trạm: '.$node->title);
-    return 'Thông tin trạm';
+  if ($node->type == 'station' || $node->type == 'modem') {
+    // drupal_set_title(t('Thông tin trạm: ').$node->title);
+    // return t('Thông tin trạm');
+		drupal_set_title(t('Station infomation: ').$node->title);
+    return t('Station infomation');
   }
   else {
     return 'View';
