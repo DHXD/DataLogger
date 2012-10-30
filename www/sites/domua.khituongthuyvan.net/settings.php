@@ -226,7 +226,8 @@ ini_set('display_errors', 1);
         array (
           'database' => 'datalogger',
           'username' => 'root',
-          'password' => '123456',
+          // 'password' => '123456',
+          'password' => 'root',
           'host' => 'localhost',
           'port' => '',
           'driver' => 'mysql',
