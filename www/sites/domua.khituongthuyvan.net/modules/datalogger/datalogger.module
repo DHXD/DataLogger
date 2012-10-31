@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 18/10.
+ * 18/10. 
  */
 //module_load_include('inc', 'datalogger','datalogger.admin');
 ///drupal_add_js('tiles/OSM_LocalTileProxy.js', array('scope' => 'footer'));
@@ -359,7 +359,7 @@ function datalogger_menu_alter(&$items) {
 } 
 
 function _datalogger_station_title_callback($node) {
-  if ($node->type == 'station' || $node->type == 'modem') {
+  if ($node->type == 'station' ) {
     // drupal_set_title(t('Thông tin trạm: ').$node->title);
     // return t('Thông tin trạm');
 		drupal_set_title(t('Station infomation: ').$node->title);
