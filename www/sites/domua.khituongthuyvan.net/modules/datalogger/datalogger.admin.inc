@@ -1504,7 +1504,7 @@ function _command_form($form, &$form_state) {
     12 => t('Set Rain Fall Clear Time'),
     13 => t('Get Rain Fall Clear Time'),
     //Datalogger config
-    14 => t('Self Power Reset'),
+   // 14 => t('Self Power Reset'),
     15 => t('Set Active / De-Active Battery Power Voltage'),
     16 => t('Get Active / De-Active Battery Power Voltage'),
     17 => t('Set Battery Voltage Offset'),
@@ -1886,6 +1886,25 @@ function _command_form($form, &$form_state) {
 	
   $form['#validate'][] = '_command_validate';
 	// }
+	
+	
+	
+	
+	//=======test
+	//$form['contact_information'] = array(
+	//	'#markup' => '<br />',
+	//);	
+	//$form['preview1'] = array(
+	//	'#type' => 'button',
+	//	'#value' => t('Preview3'),
+	//);
+	//====end test
+	
+	
+	
+	
+	
+	
   return $form;
 }
 
