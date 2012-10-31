@@ -1554,7 +1554,7 @@ function _command_form($form, &$form_state) {
   );
   
   $form['command_fieldset'] = array(
-    '#title' => t("Parameter of ". $title),
+    '#title' => t("Parameter of %title", array('%title' => $title)),
     '#prefix' => '<div id="command-div">',
     '#suffix' => '</div>',
     '#type' => 'fieldset',
@@ -1887,6 +1887,8 @@ function _command_form($form, &$form_state) {
   $form['#validate'][] = '_command_validate';
 	// }
 	
+<<<<<<< HEAD
+=======
 	
 	
 	
@@ -1905,6 +1907,7 @@ function _command_form($form, &$form_state) {
 	
 	
 	
+>>>>>>> 00afff5efca36ae5240078a4ef83da4e2ec0f81b
   return $form;
 }
 
