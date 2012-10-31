@@ -1356,7 +1356,7 @@ input.form-text,textarea.form-textarea,select.form-select {
 
 /*new line value*/
 select.form-select {
-width:170px;
+	width:260px;
 }
 
 #edit-field-station-regions-value-wrapper,

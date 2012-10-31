@@ -1,9 +1,9 @@
 <?php
 
 /**
- * 18/10.
+ * 18/10. 
  */
-module_load_include('inc', 'datalogger','datalogger.admin');
+//module_load_include('inc', 'datalogger','datalogger.admin');
 ///drupal_add_js('tiles/OSM_LocalTileProxy.js', array('scope' => 'footer'));
 
 function datalogger_action_info() {
@@ -358,9 +358,11 @@ function datalogger_menu_alter(&$items) {
 } 
 
 function _datalogger_station_title_callback($node) {
-  if ($node->type == 'station') {
-    drupal_set_title('Thông tin trạm: '.$node->title);
-    return 'Thông tin trạm';
+  if ($node->type == 'station' ) {
+    // drupal_set_title(t('Thông tin trạm: ').$node->title);
+    // return t('Thông tin trạm');
+		drupal_set_title(t('Station infomation: ').$node->title);
+    return t('Station infomation');
   }
   else {
     return 'View';
@@ -375,7 +377,7 @@ function datalogger_openlayers_map_alter(&$map) {
     $map['layers']['mapquest_osm_offline']['url'][0] = '/tiles/${z}/${x}/${y}.png';     // set local URL using special hard coded format.
     $map['layers']['mapquest_osm_offline']['serverResolutions'] = array();              // empty the array
     
-    dpm($map);
+    // dpm($map);
   }
 }
 

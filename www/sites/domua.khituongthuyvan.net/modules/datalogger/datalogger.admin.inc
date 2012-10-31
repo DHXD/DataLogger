@@ -528,8 +528,8 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
       $arg['type'] = $type;
       // dsm(strlen($message));
       // dsm($message);
-      dsm($phone);
-      dsm($modem);
+      // dsm($phone);
+      // dsm($modem);
       $node_submit = _datalogger_insert_node_command($arg);
           
       _datalogger_insert_outbox($phone, $message, $modem);	
@@ -541,7 +541,8 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
     }
 	}
   
-	drupal_set_message('Gửi lệnh thành công!');
+	// drupal_set_message(t('Gửi lệnh thành công!'));
+	drupal_set_message(t('Send successful command'));
 }		
 		
 		
@@ -780,7 +781,7 @@ function _datalogger_new_sms_form(){
     1 => t('No.'),
     3 => t('Receiving Date Time'),
     4 => t('Sender Number'),
-    5 => t('SMSC Number'),
+    // 5 => t('SMSC Number'),
     6 => t('Message content'),
 		7 => t('Modem'),
   );
@@ -791,7 +792,7 @@ function _datalogger_new_sms_form(){
           $i++,
           $row -> ReceivingDateTime,
           $row -> SenderNumber,
-          $row -> SMSCNumber,
+          // $row -> SMSCNumber,
           $row -> TextDecoded,
 					$row -> RecipientID,
         );
@@ -1503,7 +1504,7 @@ function _command_form($form, &$form_state) {
     12 => t('Set Rain Fall Clear Time'),
     13 => t('Get Rain Fall Clear Time'),
     //Datalogger config
-    14 => t('Self Power Reset'),
+   // 14 => t('Self Power Reset'),
     15 => t('Set Active / De-Active Battery Power Voltage'),
     16 => t('Get Active / De-Active Battery Power Voltage'),
     17 => t('Set Battery Voltage Offset'),
@@ -1885,6 +1886,25 @@ function _command_form($form, &$form_state) {
 	
   $form['#validate'][] = '_command_validate';
 	// }
+	
+	
+	
+	
+	//=======test
+	//$form['contact_information'] = array(
+	//	'#markup' => '<br />',
+	//);	
+	//$form['preview1'] = array(
+	//	'#type' => 'button',
+	//	'#value' => t('Preview3'),
+	//);
+	//====end test
+	
+	
+	
+	
+	
+	
   return $form;
 }
 
@@ -1897,42 +1917,43 @@ function ajax_example_submit_driven_callback($form, $form_state) {
   // return $element;
 }
 
-function _datalogger_new_result_sms(){
-  $result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 1");
-  $headers = array(
-    1 => 'STT',
-    2 => 'Cập nhật DB',
-    3 => 'Tin nhắn tới',
-    4 => 'Số gửi tin',
-    5 => 'Tổng đài',
-    6 => 'Nội dung tin nhắn',
-  );
-  $rows = array();
-  $i = 1;
-    foreach($result as $row) {
-    /*chỉ liệt kê các tin nhắn theo chuẩn:HS.....;*/
-      // if(_datalogger_startsWith($row -> TextDecoded,'HS') && _datalogger_endsWith($row -> TextDecoded,';')){
-        $rows[] = array (
-          $i++,
-          $row -> UpdatedInDB,
-          $row -> ReceivingDateTime,
-          $row -> SenderNumber,
-          $row -> SMSCNumber,
-          $row -> TextDecoded,
-        );
-        $sms = $row -> TextDecoded;
-      // }
-    }
-  // Table of Data
-  $form['tbl_inbox'] = array(
-    '#theme' => 'table',
-    '#header' => $headers,
-    '#rows' => $rows,
-    // '#empty' => t('Null')
-  );
+// function _datalogger_new_result_sms(){
+	// dsm('abc');
+  // $result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 1");
+  // $headers = array(
+    // 1 => 'STT',
+    // 2 => 'Cập nhật DB',
+    // 3 => 'Tin nhắn tới',
+    // 4 => 'Số gửi tin',
+    // // 5 => 'Tổng đài',
+    // 6 => 'Nội dung tin nhắn',
+  // );
+  // $rows = array();
+  // $i = 1;
+    // foreach($result as $row) {
+    // /*chỉ liệt kê các tin nhắn theo chuẩn:HS.....;*/
+      // // if(_datalogger_startsWith($row -> TextDecoded,'HS') && _datalogger_endsWith($row -> TextDecoded,';')){
+        // $rows[] = array (
+          // $i++,
+          // $row -> UpdatedInDB,
+          // $row -> ReceivingDateTime,
+          // $row -> SenderNumber,
+          // // $row -> SMSCNumber,
+          // $row -> TextDecoded,
+        // );
+        // $sms = $row -> TextDecoded;
+      // // }
+    // }
+  // // Table of Data
+  // $form['tbl_inbox'] = array(
+    // '#theme' => 'table',
+    // '#header' => $headers,
+    // '#rows' => $rows,
+    // // '#empty' => t('Null')
+  // );
   
-  return abc;
-}
+  // return abc;
+// }
 
 function _command_callback($form, &$form_state) {
   return $form['command_fieldset'];
