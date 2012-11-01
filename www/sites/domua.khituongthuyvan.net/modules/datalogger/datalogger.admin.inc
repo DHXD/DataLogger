@@ -1887,27 +1887,6 @@ function _command_form($form, &$form_state) {
   $form['#validate'][] = '_command_validate';
 	// }
 	
-<<<<<<< HEAD
-=======
-	
-	
-	
-	//=======test
-	//$form['contact_information'] = array(
-	//	'#markup' => '<br />',
-	//);	
-	//$form['preview1'] = array(
-	//	'#type' => 'button',
-	//	'#value' => t('Preview3'),
-	//);
-	//====end test
-	
-	
-	
-	
-	
-	
->>>>>>> 00afff5efca36ae5240078a4ef83da4e2ec0f81b
   return $form;
 }
 
