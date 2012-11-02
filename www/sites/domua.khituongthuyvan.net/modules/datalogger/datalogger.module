@@ -1,7 +1,7 @@
 <?php
 
 /**
- * 18/10.
+ * 18/10. 
  */
 //module_load_include('inc', 'datalogger','datalogger.admin');
 ///drupal_add_js('tiles/OSM_LocalTileProxy.js', array('scope' => 'footer'));
@@ -301,6 +301,7 @@ function datalogger_menu() {
  
   return $items;
 }
+
 
 function _datalogger_menu_access_callback_node($permission, $node) {
   //dpm($permission);

@@ -1504,7 +1504,7 @@ function _command_form($form, &$form_state) {
     12 => t('Set Rain Fall Clear Time'),
     13 => t('Get Rain Fall Clear Time'),
     //Datalogger config
-    14 => t('Self Power Reset'),
+   // 14 => t('Self Power Reset'),
     15 => t('Set Active / De-Active Battery Power Voltage'),
     16 => t('Get Active / De-Active Battery Power Voltage'),
     17 => t('Set Battery Voltage Offset'),
@@ -1554,7 +1554,7 @@ function _command_form($form, &$form_state) {
   );
   
   $form['command_fieldset'] = array(
-    '#title' => t("Parameter of ". $title),
+    '#title' => t("Parameter of %title", array('%title' => $title)),
     '#prefix' => '<div id="command-div">',
     '#suffix' => '</div>',
     '#type' => 'fieldset',
@@ -1886,6 +1886,7 @@ function _command_form($form, &$form_state) {
 	
   $form['#validate'][] = '_command_validate';
 	// }
+	
   return $form;
 }
 
