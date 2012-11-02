@@ -19,8 +19,8 @@ $datalogger_pattern = array(
 		// 'P:',
 		'W:',
 		//'P:?',
-		'R:FORMAT ALL',
-		'R:FORMAT DAY:',
+		'R:FORMAT_ALL',
+		'R:FORMAT_DAY:',
 		'R:SET:',
 		// 'R:CLEAR:',
 		'R:CLEAR TIME:',
@@ -195,25 +195,29 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
         //database Buffer Clear
         case 9 :
           // $title =  t('All Database Buffer Clear');
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'R:FORMAT ALL                                                ';
+          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'R:FORMAT_ALL                                                ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('All Database Buffer Clear','9', _datalogger_result($message),'');
-          $arg = array('Xóa bộ đệm dữ liệu','R:FORMAT ALL', _datalogger_result($message,'R:FORMAT ALL'),'',$nid);
+          $arg = array('Xóa bộ đệm dữ liệu','R:FORMAT_ALL', _datalogger_result($message,'R:FORMAT_ALL'),'',$nid);
           break;
         case 10 :
           // $title =  t('Specific Date Database Buffer Clear');
           $day = _datalogger_convert_date('ymd',$form_state['values']['date_buffer_clear']);
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'R:FORMAT DAY:'.$day.'                                         ';
+          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'R:FORMAT_DAY:'.$day.'                                         ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Specific Date Database Buffer Clear','10', _datalogger_result($message),'');
-          $arg = array('Xóa bộ đệm dữ liệu theo ngày','R:FORMAT DAY:', _datalogger_result($message,'R:FORMAT DAY:'),'',$nid);
+          $arg = array('Xóa bộ đệm dữ liệu theo ngày','R:FORMAT_DAY:', _datalogger_result($message,'R:FORMAT_DAY:'),'',$nid);
           break;
         //Rain fall config
         case 11 :
           // $title =  t('Accumulated Rain Fall Value Set');
           $number = $form_state['values']['accumulated_rain_fall'];
+          
+          $number = floatval($number) * 10;
+          $number = intval($number);
+          
           $len = strlen($number);
           if($len < 5 ){
             for($i = 0; $i < (5 - $len); $i++){

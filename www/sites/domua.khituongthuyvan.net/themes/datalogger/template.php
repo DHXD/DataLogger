@@ -13,19 +13,19 @@ else{
   variable_set('site_name', t('Data mining system automatic rain gauge 2012'));
 }
 
-if(in_array('control datalogger', array_values($user->roles))){
-  drupal_add_css(path_to_theme() . '/css/cam.css');
-}
-
-if(in_array('manage data', array_values($user->roles))){
-  drupal_add_css(path_to_theme() . '/css/xanhla.css');
-}
-
-if(in_array('administrator', array_values($user->roles)) && in_array('control datalogger', array_values($user->roles))){
+if(in_array('manage data', array_values($user->roles)) && in_array('control datalogger', array_values($user->roles)) || $user->uid == 1){
   drupal_add_css(path_to_theme() . '/css/do.css');
 }
 
-if(in_array('anonymous user', array_values($user->roles))){
+else if(in_array('control datalogger', array_values($user->roles))){
+  drupal_add_css(path_to_theme() . '/css/cam.css');
+}
+
+else if(in_array('manage data', array_values($user->roles))){
+  drupal_add_css(path_to_theme() . '/css/xanhla.css');
+}
+
+else if($user->uid == 0){
   drupal_add_css(path_to_theme() . '/css/xanhdatroi.css');
 }
 
