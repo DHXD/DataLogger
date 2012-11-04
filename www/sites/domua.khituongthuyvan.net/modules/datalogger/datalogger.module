@@ -216,7 +216,7 @@ function datalogger_menu() {
     // 'type' => MENU_NORMAL_ITEM,
   // );
   
-  $items['node/%node/statistics'] = array(
+  /*$items['node/%node/statistics'] = array(
     'title' => 'Thống kê',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_manage_statistics_form', 1),
@@ -251,8 +251,13 @@ function datalogger_menu() {
     'description' => 'Chi tiết lượng Mưa',
     'type' => MENU_LOCAL_TASK,
     'weight' => -23,
+  );*/
+  
+  /*
+  $items['node/%node/title'] = array(
+    
   );
-       
+    */   
 /**
  *Begin date:old
  */
