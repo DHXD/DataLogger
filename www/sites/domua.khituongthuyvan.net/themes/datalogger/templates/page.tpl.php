@@ -142,7 +142,10 @@
       </div> <!-- /#main-menu -->
     <?php endif; ?>
 
-    <?php if ($secondary_menu): ?>
+    <?php //dpm($secondary_menu); 
+      $secondary_menu['menu-2']['title'] = t('Welcome !username ! ', array('!username' => $user->name)) . t('My account');
+      
+      if ($secondary_menu): ?>
       <div id="secondary-menu" class="navigation">
         <?php print theme('links__system_secondary_menu', array(
           'links' => $secondary_menu,
