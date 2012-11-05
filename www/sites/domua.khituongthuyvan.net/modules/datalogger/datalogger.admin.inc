@@ -1396,6 +1396,45 @@ function _manage_rainfall_form($form, &$form_state) {
   );
   return $form;
 }
+
+function _datalogger_newnode(){
+  $battery = array(1,2,1,2,1,2);
+  $isdata = array(2,1,2,1,2,1);
+  $measuring = array(0.7,0.7,0.7,0.7,0.7,0.7);
+  $accumulated = array(0.7,1.4,2.1,2.8,3.5,4.2);
+  
+  dpm($battery);
+  
+  dsm('aaaaaa');
+  for($i = 1; $i < 25; $i ++){
+  $node = new stdClass();
+  $node->title = 'Lượng mưa '.$i;
+  //$node->field_rainfall_station = 'Thanh Tân';
+  $node->type = 'rainfall';
+  $node->created = time() + $i - 1;
+  $node->changed = $node->created;
+  $node->status = 1; // Published?
+  $node->promote = 0; // Display on front page?
+  $node->sticky = 0; // Display top of page?
+  $node->format = 1; // Filtered HTML?
+  $node->uid = 1; // Content owner uid (author)?
+  $node->language = 'und';
+  
+  node_object_prepare($node);
+  $node->field_rainfall_station = 'Thanh Tân';
+  $node->field_command_battery_power = $battery;
+  $node->field_command_is_data_valid = $isdata;
+  $node->field_command_measuring_interval = $measuring;
+  $node->field_command_accumulated_rain = $accumulated;
+  //$node->path = 'node/path';
+  
+  //dpm($node);
+  
+  node_save($node);
+  }
+  return 'Tạo node thành công';
+}
+
 function _manage_info_form() {
   // $node = node_load($nid);
   $nid = intval(arg(1));

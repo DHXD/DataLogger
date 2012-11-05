@@ -254,10 +254,25 @@ function datalogger_menu() {
   );*/
   
   /*
-  $items['node/%node/title'] = array(
-    
+  $items['datalogger'] = array(
+    'title' => 'Biểu đồ',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array(
+        '_datalogger_newnode'
+    ),
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
   );
-    */   
+  */
+  
+  $items['datalogger3'] = array(
+      'title' => t('Rainfall'),
+      'page callback' => '_datalogger_newnode',
+      'file' => 'datalogger.admin.inc',
+      'access arguments' => array('manage data'),
+  );
+  
+  
 /**
  *Begin date:old
  */
