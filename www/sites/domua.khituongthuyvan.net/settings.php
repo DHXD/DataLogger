@@ -1,5 +1,9 @@
 <?php
 
+error_reporting(E_ALL ^ E_NOTICE);
+ini_set('error_reporting', E_ALL ^ E_NOTICE);
+ini_set('display_errors', 1);
+
 /**
  * @file
  * Drupal site-specific configuration file.
@@ -200,21 +204,66 @@
  *   );
  * @endcode
  */
-$databases = array (
-  'default' => 
-  array (
-    'default' => 
-    array (
-      'database' => 'drupal7dex',
-      'username' => 'root',
-      'password' => 'root',
-      'host' => 'localhost',
-      'port' => '',
-      'driver' => 'mysql',
-      'prefix' => '',
-    ),
-  ),
-);
+ 
+	/*Database:lasi*/
+	/*
+	$databases = array (
+      'default' => 
+      array (
+        'default' => 
+        array (
+          'database' => 'datalogger',
+          'username' => 'datalogger',
+          // 'password' => '123456',
+          'password' => 'qaHfBsGv7uujby7r',
+          'host' => 'localhost',
+          'port' => '',
+          'driver' => 'mysql',
+          'prefix' => 'datalogger_',
+        ),
+      ),
+    );
+		*/
+		
+		/*Database: 192.168.1.34*/
+		
+    // /*
+		$databases = array (
+      'default' => 
+      array (
+        'default' => 
+        array (
+          'database' => 'datalogger',
+          'username' => 'datalogger',
+          'password' => '123456',
+          'host' => '192.168.1.34',
+          'port' => '',
+          'driver' => 'mysql',
+          'prefix' => 'datalogger_',
+        ),
+      ),
+    );
+		// */
+	
+	/*Database: localhost*/
+	
+	/*
+	$databases = array (
+      'default' => 
+      array (
+        'default' => 
+        array (
+          'database' => 'datalogger',
+          'username' => 'root',
+          'password' => 'root',
+          'host' => 'localhost',
+          'port' => '',
+          'driver' => 'mysql',
+          'prefix' => 'datalogger_',
+        ),
+      ),
+    );
+		*/
 
 /**
  * Access control for update.php script.
@@ -246,7 +295,7 @@ $update_free_access = FALSE;
  *   $drupal_hash_salt = file_get_contents('/home/example/salt.txt');
  *
  */
-$drupal_hash_salt = 'W9cjb0WsY_pDKr1uUoodqBoInYpZT9JSsZ4F5F3-0t8';
+$drupal_hash_salt = '-QvnGb2mOJ26N3k6rw-XVVBfvvLsEa6QFc8F2C4cby8';
 
 /**
  * Base URL (optional).
@@ -276,7 +325,7 @@ $drupal_hash_salt = 'W9cjb0WsY_pDKr1uUoodqBoInYpZT9JSsZ4F5F3-0t8';
  * To see what PHP settings are possible, including whether they can be set at
  * runtime (by using ini_set()), read the PHP documentation:
  * http://www.php.net/manual/en/ini.list.php
- * See drupal_initialize_variables() in includes/bootstrap.inc for required
+ * See drupal_environment_initialize() in includes/bootstrap.inc for required
  * runtime settings and the .htaccess file for non-runtime settings. Settings
  * defined there should not be duplicated here so as to avoid conflict issues.
  */

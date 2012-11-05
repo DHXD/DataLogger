@@ -143,7 +143,7 @@
     <?php endif; ?>
 
     <?php //dpm($secondary_menu); 
-      $secondary_menu['menu-2']['title'] = t('Welcome !username ! ', array('!username' => $user->name)) . t('My account');
+      $secondary_menu['menu-2']['title'] = t('Welcome !username ! ', array('!username ' => $user->name)) . t('My account');
       
       if ($secondary_menu): ?>
       <div id="secondary-menu" class="navigation">

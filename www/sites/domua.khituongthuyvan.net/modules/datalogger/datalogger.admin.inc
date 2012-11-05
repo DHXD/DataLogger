@@ -22,7 +22,6 @@ $datalogger_pattern = array(
 		'R:FORMAT ALL',
 		'R:FORMAT DAY:',
 		'R:SET:',
-		// 'R:CLEAR:',
 		'R:CLEAR TIME:',
 		//'R:CLEAR:?',
 		//////'P:RESET', // duplicated
@@ -106,20 +105,13 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
   define('DATEYmdHi', date('YmdHi',time()));  
    
 	for($i_nid = 1; $i_nid < count($nids); $i_nid++ ) {
-  
     $nid = intval($nids[$i_nid]);
-    
 		if($nid) {  
-    
 			$node = node_load($nid);
 			$code = $node->field_station_code['und']['0']['value'];
 			$phone = $node->field_station_sim_number['und']['0']['value'];
-			$modem = $node->field_station_model['und']['0']['value'];
-      
-			//define('CODE',$code);     // we cannot re-define multiple times.
-			//define('PHONE',$phone);
-			//define('MODEL',$modem);
-      
+			// $modem = $node->field_station_modem['und']['0']['value'];
+			$modem = node_load($node->field_station_modem['vi']['0']['nid']);
       switch ($select) {
         //Data call command
         case 1 :
@@ -165,7 +157,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set CODE','5', _datalogger_result($message),'');
-          $arg = array('Thiết lập CODE','D:', _datalogger_result($message,'D:'),'',$nid);
+          $arg = array('Thiết lập ID','D:', _datalogger_result($message,'D:'),'',$nid);
           break;
         case 6 :
           // $title =  t('Get CODE');
@@ -174,7 +166,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           
           // $arg = array('Get CODE','6', _datalogger_result($message),'');
-          $arg = array('Lấy thông tin CODE','D:', _datalogger_result($message,'D:'),'',$nid);
+          $arg = array('Lấy thông tin ID','D:', _datalogger_result($message,'D:'),'',$nid);
           break;
         case 7 :
           $pass = $form_state['values']['set_pass'];
@@ -426,7 +418,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           $id = $form_state['values']['id_gprs'];
           $pass = $form_state['values']['pass_gprs'];
           
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'G:APN:'.$host.',CODE:'.$id.',PW:'.$pass;
+          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'G:APN:'.$host.',ID:'.$id.',PW:'.$pass;
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set GPRS Network Setting','29', _datalogger_result($message),'');
@@ -530,13 +522,9 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
       
       $type = substr($sms, 7, 3);
       $arg['type'] = $type;
-      // dsm(strlen($message));
-      // dsm($message);
-      // dsm($phone);
-      // dsm($modem);
       $node_submit = _datalogger_insert_node_command($arg);
           
-      _datalogger_insert_outbox($phone, $message, $modem);	
+      _datalogger_insert_outbox($phone, $message, $modem->title);	
       // if($check != true){
         // $form_state['redirect'] = 'node/' . $node_submit->nid . '/refresh';
       // }else{
@@ -1082,7 +1070,7 @@ function _log_rainfall_form(){
   
   $form['logSubmit'] = array(
      '#type' => 'submit',
-     '#value' => t('Xem nhật ký'),    
+     '#value' => t('Xem nhật ký'),
   );
   
   $headers = array(
@@ -2257,9 +2245,6 @@ function _datalogger_add_space($sms, $length){
 }
 
 function _send_command_submit($form, &$form_state) {
-
-
-	// dsm($form_state['values']);
   $nid = intval(arg(1)) ? intval(arg(1)) : $form_state['values']['nid'];
   $form['nid'] = array(
     '#type' => 'hidden', 
