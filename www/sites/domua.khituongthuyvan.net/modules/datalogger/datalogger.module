@@ -167,6 +167,14 @@ function datalogger_menu() {
  *Begin date:11-09-12
  *tạo dữ liệu Mưa.
  */
+ 
+ 
+ $items['test3'] = array(
+    'title' => 'Nhật ký tích hợp số liệu',
+    'page callback' => '_datalogger_test3',
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+  );
 
  /*nhat ki tich hop du lieu*/
  $items['manage/log/rainfall'] = array(

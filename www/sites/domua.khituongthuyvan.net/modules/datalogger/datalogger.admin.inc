@@ -2287,3 +2287,7 @@ function digipro_views_get_view_result($viewname, $display_id = NULL, $args = NU
     ));
   }
 }
+
+function _datalogger_test3() {
+  return 'aaa';
+}
