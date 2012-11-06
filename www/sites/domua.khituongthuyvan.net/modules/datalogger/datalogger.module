@@ -274,15 +274,22 @@ function datalogger_menu() {
   );
 
   $items['command'] = array(
-      'title' => t('Command'),
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array(
-          '_command_form'
-      ),
-      'file' => 'datalogger.admin.inc',
-      // 'access callback' => TRUE
-      'access callback' => '_datalogger_menu_access_callback_command',
-      //'access arguments' => array('administrator', 'control datalogger'),    
+    'title' => t('Command'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array(
+        '_command_form'
+    ),
+    'file' => 'datalogger.admin.inc',
+    // 'access callback' => TRUE
+    'access callback' => '_datalogger_menu_access_callback_command',
+    //'access arguments' => array('administrator', 'control datalogger'),    
+  );
+  
+  $items['datalogger/command/refresh/ajax'] = array (
+    'title' => t('Command'),
+    'page callback' => 'datalogger_command_refresh_ajax',    
+    'file' => 'datalogger.admin.inc',    
+    'access callback' => 'manage data',    
   );
 
   $items['logs'] = array(
