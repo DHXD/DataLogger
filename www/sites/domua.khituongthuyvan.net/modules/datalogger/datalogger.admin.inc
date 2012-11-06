@@ -1550,6 +1550,11 @@ function _log_nodes() {
 }
 
 function _command_form($form, &$form_state) {
+
+  $module_path = drupal_get_path('module', 'datalogger');
+  
+  drupal_add_js($module_path . '/datalogger_form_command.js');
+
   // GLOBAL $options_commands;
 	$options_commands = array(
     //Data call command
@@ -2001,11 +2006,11 @@ function _datalogger_submit_command_callback($form, &$form_state) {
 	$element = &$form['submit_command_fieldset'];
   $element['#markup'] = "Clicked submit";
   
-  $form['submit_command_fieldset']['date_time_from']= array(
-    '#type' => 'textfield',
-    '#title' => 'Từ Ngày', 
-    '#date_format' => 'd/m/Y H:i:s', 
-    '#default_value' => date('d/m/Y H:i:s', $_SERVER['REQUEST_TIME']),
+  $nid_command = 2919;
+  $node_command = node_load($nid_command);
+  
+  $form['submit_command_fieldset']['date_time_from']= array(    
+    '#markup' => drupal_render(node_view($node_command)),
     ////'#required' => TRUE,				
   );
   
