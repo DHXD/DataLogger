@@ -134,9 +134,9 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         //Date and Time Set
         case 3 : 
-				dsm($form_state['values']['date_time_set']);
+				// dsm($form_state['values']['date_time_set']);
           $date = _datalogger_convert_date($strFormat = 'Ymdhis', $form_state['values']['date_time_set']);
-					dsm($date);
+					// dsm($date);
           $sms = 'S0' . $code . 'SET  '.DATEymdHis.'T:'.$date.'                                            ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
@@ -670,6 +670,7 @@ function _datalogger_separate_sms($sms,$number) {
 		$battery[] = $opp[3];
 	}
 	$station = _datalogger_get_station('view_station_find', $number);
+	// dsm($station);
 	$nid = $station[0]->nid;
 	$title = $station[0]->node_title;
 	// $time1 = _datalogger_string_to_date($timestart);
@@ -745,7 +746,7 @@ function _datalogger_insert_node_command($arg){
 }
 
 function _datalogger_insert_node_rainfall($arg){
-	dsm($arg);
+	// dsm($arg);
 	$node = new stdClass();
   $node->title = _datalogger_string_to_date($arg[0]);
   // $node->title = $arg[0];
@@ -763,6 +764,7 @@ function _datalogger_insert_node_rainfall($arg){
   node_object_prepare($node);
   // $node->field_rainfall_obsrp[$node->language][0]["value"] = $arg[1];
   $node->field_rainfall_station[$node->language][0]['nid'] = $arg[1];
+	// $node->field_rainfall_station);
 	
 	for($i = 0; $i < 6; $i++){
 		$node->field_command_is_data_valid[$node->language][$i]['value'] = $arg[2][$i]; 		  		 
@@ -770,7 +772,9 @@ function _datalogger_insert_node_rainfall($arg){
 		$node->field_command_accumulated_rain[$node->language][$i]['value'] = $arg[4][$i];  
 		$node->field_command_battery_power[$node->language][$i]['value'] = $arg[5][$i];
 	}
+	// $node->field_rainfall_send_time[$node->language][0]['value'] = _datalogger_convert_date('m/d/Y - H:i',$arg[0]);
 	$node->field_rainfall_send_time[$node->language][0]['value'] = _datalogger_string_to_unix_date($arg[0]);
+	// $node->field_rainfall_send_time[$node->language][0]['value'] = '2010-01-04T00:00:00';
 	$node = node_submit($node);
 	// dsm($node);
   node_save($node);
