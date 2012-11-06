@@ -50,13 +50,14 @@ function datalogger_menu() {
 *Begin date:10-10-12
 *Tạo menu gọi lại menu command
 */
-  $items['command/ajax'] = array(
-    'title' => 'Lấy giá trị lệnh trả về',
-    'page callback' => '_datalogger_check_command_ajax',
-    'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('control datalogger'),
-    'access callback' => TRUE,
-  );	
+  
+  $items['datalogger/command/refresh/ajax'] = array (
+    'title' => 'Command',
+    'page callback' => 'datalogger_command_refresh_ajax',
+    'file' => 'datalogger.admin.inc',    
+    'access arguments' => array('control datalogger'),
+  );
+
 	
 /**
  *Begin date:09-10-12
@@ -167,6 +168,14 @@ function datalogger_menu() {
  *Begin date:11-09-12
  *tạo dữ liệu Mưa.
  */
+ 
+ 
+ $items['test3'] = array(
+    'title' => 'Nhật ký tích hợp số liệu',
+    'page callback' => '_datalogger_test3',
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+  );
 
  /*nhat ki tich hop du lieu*/
  $items['manage/log/rainfall'] = array(
@@ -183,12 +192,12 @@ function datalogger_menu() {
     'access arguments' => array('manage data'),
   );
  
- $items['manage/init/rainfalls'] = array(
-    'title' => 'Tạo dữ liệu Mưa',
-    'page callback' => '_insert_rainfall_nodes',
+  $items['manage/init/rainfalls'] = array(
+    'title' => 'Tạo lượng mưa',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_datalogger_generate_rainfalls_form'),
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
-    'access callback' => TRUE,
+    'access arguments' => array('manage data'),  
   );
   
 /**
@@ -253,11 +262,8 @@ function datalogger_menu() {
     'weight' => -23,
   );*/
   
-  /*
-  $items['node/%node/title'] = array(
-    
-  );
-    */   
+  
+  
 /**
  *Begin date:old
  */
@@ -269,17 +275,18 @@ function datalogger_menu() {
   );
 
   $items['command'] = array(
-      'title' => t('Command'),
-      'page callback' => 'drupal_get_form',
-      'page arguments' => array(
-          '_command_form'
-      ),
-      'file' => 'datalogger.admin.inc',
-      // 'access callback' => TRUE
-      'access callback' => '_datalogger_menu_access_callback_command',
-      //'access arguments' => array('administrator', 'control datalogger'),    
+    'title' => t('Command'),
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array(
+        '_command_form'
+    ),
+    'file' => 'datalogger.admin.inc',
+    // 'access callback' => TRUE
+    'access callback' => '_datalogger_menu_access_callback_command',
+    //'access arguments' => array('administrator', 'control datalogger'),    
   );
-
+  
+  
   $items['logs'] = array(
       'title' => t('Logs'),
       'page callback' => 'drupal_get_form',
@@ -387,4 +394,22 @@ function datalogger_openlayers_map_alter(&$map) {
   }
 }
 
+/*
+ * Implements hook_views_pre_render().
+ */
+function datalogger_views_pre_render(&$view) {
+  global $user;
+  //dpm($view);
+  switch ($view->name) {
+  case 'view_control_province':
+    if (!in_array('control datalogger', $user->roles)) {      // control visible sending command field
+      unset($view->field['views_bulk_operations']);    
+      unset($view->field['nid']);
+    }  
+    
+    // now temporary remove sending multiple stations:
+    unset($view->field['views_bulk_operations']);
+  }
+  
+}
 
