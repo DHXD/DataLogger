@@ -50,13 +50,14 @@ function datalogger_menu() {
 *Begin date:10-10-12
 *Tạo menu gọi lại menu command
 */
-  $items['command/ajax'] = array(
-    'title' => 'Lấy giá trị lệnh trả về',
-    'page callback' => '_datalogger_check_command_ajax',
-    'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('control datalogger'),
-    'access callback' => TRUE,
-  );	
+  
+  $items['datalogger/command/refresh/ajax'] = array (
+    'title' => 'Command',
+    'page callback' => 'datalogger_command_refresh_ajax',
+    'file' => 'datalogger.admin.inc',    
+    'access arguments' => array('control datalogger'),
+  );
+
 	
 /**
  *Begin date:09-10-12
@@ -285,13 +286,7 @@ function datalogger_menu() {
     //'access arguments' => array('administrator', 'control datalogger'),    
   );
   
-  $items['datalogger/command/refresh/ajax'] = array (
-    'title' => t('Command'),
-    'page callback' => 'datalogger_command_refresh_ajax',    
-    'file' => 'datalogger.admin.inc',    
-    'access callback' => 'manage data',    
-  );
-
+  
   $items['logs'] = array(
       'title' => t('Logs'),
       'page callback' => 'drupal_get_form',
@@ -399,4 +394,22 @@ function datalogger_openlayers_map_alter(&$map) {
   }
 }
 
+/*
+ * Implements hook_views_pre_render().
+ */
+function datalogger_views_pre_render(&$view) {
+  global $user;
+  //dpm($view);
+  switch ($view->name) {
+  case 'view_control_province':
+    if (!in_array('control datalogger', $user->roles)) {      // control visible sending command field
+      unset($view->field['views_bulk_operations']);    
+      unset($view->field['nid']);
+    }  
+    
+    // now temporary remove sending multiple stations:
+    unset($view->field['views_bulk_operations']);
+  }
+  
+}
 

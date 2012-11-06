@@ -148,17 +148,10 @@ function datalogger_process_maintenance_page(&$variables) {
  */
 function datalogger_preprocess_node(&$variables) {
   if ($variables['view_mode'] == 'full' && node_is_page($variables['node'])) {
-    $variables['classes_array'][] = 'node-full';
-    
+    $variables['classes_array'][] = 'node-full';    
   }
 	
-	$node = $variables['node'];
-	
-	if ($node->type == 'command') {
-		$module_path = drupal_get_path('module', 'datalogger');
-		drupal_add_js($module_path . '/node_refresh.js');
-		drupal_set_message(t('Trang web sẽ tự động nạp lại sau 5 giây.'));
-	}
+	$node = &$variables['node'];	
 }
 
 /**

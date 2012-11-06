@@ -98,14 +98,17 @@ $datalogger_pattern = array(
 		// 38 => t('Reset All'),);	
 
 
-function _datalogger_send_command($nid, $select, $form, &$form_state){
-	$nids = arg();
+function _datalogger_send_command($nid, $select, $form, &$form_state) {
+	//$nids = arg();
 	define('DATEymdHis', date('ymdHis',time()));  
   define('DATEymdHi', date('ymdHi',time()));  
   define('DATEYmdHi', date('YmdHi',time()));  
-   
+  
+  $nids = array(0, intval($form_state['values']['station_nid']));
+  
 	for($i_nid = 1; $i_nid < count($nids); $i_nid++ ) {
     $nid = intval($nids[$i_nid]);
+    
 		if($nid) {  
 			$node = node_load($nid);
 			$code = $node->field_station_code['und']['0']['value'];
@@ -521,30 +524,59 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
           $arg = array('Khởi động lại Datalogger', 'P:RESET', _datalogger_result($message,'P:RESET'),'',$nid);
           break;
-    }
+      }
 
       
       $type = substr($sms, 7, 3);
       $arg['type'] = $type;
-      $node_submit = _datalogger_insert_node_command($arg);
+      $node_command = _datalogger_insert_node_command($arg);
+      
+      dpm($node_command);
           
       _datalogger_insert_outbox($phone, $message, $modem->title);	
       // if($check != true){
-        // $form_state['redirect'] = 'node/' . $node_submit->nid . '/refresh';
+        // $form_state['redirect'] = 'node/' . $node_command->nid . '/refresh';
       // }else{
         // $form_state['redirect'] = 'view/rainfall/default/refresh';
       // }
     }
 	}
   
-	// drupal_set_message(t('Gửi lệnh thành công!'));
-	drupal_set_message(t('Send successful command'));
+	drupal_set_message(t('Command has been sent for delivering outbox.'));
+  
+  return $node_command;
+}	
+
+function _datalogger_submit_command_callback($form, &$form_state) {
+	
+  $node_command = _send_command_submit($form, $form_state);
+  
+  $element = &$form['submit_command_fieldset'];
+  
+  $form['submit_command_fieldset']['#title'] = t('Command Result') . ': ' . date('d/m/Y - H:i:s', time());
+  $element['#markup'] = "Clicked submit";
+  
+  if ($node_command->nid) {
+    $form['submit_command_fieldset']['date_time_from'] = array(    
+      '#markup' => drupal_render(node_view($node_command)),    
+    );
+  }
+  else {
+    
+  }
+	
+  return $element;
+}
+
+function datalogger_command_refresh_ajax() {
+
+  $nid = intval(arg(4));
+  $node = node_load($nid);
+  echo '<div class="messages status">' . t('Updated on: !time.', array('!time' => date('d/m/Y - H:i:s', time()))) . '</div>';
+  echo drupal_render(node_view($node));
+  drupal_exit();
 }		
-		
-		
-function _datalogger_check_command_ajax(){
-	return 'Kiểm tra node command';
-}  
+	  
 /**
 *begin: 09-10-12
 *
@@ -1611,6 +1643,11 @@ function _command_form($form, &$form_state) {
     ),
   );
   
+  $form['station_nid'] = array(
+    '#type' => 'hidden',    
+    '#value' => intval(arg(1)),
+  );
+  
   $form['command_fieldset'] = array(
     '#title' => t("Parameter of %title", array('%title' => $title)),
     '#prefix' => '<div id="command-div">',
@@ -1910,7 +1947,7 @@ function _command_form($form, &$form_state) {
       "#type" => "submit",
       "#value" => t("Send Now!"),
       "#submit" => array(
-          "_send_command_submit"
+          //"_send_command_submit"
       ),
 			'#ajax' => array(
       'callback' => '_datalogger_submit_command_callback',
@@ -1923,7 +1960,7 @@ function _command_form($form, &$form_state) {
   	
 	$form['submit_command_fieldset'] = array(
     '#type' => 'fieldset',
-    '#title' => t('Kết quả thực hiện lệnh'),
+    '#title' => t('Command Result'),
     '#prefix' => '<div id="ajax-command-submit-div">',		
     '#suffix' => '</div>',
     //'#attributes' => array('style' => 'display: none;'),    
@@ -1937,14 +1974,6 @@ function _command_form($form, &$form_state) {
   return $form;
 }
 
-function ajax_example_submit_driven_callback($form, $form_state) {
-	$node_submit = _datalogger_insert_node_command($arg);
-	// $element = $form['submit_command_fieldset']['box'];
-  // $element['#markup'] =  node_view($node_submit);
-	// dsm()
-  // $element['#markup'] =  $arg;
-  // return $element;
-}
 
 // function _datalogger_new_result_sms(){
 	// dsm('abc');
@@ -1984,24 +2013,9 @@ function ajax_example_submit_driven_callback($form, $form_state) {
   // return abc;
 // }
 
+
 function _command_callback($form, &$form_state) {
   return $form['command_fieldset'];
-}
-
-function _datalogger_submit_command_callback($form, &$form_state) {
-	$element = &$form['submit_command_fieldset'];
-  $element['#markup'] = "Clicked submit";
-  
-  $nid_command = 2919;
-  $node_command = node_load($nid_command);
-  
-  $form['submit_command_fieldset']['date_time_from']= array(    
-    '#markup' => drupal_render(node_view($node_command)),
-    ////'#required' => TRUE,				
-  );
-  
-	// _send_command_submit($form, &$form_state);
-  return $element;
 }
 
 function _datalogger_check_empty($arg1, $arg2){
@@ -2270,6 +2284,7 @@ function _datalogger_add_space($sms, $length){
 }
 
 function _send_command_submit($form, &$form_state) {
+
   $nid = intval(arg(1)) ? intval(arg(1)) : $form_state['values']['nid'];
   $form['nid'] = array(
     '#type' => 'hidden', 
@@ -2283,7 +2298,8 @@ function _send_command_submit($form, &$form_state) {
 	else{
 		$select = $form_state["values"]["command_selects"];
 	}
-	_datalogger_send_command($nid, $select,$form, $form_state);
+	
+  return _datalogger_send_command($nid, $select,$form, $form_state);
 }
 
 function _view_translate_station() {
