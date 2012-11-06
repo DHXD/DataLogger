@@ -523,7 +523,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
       $type = substr($sms, 7, 3);
       $arg['type'] = $type;
       $node_submit = _datalogger_insert_node_command($arg);
-          
+      //dsm($modem->title);    
       _datalogger_insert_outbox($phone, $message, $modem->title);	
       // if($check != true){
         // $form_state['redirect'] = 'node/' . $node_submit->nid . '/refresh';
