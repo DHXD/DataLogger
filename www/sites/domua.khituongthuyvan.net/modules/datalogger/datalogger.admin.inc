@@ -215,14 +215,13 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
         case 11 :
           // $title =  t('Accumulated Rain Fall Value Set');
           $number = $form_state['values']['accumulated_rain_fall'];
-          
-          $number = floatval($number) * 10;
-          $number = intval($number);
+          $number = (float)$number * 10;
+          $number = (int)$number;
           
           $len = strlen($number);
           if($len < 5 ){
             for($i = 0; $i < (5 - $len); $i++){
-              $number .= ' ';
+              $number = ' '.$number;
             }
           }
           $sms = 'S' . $code . 'SET  '.DATEymdHis.'R:SET:'.$number.'                                                 ';
@@ -2093,10 +2092,11 @@ function _command_validate($form, &$form_state) {
 				_datalogger_check_empty('accumulated_rain_fall', 'Accumulated Rain Fall Value');
       }
       else{
-        if(($number%10) != 0 || $number < 0){
-          form_set_error('accumulated_rain_fall',t('Giá trị trường <b>').t('Accumulated Rain Fall Value').t('</b> phải dương  và là bội của 10'));
-        }
-				else if (preg_match('/[^0-9.]/i',$number)){
+        // if(($number%10) != 0 || $number < 0){
+          // form_set_error('accumulated_rain_fall',t('Giá trị trường <b>').t('Accumulated Rain Fall Value').t('</b> phải dương  và là bội của 10'));
+        // }
+				// else
+				if (preg_match('/[^0-9.]/i',$number)){
          form_set_error('accumulated_rain_fall',t('Trường <b>').t('Accumulated Rain Fall Value').t('</b> chỉ được chứa số.'));
 				}
       }
