@@ -167,6 +167,14 @@ function datalogger_menu() {
  *Begin date:11-09-12
  *tạo dữ liệu Mưa.
  */
+ 
+ 
+ $items['test3'] = array(
+    'title' => 'Nhật ký tích hợp số liệu',
+    'page callback' => '_datalogger_test3',
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+  );
 
  /*nhat ki tich hop du lieu*/
  $items['manage/log/rainfall'] = array(
@@ -183,12 +191,12 @@ function datalogger_menu() {
     'access arguments' => array('manage data'),
   );
  
- $items['manage/init/rainfalls'] = array(
-    'title' => 'Tạo dữ liệu Mưa',
-    'page callback' => '_insert_rainfall_nodes',
+  $items['manage/init/rainfalls'] = array(
+    'title' => 'Tạo lượng mưa',
+    'page callback' => 'drupal_get_form',
+    'page arguments' => array('_datalogger_generate_rainfalls_form'),
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
-    'access callback' => TRUE,
+    'access arguments' => array('manage data'),  
   );
   
 /**
@@ -253,24 +261,6 @@ function datalogger_menu() {
     'weight' => -23,
   );*/
   
-  /*
-  $items['datalogger'] = array(
-    'title' => 'Biểu đồ',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array(
-        '_datalogger_newnode'
-    ),
-    'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
-  );
-  */
-  
-  $items['datalogger3'] = array(
-      'title' => t('Rainfall'),
-      'page callback' => '_datalogger_newnode',
-      'file' => 'datalogger.admin.inc',
-      'access arguments' => array('manage data'),
-  );
   
   
 /**
