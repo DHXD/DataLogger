@@ -109,13 +109,15 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
 		if($nid) {  
 			$node = node_load($nid);
 			$code = $node->field_station_code['und']['0']['value'];
+      for ($i = strlen($code); $i < 6; $i++)  $code = '0' . $code;    // add 0 to max 6 chars.
+      
 			$phone = $node->field_station_sim_number['und']['0']['value'];
 			// $modem = $node->field_station_modem['und']['0']['value'];
 			$modem = node_load($node->field_station_modem['vi']['0']['nid']);
       switch ($select) {
         //Data call command
         case 1 :
-          $sms = 'S0' . $code . 'GET  '.DATEymdHis.'I:STATUS ';
+          $sms = 'S' . $code . 'GET  '.DATEymdHis.'I:STATUS ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           $arg = array('Lấy số liệu mưa hiện tại','I:STATUS', _datalogger_result($message,'I:STATUS'),'',$nid);
@@ -126,7 +128,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           $from = _datalogger_convert_date('ymdHi',$dt_from);
           $dt_to = $form_state['values']['date_time_to'];
           $to = _datalogger_convert_date('ymdHi',$dt_to);
-          $sms = 'S0' . $code . 'GET  '.DATEymdHis.'S:'.$from.'-'.$to;
+          $sms = 'S' . $code . 'GET  '.DATEymdHis.'S:'.$from.'-'.$to;
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Save Data Call','2', _datalogger_result($message),'');
@@ -135,7 +137,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
         //Date and Time Set
         case 3 : 
           $date = _datalogger_convert_date($strFormat = 'Ymdhis', $form_state['values']['date_time_set']);
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'T:'.$date.'                                            ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'T:'.$date.'                                            ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array(('Date $ Time Set'),'3', _datalogger_result($message),'');
@@ -143,7 +145,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 4 : 
           // $title =  t('GPRS Network Time Synchronization');
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'T:NITZ                                                      ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'T:NITZ                                                      ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('GPRS Network Time Synchronization','4', _datalogger_result($message),'');
@@ -153,7 +155,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
         case 5 :
           // $title =  t('Set CODE');
           $id = $form_state['values']['set_input_id'];
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'D:'.$id.'                                                    ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'D:'.$id.'                                                    ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set CODE','5', _datalogger_result($message),'');
@@ -161,7 +163,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 6 :
           // $title =  t('Get CODE');
-          $sms = 'S0' . $code . 'GET  '.DATEymdHis.'D:?                                                         ';
+          $sms = 'S' . $code . 'GET  '.DATEymdHis.'D:?                                                         ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           
@@ -170,7 +172,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 7 :
           $pass = $form_state['values']['set_pass'];
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'W:'.$pass;
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'W:'.$pass;
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set Password','7', _datalogger_result($message),'');
@@ -178,7 +180,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 8 :
           // $title =  t('Get Password');
-          $sms = 'S0' . $code . 'GET  '.DATEymdHis.'W:?                                                         ';
+          $sms = 'S' . $code . 'GET  '.DATEymdHis.'W:?                                                         ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Get Password','8', _datalogger_result($message),'');
@@ -187,7 +189,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
         //database Buffer Clear
         case 9 :
           // $title =  t('All Database Buffer Clear');
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'R:FORMAT ALL                                                ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'R:FORMAT ALL                                                ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('All Database Buffer Clear','9', _datalogger_result($message),'');
@@ -196,7 +198,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
         case 10 :
           // $title =  t('Specific Date Database Buffer Clear');
           $day = _datalogger_convert_date('ymd',$form_state['values']['date_buffer_clear']);
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'R:FORMAT DAY:'.$day.'                                         ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'R:FORMAT DAY:'.$day.'                                         ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Specific Date Database Buffer Clear','10', _datalogger_result($message),'');
@@ -216,7 +218,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
               $number .= ' ';
             }
           }
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'R:SET:'.$number.'                                                 ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'R:SET:'.$number.'                                                 ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Accumulated Rain Fall Value Set','11', _datalogger_result($message),'');
@@ -231,7 +233,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           // dsm($clearTime2[0]);
           // $time = _datalogger_convert_date('Hi',$form_state['values']['set_rain_fall_clear_time']);
           // dsm($time);
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'R:CLEAR TIME:'.$time.'                                           ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'R:CLEAR TIME:'.$time.'                                           ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set Rain Fall Clear Time','12', _datalogger_result($message),'');
@@ -241,7 +243,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 13 :
           // $title =  t('Get Rain Fall Clear Time');
-          $sms = 'S0' . $code . 'GET  '.DATEymdHis.'R:CLEAR TIME:?                                              ';
+          $sms = 'S' . $code . 'GET  '.DATEymdHis.'R:CLEAR TIME:?                                              ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Get Rain Fall Clear Time','13', _datalogger_result($message),'');
@@ -251,7 +253,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
         /*
         case 14 :
           // $title =  t('Self Power Reset');
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'P:RESET                                                     ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'P:RESET                                                     ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Self Power Reset','14', _datalogger_result($message),'');
@@ -273,7 +275,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
               $batOff = '0'.$batOff;
             }
           }
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'P:BAT ON:'.$batOn.'V, OFF:'.$batOff.'V                                 ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'P:BAT ON:'.$batOn.'V, OFF:'.$batOff.'V                                 ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set Active / De-Active Battery Power Voltage','15', _datalogger_result($message),'');
@@ -281,7 +283,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 16 :
           // $title =  t('Get Active / De-Active Battery Power Voltage');
-          $sms = 'S0' . $code . 'GET  '.DATEymdHis.'P:BAT ON:?                                                  ';
+          $sms = 'S' . $code . 'GET  '.DATEymdHis.'P:BAT ON:?                                                  ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Get Active / De-Active Battery Power Voltage','16', _datalogger_result($message),'');
@@ -296,7 +298,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
               $vol = '0'.$vol;
             }
           }
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'P:BAT OFFSET:+'.$vol.'V                                         ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'P:BAT OFFSET:+'.$vol.'V                                         ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set Battery Voltage Offset','17', _datalogger_result($message),'');
@@ -311,7 +313,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
               // $vol = '0'.$vol;
             // }
           // }
-          $sms = 'S0' . $code . 'GET  '.DATEymdHis.'P:BAT OFFSET:?                                        ';
+          $sms = 'S' . $code . 'GET  '.DATEymdHis.'P:BAT OFFSET:?                                        ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Get Battery Voltage Offset','18', _datalogger_result($message),'');
@@ -321,7 +323,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 19 :
           // $title =  t('Set Auto Power Management Enable');
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'P:AUTO PWR MANAGEMENT:ON                                    ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'P:AUTO PWR MANAGEMENT:ON                                    ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set Auto Power Management Enable','19', _datalogger_result($message),'');
@@ -329,7 +331,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 20 :
           // $title =  t('Set Auto Power Management Disable');
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'P:AUTO PWR MANAGEMENT:OFF                                   ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'P:AUTO PWR MANAGEMENT:OFF                                   ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set Auto Power Management Disable','20', _datalogger_result($message),'');
@@ -337,7 +339,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 21 :
           // $title =  t('Get Auto Power Management Enable / Disable');
-          $sms = 'S0' . $code . 'GET  '.DATEymdHis.'P:AUTO PWR MANAGEMENT:?                                     ';
+          $sms = 'S' . $code . 'GET  '.DATEymdHis.'P:AUTO PWR MANAGEMENT:?                                     ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Get Auto Power Management Enable / Disable','21', _datalogger_result($message),'');
@@ -345,7 +347,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 22 :
           // $title =  t('Go To Sleep Mode');
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'P:GOTO SLEEP MODE                                           ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'P:GOTO SLEEP MODE                                           ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Go To Sleep Mode','22', _datalogger_result($message),'');
@@ -363,7 +365,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
               $interval =' '.$interval;
             }
           }
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'C:INTERVAL:'.$interval.'                                             ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'C:INTERVAL:'.$interval.'                                             ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set Data Send Interval Minutes','23', _datalogger_result($message),'');
@@ -373,7 +375,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 24 :
           // $title =  t('Get Data Send Interval Minutes');
-          $sms =  'S0' . $code . 'GET  '.DATEymdHis.'C:INTERVAL:?                                                ';
+          $sms =  'S' . $code . 'GET  '.DATEymdHis.'C:INTERVAL:?                                                ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Get Data Send Interval Minutes','24', _datalogger_result($message),'');
@@ -381,7 +383,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 25 :
           // $title =  t('Set Communication Type GSM');
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'C:COMM:GSM                                                  ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'C:COMM:GSM                                                  ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set Communication Type GSM','25', _datalogger_result($message),'');
@@ -389,7 +391,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 26 :
           // $title =  t('Set Communication Type GPRS');
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'C:COMM:GPRS                                                 ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'C:COMM:GPRS                                                 ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set Communication Type GPRS','26', _datalogger_result($message),'');
@@ -397,7 +399,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 27 :
           // $title =  t('Set Communication Type Auto');
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'C:COMM:AUTO                                                 ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'C:COMM:AUTO                                                 ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set Communication Type Auto','27', _datalogger_result($message),'');
@@ -405,7 +407,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 28 :
           // $title =  t('Get Communication Type');     
-          $sms = 'S0' . $code . 'GET  '.DATEymdHis.'C:COMM:?                                                    ';
+          $sms = 'S' . $code . 'GET  '.DATEymdHis.'C:COMM:?                                                    ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Get Communication Type','28', _datalogger_result($message),'');
@@ -418,7 +420,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           $id = $form_state['values']['id_gprs'];
           $pass = $form_state['values']['pass_gprs'];
           
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'G:APN:'.$host.',ID:'.$id.',PW:'.$pass;
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'G:APN:'.$host.',ID:'.$id.',PW:'.$pass;
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set GPRS Network Setting','29', _datalogger_result($message),'');
@@ -426,7 +428,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 30 :
           // $title =  t('Get GPRS Network Setting');
-          $sms = 'S0' . $code . 'GET  '.DATEymdHis.'G:APN:?                                                     ';
+          $sms = 'S' . $code . 'GET  '.DATEymdHis.'G:APN:?                                                     ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           
@@ -437,7 +439,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           // $title =  t('Set Host Network Infomation');
           $host = $form_state['values']['set_host'];
           $port = $form_state['values']['set_port'];
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'N:HOST:'.$host.':'.$port;
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'N:HOST:'.$host.':'.$port;
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set Host Network Infomation','31', _datalogger_result($message),'');
@@ -445,7 +447,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 32 :
           // $title =  t('Get Host Network Infomation');      
-          $sms = 'S0' . $code . 'GET  '.DATEymdHis.'N:HOST:?                                                    ';
+          $sms = 'S' . $code . 'GET  '.DATEymdHis.'N:HOST:?                                                    ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Get Host Network Infomation','32', _datalogger_result($message),'');
@@ -454,7 +456,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
         case 33 :
           // $title =  t('Set Host Phone Number');
           $sim = $form_state['values']['host_phone'];
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'H:HOST PHONE NO:'.$sim;
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'H:HOST PHONE NO:'.$sim;
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Set Host Phone Number','33', _datalogger_result($message),'');
@@ -462,7 +464,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 34 :
           // $title =  t('Get Host Phone Number');
-          $sms = 'S0' . $code . 'GET  '.DATEymdHis.'H:HOST PHONE NO:?                                           '; 
+          $sms = 'S' . $code . 'GET  '.DATEymdHis.'H:HOST PHONE NO:?                                           '; 
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array('Get Host Phone Number','34', _datalogger_result($message),'');
@@ -471,7 +473,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
         //Get datalogger firmware version
         case 35 :
           // $title =  t('Get Datalogger Firmware Version');
-          $sms = 'S0' . $code . 'GET  '.DATEymdHis.'V:VERSION:?                                                 ';
+          $sms = 'S' . $code . 'GET  '.DATEymdHis.'V:VERSION:?                                                 ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
           // $arg = array('Get Datalogger phiên Version','35', _datalogger_result($message),'');
@@ -493,7 +495,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
               $level = ' '.$level;
             }
           }
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'A:ALARM INTERVAL:'.$interval.', LEVEL:'.$level.'                            ';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'A:ALARM INTERVAL:'.$interval.', LEVEL:'.$level.'                            ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
           // dsm($message);
@@ -502,7 +504,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           $arg = array('Thiết lập thời gian và lượng mưa cảnh báo', 'A:ALARM INTERVAL:', _datalogger_result($message,'A:ALARM INTERVAL:'), '', $nid);
           break;
         case 37 :
-          $sms = 'S0' . $code . 'GET  '.DATEymdHis.'A:ALARM INTERVAL:?                                          ';
+          $sms = 'S' . $code . 'GET  '.DATEymdHis.'A:ALARM INTERVAL:?                                          ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
           // dsm($message);
@@ -512,7 +514,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         case 38 :
         //reset all config			
-          $sms = 'S0' . $code . 'SET  '.DATEymdHis.'P:RESET';
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'P:RESET';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';			
           $arg = array('Khởi động lại Datalogger', 'P:RESET', _datalogger_result($message,'P:RESET'),'',$nid);
@@ -652,11 +654,13 @@ function _datalogger_separate_sms($sms,$number) {
 		$accumulate[] = $opp[2];
 		$battery[] = $opp[3];
 	}
+  
 	$station = _datalogger_get_station('view_admin_stattion_test', $number);
 	$nid = $station[0]->nid;
 	$title = $station[0]->node_title;
 	$time1 = _datalogger_string_to_date($timestart);
 	$arg = array($time1, $nid, $is_valid, $measuaring, $accumulate, $battery);
+  
 	_datalogger_insert_node_rainfall($arg);
 }
 
@@ -725,7 +729,7 @@ function _datalogger_insert_node_command($arg){
 	return $node;
 }
 
-function _datalogger_insert_node_rainfall($arg){
+function _datalogger_insert_node_rainfall(&$arg){
 	$node = new stdClass();
   $node->title = $arg[0];
   $node->type = "rainfall";
@@ -738,8 +742,7 @@ function _datalogger_insert_node_rainfall($arg){
   $node->uid = 1; // Content owner uid (author)?
   $node->language = 'und';
 
-  node_object_prepare($node);
-  // $node->field_rainfall_obsrp[$node->language][0]["value"] = $arg[1];
+  node_object_prepare($node);  
   $node->field_rainfall_station[$node->language][0]['nid'] = $arg[1];
 	
 	for($i = 0; $i < 6; $i++){
@@ -751,6 +754,50 @@ function _datalogger_insert_node_rainfall($arg){
 	$node = node_submit($node);
   node_save($node);
 }
+
+function _datalogger_generate_rainfalls_form($form, &$form_state) {
+  $form['station'] = array(
+    '#type' => 'textfield',
+    '#title' => 'Trạm Nid',
+  );
+  
+  $form['submit'] = array(
+    '#type' => 'submit',
+    '#value' => 'Sinh mưa',
+  );
+  return $form;
+}
+
+function _datalogger_generate_rainfalls_form_submit($form, &$form_state) {
+
+  
+  for($i = 1; $i <= 24; $i ++) {
+    
+    $station_nid = $form_state['values']['station'];
+    
+    $is_valid = 1;
+  
+    for($i = 0; $i < 6; $i++) {
+      $accumulated[$i] = 0;
+    }
+    
+    for($i = 0; $i < 6; $i++) {
+      $measuaring[$i] = floatval(rand(6, 9)) / 10.0;
+      $accumulated[$i] += $measuaring[$i];
+      $battery[$i] = floatval(rand(124, 138)) / 10.0;
+    }
+    
+    $arg = array('Lượng mưa ', $station_nid, $is_valid, $measuaring, $accumulated, $battery);
+    
+    _datalogger_insert_node_rainfall($arg);
+    
+  }
+  drupal_set_message('Tạo node thành công.');
+  
+}
+
+
+
 /**
 *begin: 03-10-12
 *
@@ -1210,16 +1257,6 @@ function _init_rainfall_node($title, $time, $rainfall, $stationCode) {
   node_save($node);
 }
 
-function _insert_rainfall_nodes() {
-  // for ($i = 1; $i < 500; $i ++) {
-  // _init_rainfall_node("Lượng mưa - " . date('d/m/Y'), 
-                      // 10,
-                      // mt_rand(0,2),
-                      // mt_rand(0.1, 226));
-  // }
-  return "Hoàn thành tạo dữ liệu mưa";
-
-}
 
 /**
 *begin: 10-09-12
@@ -1385,43 +1422,6 @@ function _manage_rainfall_form($form, &$form_state) {
   return $form;
 }
 
-function _datalogger_newnode(){
-  $battery = array(1,2,1,2,1,2);
-  $isdata = array(2,1,2,1,2,1);
-  $measuring = array(0.7,0.7,0.7,0.7,0.7,0.7);
-  $accumulated = array(0.7,1.4,2.1,2.8,3.5,4.2);
-  
-  dpm($battery);
-  
-  dsm('aaaaaa');
-  for($i = 1; $i < 25; $i ++){
-  $node = new stdClass();
-  $node->title = 'Lượng mưa '.$i;
-  //$node->field_rainfall_station = 'Thanh Tân';
-  $node->type = 'rainfall';
-  $node->created = time() + $i - 1;
-  $node->changed = $node->created;
-  $node->status = 1; // Published?
-  $node->promote = 0; // Display on front page?
-  $node->sticky = 0; // Display top of page?
-  $node->format = 1; // Filtered HTML?
-  $node->uid = 1; // Content owner uid (author)?
-  $node->language = 'und';
-  
-  node_object_prepare($node);
-  $node->field_rainfall_station = 'Thanh Tân';
-  $node->field_command_battery_power = $battery;
-  $node->field_command_is_data_valid = $isdata;
-  $node->field_command_measuring_interval = $measuring;
-  $node->field_command_accumulated_rain = $accumulated;
-  //$node->path = 'node/path';
-  
-  //dpm($node);
-  
-  node_save($node);
-  }
-  return 'Tạo node thành công';
-}
 
 function _manage_info_form() {
   // $node = node_load($nid);
@@ -1591,13 +1591,7 @@ function _command_form($form, &$form_state) {
     '#type' => 'fieldset',
   );
 	
-	// $form['submit_command_fieldset'] = array(
-    // '#title' => t("Kết quả thực hiện lệnh"),
-    // '#prefix' => '<div id="command-div">',
-    // '#suffix' => '</div>',
-    // '#type' => 'fieldset',
-  // );
-
+	
   switch ($default) {
     //Data call command
     case 1 :     
@@ -1613,8 +1607,7 @@ function _command_form($form, &$form_state) {
         '#title' => 'Từ Ngày', 
         '#date_format' => 'd/m/Y H:i:s', 
         '#default_value' => date('d/m/Y H:i:s', $_SERVER['REQUEST_TIME']),
-        ////'#required' => TRUE,
-				
+        ////'#required' => TRUE,				
       );
       
       $form['command_fieldset']['date_time_to']= array(
@@ -1892,28 +1885,24 @@ function _command_form($form, &$form_state) {
       "#submit" => array(
           "_send_command_submit"
       ),
-			// '#ajax' => array(
-      // 'callback' => 'ajax_example_submit_driven_callback',
-      // 'wrapper' => 'box',
-      // 'name' => 'submit1',
-			// ),
+			'#ajax' => array(
+      'callback' => '_datalogger_submit_command_callback',
+      'wrapper' => 'ajax-command-submit-div',
+      'name' => 'submit1',
+      'method' => 'replace',
+      'effect' => 'fade',
+			),
   );
-	
-	// $form['submit_command_fieldset'] = array(
-    // '#title' => t('Kết quả thực hiện lệnh'),
-    // // '#prefix' => '<div id="ajax-command-div">',
-		// // '#attributes' => array('style' => 'display: none;'),
-    // // '#suffix' => '</div>',
-    // '#type' => 'fieldset',
-		// // '#value' =>_datalogger_new_result_sms() ,
-  // );
-	// dsm('Into form');
-	// $form['submit_command_fieldset']['box'] = array(
-    // '#type' => 'markup',
-    // '#prefix' => '<div id="box">',
-    // '#suffix' => '</div>',
-    // '#markup' => '<h1></h1>',
-  // );
+  	
+	$form['submit_command_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Kết quả thực hiện lệnh'),
+    '#prefix' => '<div id="ajax-command-submit-div">',		
+    '#suffix' => '</div>',
+    //'#attributes' => array('style' => 'display: none;'),    
+		// '#value' =>_datalogger_new_result_sms() ,
+  );
+  	
 	
   $form['#validate'][] = '_command_validate';
 	// }
@@ -1973,8 +1962,17 @@ function _command_callback($form, &$form_state) {
 }
 
 function _datalogger_submit_command_callback($form, &$form_state) {
-	$element = $form['submit_command_fieldset'];
+	$element = &$form['submit_command_fieldset'];
   $element['#markup'] = "Clicked submit";
+  
+  $form['submit_command_fieldset']['date_time_from']= array(
+    '#type' => 'textfield',
+    '#title' => 'Từ Ngày', 
+    '#date_format' => 'd/m/Y H:i:s', 
+    '#default_value' => date('d/m/Y H:i:s', $_SERVER['REQUEST_TIME']),
+    ////'#required' => TRUE,				
+  );
+  
 	// _send_command_submit($form, &$form_state);
   return $element;
 }
