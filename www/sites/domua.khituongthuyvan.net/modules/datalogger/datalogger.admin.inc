@@ -139,9 +139,14 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
           break;
         //Date and Time Set
         case 3 : 
-				dsm($form_state['values']['date_time_set']);
+				// dsm($form_state['values']['date_time_set']);
           $date = _datalogger_convert_date($strFormat = 'Ymdhis', $form_state['values']['date_time_set']);
-          $sms = 'S' . $code . 'SET  '.DATEymdHis.'T:'.$date.'                                            ';
+// <<<<<<< HEAD
+					// // dsm($date);
+          // $sms = 'S0' . $code . 'SET  '.DATEymdHis.'T:'.$date.'                                            ';
+// =======
+          $sms = 'S' . $code . 'SET  '.DATEymdHis.'T:'.$date;
+// >>>>>>> cb78a7e4b13c547257ccfa2013369f41391a2c27
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array(('Date $ Time Set'),'3', _datalogger_result($message),'');
@@ -213,14 +218,13 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
         case 11 :
           // $title =  t('Accumulated Rain Fall Value Set');
           $number = $form_state['values']['accumulated_rain_fall'];
-          
-          $number = floatval($number) * 10;
-          $number = intval($number);
+          $number = (float)$number * 10;
+          $number = (int)$number;
           
           $len = strlen($number);
           if($len < 5 ){
             for($i = 0; $i < (5 - $len); $i++){
-              $number .= ' ';
+              $number = ' '.$number;
             }
           }
           $sms = 'S' . $code . 'SET  '.DATEymdHis.'R:SET:'.$number.'                                                 ';
@@ -704,6 +708,7 @@ function _datalogger_separate_sms($sms,$number) {
 	}
 
 	$station = _datalogger_get_station('view_station_find', $number);
+	// dsm($station);
 	$nid = $station[0]->nid;
 	$title = $station[0]->node_title;
 	// $time1 = _datalogger_string_to_date($timestart);
@@ -779,8 +784,13 @@ function _datalogger_insert_node_command($arg){
 	return $node;
 }
 
-function _datalogger_insert_node_rainfall(&$arg){
-	dsm($arg);
+// <<<<<<< HEAD
+function _datalogger_insert_node_rainfall($arg){
+	// dsm($arg);
+// =======
+// function _datalogger_insert_node_rainfall(&$arg){
+	// dsm($arg);
+// >>>>>>> cb78a7e4b13c547257ccfa2013369f41391a2c27
 	$node = new stdClass();
   $node->title = _datalogger_string_to_date($arg[0]);
   // $node->title = $arg[0];
@@ -797,6 +807,7 @@ function _datalogger_insert_node_rainfall(&$arg){
 
   node_object_prepare($node);  
   $node->field_rainfall_station[$node->language][0]['nid'] = $arg[1];
+	// $node->field_rainfall_station);
 	
 	for($i = 0; $i < 6; $i++){
 		$node->field_command_is_data_valid[$node->language][$i]['value'] = $arg[2][$i]; 		  		 
@@ -804,7 +815,9 @@ function _datalogger_insert_node_rainfall(&$arg){
 		$node->field_command_accumulated_rain[$node->language][$i]['value'] = $arg[4][$i];  
 		$node->field_command_battery_power[$node->language][$i]['value'] = $arg[5][$i];
 	}
+	// $node->field_rainfall_send_time[$node->language][0]['value'] = _datalogger_convert_date('m/d/Y - H:i',$arg[0]);
 	$node->field_rainfall_send_time[$node->language][0]['value'] = _datalogger_string_to_unix_date($arg[0]);
+	// $node->field_rainfall_send_time[$node->language][0]['value'] = '2010-01-04T00:00:00';
 	$node = node_submit($node);
 	// dsm($node);
   node_save($node);
@@ -2093,10 +2106,11 @@ function _command_validate($form, &$form_state) {
 				_datalogger_check_empty('accumulated_rain_fall', 'Accumulated Rain Fall Value');
       }
       else{
-        if(($number%10) != 0 || $number < 0){
-          form_set_error('accumulated_rain_fall',t('Giá trị trường <b>').t('Accumulated Rain Fall Value').t('</b> phải dương  và là bội của 10'));
-        }
-				else if (preg_match('/[^0-9.]/i',$number)){
+        // if(($number%10) != 0 || $number < 0){
+          // form_set_error('accumulated_rain_fall',t('Giá trị trường <b>').t('Accumulated Rain Fall Value').t('</b> phải dương  và là bội của 10'));
+        // }
+				// else
+				if (preg_match('/[^0-9.]/i',$number)){
          form_set_error('accumulated_rain_fall',t('Trường <b>').t('Accumulated Rain Fall Value').t('</b> chỉ được chứa số.'));
 				}
       }
