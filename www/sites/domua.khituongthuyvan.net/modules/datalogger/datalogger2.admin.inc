@@ -111,6 +111,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
 			$code = $node->field_station_code['und']['0']['value'];
 			$phone = $node->field_station_sim_number['und']['0']['value'];
 			// $modem = $node->field_station_modem['und']['0']['value'];
+			// dsm($node);
 			$modem = node_load($node->field_station_modem['vi']['0']['nid']);
       switch ($select) {
         //Data call command
@@ -134,15 +135,12 @@ function _datalogger_send_command($nid, $select, $form, &$form_state){
           break;
         //Date and Time Set
         case 3 : 
-				dsm($form_state['values']['date_time_set']);
           $date = _datalogger_convert_date($strFormat = 'Ymdhis', $form_state['values']['date_time_set']);
-					dsm($date);
           $sms = 'S0' . $code . 'SET  '.DATEymdHis.'T:'.$date.'                                            ';
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array(('Date $ Time Set'),'3', _datalogger_result($message),'');
           $arg = array(('Thiết lập thời gian'),'T:', _datalogger_result($message,'T:'),'',$nid);
-					return;
           break;
         case 4 : 
           // $title =  t('GPRS Network Time Synchronization');
@@ -570,7 +568,7 @@ function _datalogger_convert_number($number){
 function _datalogger_check_inbox() {
   $result = db_query("SELECT * FROM inbox WHERE Processed=0");
   foreach ($result as $row) {
-    // //tin nhắn từ datalogger
+    //tin nhắn từ datalogger
 		$id_inbox = $row->ID;
 		$number = _datalogger_convert_number($row->SenderNumber);
 		$sms = $row->TextDecoded;
@@ -585,13 +583,11 @@ function _datalogger_check_inbox() {
       }
       //Xử lý bản tin đo mưa tự động:140byte
       elseif($len_sms == 140){
-				// Chèn bản tin vào bảng đo mưa
-				// dsm('into 140');
+				//Chèn bản tin vào bảng đo mưa
 				_datalogger_separate_sms($sms,$number);
-				// Cập nhật các bản tin đã xử lý
-				_datalogger_update_process_inbox(1,$id_inbox);
+				//Cập nhật các bản tin đã xử lý
+				/////_datalogger_update_process_inbox(1,$id_inbox);
       }			
-			// _datalogger_update_process_inbox(2,$id_inbox);
     }
 		else{
 			_datalogger_update_process_inbox(2,$id_inbox);
@@ -640,21 +636,9 @@ function _datalogger_string_to_date($str){
 	return $day.'/'.$month.'/20'.$year.' '.$hour.':'.$minute.':'.$second;
 }
 
-function _datalogger_string_to_unix_date($str){
-	$year = substr($str,0,2);
-	$month = substr($str,2,2);
-	$day = substr($str,4,2);
-	$hour = substr($str,6,2);
-	$minute = substr($str,8,2);
-	$second = substr($str,10,2);
-	return mktime($hour,$minute,$second,$month,$day,'20'.$year);
-}
-
 function _datalogger_separate_sms($sms,$number) {
     // $data = "HS123456,121005161045,121005161000,0    0    0  127,0    0    0  127,0    0    0  126,0    0    0  127,0    0    0  127,0    0    0  127,78;";
   list($code, $timenow, $timestart, $arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $chk) = explode(",", $sms);
-	// dsm($sms);
-	// dsm($number);
 	$id = substr($code,2,6);
 	$is_valid = array();
 	$measuaring = array();
@@ -669,14 +653,12 @@ function _datalogger_separate_sms($sms,$number) {
 		$accumulate[] = $opp[2];
 		$battery[] = $opp[3];
 	}
-	$station = _datalogger_get_station('view_station_find', $number);
+	$station = _datalogger_get_station('view_admin_stattion_test', $number);
 	$nid = $station[0]->nid;
 	$title = $station[0]->node_title;
-	// $time1 = _datalogger_string_to_date($timestart);
-	// $arg = array($time1, $nid, $is_valid, $measuaring, $accumulate, $battery);
-	$arg = array($timestart, $nid, $is_valid, $measuaring, $accumulate, $battery);
+	$time1 = _datalogger_string_to_date($timestart);
+	$arg = array($time1, $nid, $is_valid, $measuaring, $accumulate, $battery);
 	_datalogger_insert_node_rainfall($arg);
-	// dsm('insert thanh cong');
 }
 
 function _datalogger_separate_opp($sms){
@@ -745,13 +727,10 @@ function _datalogger_insert_node_command($arg){
 }
 
 function _datalogger_insert_node_rainfall($arg){
-	dsm($arg);
 	$node = new stdClass();
-  $node->title = _datalogger_string_to_date($arg[0]);
-  // $node->title = $arg[0];
+  $node->title = $arg[0];
   $node->type = "rainfall";
   $node->created = time();
-  // $node->created = $arg[0];
   $node->changed = $node->created;
   $node->status = 1; // Published?
   $node->promote = 0; // Display on front page?
@@ -770,9 +749,7 @@ function _datalogger_insert_node_rainfall($arg){
 		$node->field_command_accumulated_rain[$node->language][$i]['value'] = $arg[4][$i];  
 		$node->field_command_battery_power[$node->language][$i]['value'] = $arg[5][$i];
 	}
-	$node->field_rainfall_send_time[$node->language][0]['value'] = _datalogger_string_to_unix_date($arg[0]);
 	$node = node_submit($node);
-	// dsm($node);
   node_save($node);
 }
 /**
@@ -1408,45 +1385,6 @@ function _manage_rainfall_form($form, &$form_state) {
   );
   return $form;
 }
-
-// function _datalogger_newnode(){
-  // $battery = array(1,2,1,2,1,2);
-  // $isdata = array(2,1,2,1,2,1);
-  // $measuring = array(0.7,0.7,0.7,0.7,0.7,0.7);
-  // $accumulated = array(0.7,1.4,2.1,2.8,3.5,4.2);
-  
-  // // dpm($battery);
-  
-  // // dsm('aaaaaa');
-  // for($i = 1; $i < 25; $i ++){
-  // $node = new stdClass();
-  // $node->title = 'Lượng mưa '.$i;
-  // //$node->field_rainfall_station = 'Thanh Tân';
-  // $node->type = 'rainfall';
-  // $node->created = time() + $i - 1;
-  // $node->changed = $node->created;
-  // $node->status = 1; // Published?
-  // $node->promote = 0; // Display on front page?
-  // $node->sticky = 0; // Display top of page?
-  // $node->format = 1; // Filtered HTML?
-  // $node->uid = 1; // Content owner uid (author)?
-  // $node->language = 'und';
-  
-  // node_object_prepare($node);
-  // $node->field_rainfall_station = 'Thanh Tân';
-  // $node->field_command_battery_power = $battery;
-  // $node->field_command_is_data_valid = $isdata;
-  // $node->field_command_measuring_interval = $measuring;
-  // $node->field_command_accumulated_rain = $accumulated;
-  // //$node->path = 'node/path';
-  
-  // //dpm($node);
-  
-  // node_save($node);
-  // }
-  // return 'Tạo node thành công';
-// }
-
 function _manage_info_form() {
   // $node = node_load($nid);
   $nid = intval(arg(1));
