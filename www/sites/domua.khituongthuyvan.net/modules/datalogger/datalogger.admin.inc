@@ -105,6 +105,8 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
   define('DATEYmdHi', date('YmdHi',time()));  
   
   $nids = array(0, intval($form_state['values']['station_nid']));
+	
+	// dsm('_datalogger_send_command :'.$form_state['values']['station_nid']);
   
 	for($i_nid = 1; $i_nid < count($nids); $i_nid++ ) {
     $nid = intval($nids[$i_nid]);
@@ -1646,10 +1648,23 @@ function _command_form($form, &$form_state) {
     ),
   );
   
-  $form['station_nid'] = array(
+  // /*
+	//gui lenh toi mot tram ok.
+	$station_nid = !empty($form_state['values']['station_nid']) ? $form_state['values']['station_nid'] : intval(arg(1));
+	// dsm('Form '.$station_nid);
+	$form['station_nid'] = array(
+    '#type' => 'hidden',    
+    '#value' => $station_nid,
+  );
+	// */
+	
+  /*
+	// Old
+	$form['station_nid'] = array(
     '#type' => 'hidden',    
     '#value' => intval(arg(1)),
   );
+	*/
   
   $form['command_fieldset'] = array(
     '#title' => t("Parameter of %title", array('%title' => $title)),
