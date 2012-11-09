@@ -206,7 +206,7 @@ ini_set('display_errors', 1);
  */
  
 	/*Database:lasi*/
-	// /*
+	/*
 	$databases = array (
       'default' => 
       array (
@@ -223,7 +223,7 @@ ini_set('display_errors', 1);
         ),
       ),
     );
-		// */
+		*/
 		
 		/*Database: 192.168.1.34*/
 		
@@ -247,7 +247,7 @@ ini_set('display_errors', 1);
 	
 	/*Database: localhost*/
 	
-	/*
+	// /*
 	$databases = array (
       'default' => 
       array (
@@ -263,7 +263,7 @@ ini_set('display_errors', 1);
         ),
       ),
     );
-		*/
+		// */
 
 /**
  * Access control for update.php script.
