@@ -782,7 +782,50 @@ function _datalogger_insert_node_command($arg){
 
 
 function _datalogger_insert_node_rainfall(&$arg){
+	
+	$node->field_rainfall_station[$node->language][0]['nid'] = $arg[1];
+	
+	$time_unix = _datalogger_string_to_unix_date($arg[0]);
+	// $time_unix = 1347405600;
+	dsm($time_unix);
+	for($i = 0; $i < 6; $i++){		
+		$node = new stdClass();
+		$node->title = _datalogger_string_to_date($arg[0]);
+		$node->type = "rainfall";
+		$node->created = time();
+		$node->changed = $node->created;
+		$node->status = 1; // Published?
+		$node->promote = 0; // Display on front page?
+		$node->sticky = 0; // Display top of page?
+		$node->format = 1; // Filtered HTML?
+		$node->uid = 1; // Content owner uid (author)?
+		$node->language = 'und';
 
+		node_object_prepare($node); 
+		dsm('nid'.$arg[1]);
+		$node->field_rainfall_station[$node->language][0]['nid'] = $arg[1];
+	  $is_data_valid = $arg[2][$i];
+		dsm($is_data_valid);
+		if($is_data_valid == 0){
+		  dsm('lan '.$i);
+			$time = $time_unix - 60*10*$i;
+			dsm(date('d/m/Y H:i:s',$time));
+			dsm($time);
+			// $node->field_rainfall_send_time[$node->language][0]['value'] = _datalogger_string_to_unix_date($time);
+			// $node->field_rainfall_send_time[$node->language][0]['value'] = date($time);
+			$node->field_abc[$node->language][0]['value'] = date($time);
+			// $node->field_rainfall_send_time[$node->language][0]['value'] = date('Y-m-d H:i:s',$time);
+			// $node->field_rainfall_send_sms_time[$node->language][0]['value'] = date('Y-m-d H:i:s',$time);
+			// $node->field_rainfall_send_time[$node->language][0]['value'] = date('d/m/Y - H:i:s',$time);
+			dsm('Thời gian '.$node->field_rainfall_send_sms_time[$node->language][0]['value']);
+			$node->field_rainfall_total[$node->language][0]['value'] = $arg[4][$i]/10;
+			$node = node_submit($node);
+			node_save($node);
+		}
+	}
+	dsm('finish');
+	
+	/*
 	$node = new stdClass();
   $node->title = _datalogger_string_to_date($arg[0]);
   // $node->title = $arg[0];
@@ -813,6 +856,8 @@ function _datalogger_insert_node_rainfall(&$arg){
 	$node = node_submit($node);
 	// dsm($node);
   node_save($node);
+	
+	*/
 }
 
 function _datalogger_generate_rainfalls_form($form, &$form_state) {
