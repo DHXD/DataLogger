@@ -51,31 +51,31 @@ function _export_excel()
   // Create a first sheet, representing sales data
   //echo date('H:i:s') , " Add some data" , PHP_EOL;
   $objPHPExcel->setActiveSheetIndex(0);
-  $objPHPExcel->getActiveSheet()->setCellValue('B1', 'Tr?m');
-  $objPHPExcel->getActiveSheet()->setCellValue('F1', 'Th�ng...... Nam.....');
+  $objPHPExcel->getActiveSheet()->setCellValue('B1', 'Trạm');
+  $objPHPExcel->getActiveSheet()->setCellValue('F1', 'Tháng...... Năm.....');
   $objPHPExcel->getActiveSheet()->setCellValue('J1', 'Trang 4');
-  $objPHPExcel->getActiveSheet()->setCellValue('A2', 'LU?NG GI�NG TH?Y L?N NH?T');
-  $objPHPExcel->getActiveSheet()->setCellValue('B3', 'Trong 60 ph�t');
-  $objPHPExcel->getActiveSheet()->setCellValue('D3', 'Trong m?t d?t li�n t?c');
-  $objPHPExcel->getActiveSheet()->setCellValue('F2', 'C?C TR? TRONG TH�NG');
-  $objPHPExcel->getActiveSheet()->setCellValue('A3', 'Ng�y');
-  $objPHPExcel->getActiveSheet()->setCellValue('B4', 'Lu?ng');
-  $objPHPExcel->getActiveSheet()->setCellValue('C4', 'Th?i gian');
-  $objPHPExcel->getActiveSheet()->setCellValue('D4', 'Lu?ng');
-  $objPHPExcel->getActiveSheet()->setCellValue('E4', 'Th?i gian');
+  $objPHPExcel->getActiveSheet()->setCellValue('A2', 'LƯỢNG GIÁNG THỦY LỚN NHẤT');
+  $objPHPExcel->getActiveSheet()->setCellValue('B3', 'Trong 60 phút');
+  $objPHPExcel->getActiveSheet()->setCellValue('D3', 'Trong một đợt liên tục');
+  $objPHPExcel->getActiveSheet()->setCellValue('F2', 'CỰC TRỊ TRONG THÁNG');
+  $objPHPExcel->getActiveSheet()->setCellValue('A3', 'Ngày');
+  $objPHPExcel->getActiveSheet()->setCellValue('B4', 'Lượng');
+  $objPHPExcel->getActiveSheet()->setCellValue('C4', 'Thời gian');
+  $objPHPExcel->getActiveSheet()->setCellValue('D4', 'Lượng');
+  $objPHPExcel->getActiveSheet()->setCellValue('E4', 'Thời gian');
   $objPHPExcel->getActiveSheet()->setCellValue('B5', '(mm)');
-  $objPHPExcel->getActiveSheet()->setCellValue('C5', 'k�o d�i');
+  $objPHPExcel->getActiveSheet()->setCellValue('C5', 'kéo dài');
   $objPHPExcel->getActiveSheet()->setCellValue('D5', '(mm)');
-  $objPHPExcel->getActiveSheet()->setCellValue('E5', 'k�o d�i');
-  $objPHPExcel->getActiveSheet()->setCellValue('C6', '(ph�t)');
-  $objPHPExcel->getActiveSheet()->setCellValue('E6', '(gi?, ph�t)');
-  $objPHPExcel->getActiveSheet()->setCellValue('H4', 'Lu?ng');
-  $objPHPExcel->getActiveSheet()->setCellValue('I4', 'Th?i gian k�o d�i');
+  $objPHPExcel->getActiveSheet()->setCellValue('E5', 'kéo dài');
+  $objPHPExcel->getActiveSheet()->setCellValue('C6', '(phút)');
+  $objPHPExcel->getActiveSheet()->setCellValue('E6', '(giờ, phút)');
+  $objPHPExcel->getActiveSheet()->setCellValue('H4', 'Lượng');
+  $objPHPExcel->getActiveSheet()->setCellValue('I4', 'Thời gian kéo dài');
   $objPHPExcel->getActiveSheet()->setCellValue('H6', '(mm)');
-  $objPHPExcel->getActiveSheet()->setCellValue('I6', '(gi?, ph�t)');
-  $objPHPExcel->getActiveSheet()->setCellValue('F8', 'Trong m?t gi?');
-  $objPHPExcel->getActiveSheet()->setCellValue('F10', 'Trong m?t d?t li�n t?c');
-  $objPHPExcel->getActiveSheet()->setCellValue('G13', 'GHI CH�');
+  $objPHPExcel->getActiveSheet()->setCellValue('I6', '(giờ, phút)');
+  $objPHPExcel->getActiveSheet()->setCellValue('F8', 'Trong một giờ');
+  $objPHPExcel->getActiveSheet()->setCellValue('F10', 'Trong một đợt liên tục');
+  $objPHPExcel->getActiveSheet()->setCellValue('G13', 'GHI CHÚ');
 
   $objPHPExcel->getActiveSheet()->setCellValue('B7', '1');
   $objPHPExcel->getActiveSheet()->setCellValue('C7', '2');
@@ -217,16 +217,22 @@ function _export_excel()
 
   // Set column widths
   //echo date('H:i:s') , " Set column widths" , PHP_EOL;
-  $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth(50);
+  $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth(40);
+  $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
+  $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(15);
+  $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth(15);
+  $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth(15);
+  $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(15);
+  $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setWidth(10);
+  $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setWidth(15);
 
-  //��nh s? th? t?
+  //đánh số thứ tự
   for ($i = 8; $i <= 38; $i++) {
     $j = $i - 7;
     $objPHPExcel->getActiveSheet()->setCellValue('A' . $i, "$j");
     }
    
   //set font
-  //$objPHPExcel->getActiveSheet()->getStyle('A1:J38')->getFont()->setName('.VnTime');
   $objPHPExcel->getActiveSheet()->getStyle('A1:J38')->getFont()->setName('Times New Roman');
   $objPHPExcel->getActiveSheet()->getStyle('A2:J7')->getFont()->setSize(12);
   $objPHPExcel->getActiveSheet()->getStyle('B8:E38')->getFont()->setSize(12);
@@ -244,30 +250,34 @@ function _export_excel()
   // Save Excel 2007 file
   //echo date('H:i:s') , " Write to Excel2007 format";
   $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+  //$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+  
   
   // We'll be outputting an excel file
   header('Content-type: application/vnd.ms-excel');
   // It will be called file.xls
-  header('Content-Disposition: attachment; filename="file1.xlsx"');
+  header('Content-Disposition: attachment; filename="BaoCao.xls"');
   // Write file to the browser
   $objWriter->save('php://output');
   drupal_exit();
   
-  /*
-  $objWriter->save(str_replace('.php', '.xlsx', __FILE__));
+  
   //echo date('H:i:s') , " File written to " , str_replace('.php', '.xlsx', pathinfo(__FILE__, PATHINFO_BASENAME));
   // Save Excel5 file
-  //echo date('H:i:s') , " Write to Excel5 format";
+  
+  /*
+  echo date('H:i:s') , " Write to Excel5 format";
   $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
   $objWriter->save(str_replace('.php', '.xls', __FILE__));
-  //echo date('H:i:s') , " File written to " , str_replace('.php', '.xls', pathinfo(__FILE__, PATHINFO_BASENAME));
+  echo date('H:i:s') , " File written to " , str_replace('.php', '.xls', pathinfo(__FILE__, PATHINFO_BASENAME));
 
-  // //echo memory peak usage
-  //echo date('H:i:s') , " Peak memory usage: " , (memory_get_peak_usage(true) / 1024 / 1024) , " MB";
+   Echo memory peak usage
+  
+  echo date('H:i:s') , " Peak memory usage: " , (memory_get_peak_usage(true) / 1024 / 1024) , " MB";
 
-  // //echo done
-  //echo date('H:i:s') , " Done writing files";
-  //echo 'Files have been created in ' , getcwd();
-
+  // Echo done
+  echo date('H:i:s') , " Done writing files";
+  echo 'Files have been created in ' , getcwd();
   */
+  
 }
