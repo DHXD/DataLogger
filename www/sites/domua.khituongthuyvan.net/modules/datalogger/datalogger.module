@@ -311,6 +311,14 @@ function datalogger_menu() {
       'access callback' => TRUE
   );
  
+  //test phpexcel
+  $items['phpexcel'] = array(
+      'title' => t('Export to excel'),
+      'page callback' => '_export_excel',
+      'file' => 'datalogger.admin.excel.inc',
+      'access callback' => TRUE
+  );
+ 
   return $items;
 }
 
