@@ -225,25 +225,24 @@ ini_set('display_errors', 1);
     );
 		*/
 		
-		/*Database: 192.168.1.34*/
-		
-    
-		$databases = array (
-      'default' => 
-      array (
-        'default' => 
-        array (
-          'database' => 'datalogger',
-          'username' => 'datalogger',
-          'password' => '123456',
-          'host' => '192.168.1.34',
-          'port' => '',
-          'driver' => 'mysql',
-          'prefix' => 'datalogger_',
-        ),
-      ),
-    );
-		
+	/*Database: 192.168.1.34*/
+	// /*
+	$databases = array (
+		'default' => 
+		array (
+			'default' => 
+			array (
+				'database' => 'datalogger',
+				'username' => 'datalogger',
+				'password' => '123456',
+				'host' => '192.168.1.34',
+				'port' => '',
+				'driver' => 'mysql',
+				'prefix' => 'datalogger_',
+			),
+		),
+	);
+	//*/	
 	
 	/*Database: localhost*/
 	

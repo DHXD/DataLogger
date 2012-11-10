@@ -585,6 +585,7 @@ function datalogger_command_refresh_ajax() {
 function _datalogger_get_station($view, $number){
 	$display_id = 'default';
 	$result = views_get_view_result($view, $display_id, $number);
+	// $result->execute();
 	return $result;
 }
 
@@ -622,9 +623,9 @@ function _datalogger_check_inbox() {
 				// dsm('into 140');
 				_datalogger_separate_sms($sms,$number);
 				// Cập nhật các bản tin đã xử lý
-				_datalogger_update_process_inbox(1,$id_inbox);
+				// _datalogger_update_process_inbox(1,$id_inbox);
       }			
-			// _datalogger_update_process_inbox(2,$id_inbox);
+			else _datalogger_update_process_inbox(2,$id_inbox);
     }
 		else{
 			_datalogger_update_process_inbox(2,$id_inbox);
@@ -664,23 +665,24 @@ function _datalogger_separate_sms_command($sms, $number){
 */
 
 function _datalogger_string_to_date($str){
-	$year = substr($str,0,2);
+	// $year = substr($str,0,2);
+	$year = date('Y', time());
 	$month = substr($str,2,2);
 	$day = substr($str,4,2);
 	$hour = substr($str,6,2);
 	$minute = substr($str,8,2);
 	$second = substr($str,10,2);
-	return $day.'/'.$month.'/20'.$year.' '.$hour.':'.$minute.':'.$second;
+	return $day.'/'.$month.'/'.$year.' '.$hour.':'.$minute.':'.$second;
 }
-
 function _datalogger_string_to_unix_date($str){
-	$year = substr($str,0,2);
-	$month = substr($str,2,2);
-	$day = substr($str,4,2);
-	$hour = substr($str,6,2);
-	$minute = substr($str,8,2);
-	$second = substr($str,10,2);
-	return mktime($hour,$minute,$second,$month,$day,'20'.$year);
+	// $year = substr($str,0,2);
+	$year = date('Y', time());
+	$month = substr($str, 2, 2);
+	$day = substr($str, 4, 2);
+	$hour = substr($str, 6, 2);
+	$minute = substr($str, 8, 2);
+	$second = substr($str, 10, 2);
+	return mktime($hour,$minute,$second,$month,$day,$year);
 }
 
 function _datalogger_separate_sms($sms,$number) {
@@ -782,48 +784,65 @@ function _datalogger_insert_node_command($arg){
 
 
 function _datalogger_insert_node_rainfall(&$arg){
+	/*121110103800*/
+	$timestam = $arg[0];
+	/*nid node*/
+	$nid = $arg[1];
+	/*convert time to time unix*/
+	$time_unix = _datalogger_string_to_unix_date($timestam);
+	/*check value rainfall*/
+	$is_data_valids = $arg[2];
 	
-	$node->field_rainfall_station[$node->language][0]['nid'] = $arg[1];
-	
-	$time_unix = _datalogger_string_to_unix_date($arg[0]);
-	// $time_unix = 1347405600;
-	dsm($time_unix);
-	for($i = 0; $i < 6; $i++){		
-		$node = new stdClass();
-		$node->title = _datalogger_string_to_date($arg[0]);
-		$node->type = "rainfall";
-		$node->created = time();
-		$node->changed = $node->created;
-		$node->status = 1; // Published?
-		$node->promote = 0; // Display on front page?
-		$node->sticky = 0; // Display top of page?
-		$node->format = 1; // Filtered HTML?
-		$node->uid = 1; // Content owner uid (author)?
-		$node->language = 'und';
-
-		node_object_prepare($node); 
-		dsm('nid'.$arg[1]);
-		$node->field_rainfall_station[$node->language][0]['nid'] = $arg[1];
-	  $is_data_valid = $arg[2][$i];
-		dsm($is_data_valid);
+	/*check and insert new node rainfall from sms*/
+	for($i = 5; $i >= 0; $i--){		
+	  $is_data_valid = $is_data_valids[$i];
 		if($is_data_valid == 0){
-		  dsm('lan '.$i);
 			$time = $time_unix - 60*10*$i;
-			dsm(date('d/m/Y H:i:s',$time));
-			dsm($time);
-			// $node->field_rainfall_send_time[$node->language][0]['value'] = _datalogger_string_to_unix_date($time);
-			// $node->field_rainfall_send_time[$node->language][0]['value'] = date($time);
-			$node->field_abc[$node->language][0]['value'] = date($time);
-			// $node->field_rainfall_send_time[$node->language][0]['value'] = date('Y-m-d H:i:s',$time);
-			// $node->field_rainfall_send_sms_time[$node->language][0]['value'] = date('Y-m-d H:i:s',$time);
-			// $node->field_rainfall_send_time[$node->language][0]['value'] = date('d/m/Y - H:i:s',$time);
-			dsm('Thời gian '.$node->field_rainfall_send_sms_time[$node->language][0]['value']);
+			$send_time = date('d/m/Y H:i:s',$time);
+			$arg_view = $nid;
+			$rainfalls = views_get_view_result('view_rainfall_time_find', 'default' ,$arg_view);//array('nid'->$arg_view,'time'->$send_time));
+			dsm($rainfalls	);
+			// /*
+			if(count($rainfalls) > 0){
+				foreach($rainfalls as $rainfall){
+					dsm($rainfall = node_load($rainfall->nid));
+					dsm($rainfall->field_field_rainfall_send_time_sms[0]['raw']['value']);
+					dsm($send_time);
+					if($rainfall->field_field_rainfall_send_time_sms[0]['raw']['value'] == $send_time){
+						// node_delete($rainfall->nid);
+						dsm(drupal_render(node_view($rainfall->nid)));
+					}
+				}
+			}
+			/*
+			$node = new stdClass();
+			$node->title = _datalogger_string_to_date($timestam);
+			$node->type = "rainfall";
+			$node->created = _datalogger_string_to_unix_date($time);
+			$node->changed = $node->created;
+			$node->status = 1; // Published?
+			$node->promote = 0; // Display on front page?
+			$node->sticky = 0; // Display top of page?
+			$node->format = 1; // Filtered HTML?
+			$node->uid = 1; // Content owner uid (author)?
+			$node->language = 'und';
+
+			node_object_prepare($node); 
+			// station
+			$node->field_rainfall_station[$node->language][0]['nid'] = $nid;
+			// send time
+			$node->field_rainfall_send_time_sms[$node->language][0]['value'] = $send_time;
+			// total rainfall
 			$node->field_rainfall_total[$node->language][0]['value'] = $arg[4][$i]/10;
+			
 			$node = node_submit($node);
 			node_save($node);
+			// dsm($node);
+			dsm('ok');
+			*/
 		}
 	}
-	dsm('finish');
+	// dsm('finish');
 	
 	/*
 	$node = new stdClass();
@@ -1598,7 +1617,7 @@ function _log_init_node($title, $event) {
 
 }
 
-function _datalogger_nodes() {
+function _datalogger_rainfalls() {
   // for ($i = 1; $i < 227; $i ++) {
   // _datalogger_init_node("Station - " . $i, "Code - " . $i, "Address - " . $i,
   // 1, $i, $i,
@@ -1608,7 +1627,7 @@ function _datalogger_nodes() {
 
 }
 
-function _log_nodes() {
+function _log_rainfalls() {
   // for ($i = 1; $i < 10; $i ++) {
   // // _log_init_node("Log - ".$i,"Description - ".$i,"Event type - ".$i);
   // _log_init_node("Log - ".$i,"Set Auto Power Management Nable");
