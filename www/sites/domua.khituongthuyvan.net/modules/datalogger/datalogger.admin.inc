@@ -793,55 +793,95 @@ function _datalogger_insert_node_rainfall(&$arg){
 	/*check value rainfall*/
 	$is_data_valids = $arg[2];
 	
-	/*check and insert new node rainfall from sms*/
+	// /*
+	// /check and insert new node rainfall from sms/
 	for($i = 5; $i >= 0; $i--){		
 	  $is_data_valid = $is_data_valids[$i];
+		$time = $time_unix - 60*10*$i;
+		$send_time = date('dmYHis',$time);
 		if($is_data_valid == 0){
-			$time = $time_unix - 60*10*$i;
-			$send_time = date('d/m/Y H:i:s',$time);
 			$arg_view = $nid;
-			$rainfalls = views_get_view_result('view_rainfall_time_find', 'default' ,$arg_view);//array('nid'->$arg_view,'time'->$send_time));
-			dsm($rainfalls	);
-			// /*
+			
+			$rainfalls = views_get_view_result('view_rainfall_time_find', 'default' ,$send_time);
 			if(count($rainfalls) > 0){
 				foreach($rainfalls as $rainfall){
-					dsm($rainfall = node_load($rainfall->nid));
-					dsm($rainfall->field_field_rainfall_send_time_sms[0]['raw']['value']);
-					dsm($send_time);
-					if($rainfall->field_field_rainfall_send_time_sms[0]['raw']['value'] == $send_time){
+					$rainfall = node_load($rainfall->nid);
+					if($node->field_rainfall_time_send_sms[$node->language][0]['value'] == $send_time){
 						// node_delete($rainfall->nid);
-						dsm(drupal_render(node_view($rainfall->nid)));
+						// drupal_render(node_view($rainfall->nid));
 					}
 				}
 			}
-			/*
-			$node = new stdClass();
-			$node->title = _datalogger_string_to_date($timestam);
-			$node->type = "rainfall";
-			$node->created = _datalogger_string_to_unix_date($time);
-			$node->changed = $node->created;
-			$node->status = 1; // Published?
-			$node->promote = 0; // Display on front page?
-			$node->sticky = 0; // Display top of page?
-			$node->format = 1; // Filtered HTML?
-			$node->uid = 1; // Content owner uid (author)?
-			$node->language = 'und';
+			else{
+				$node = new stdClass();
+				// $node->title = _datalogger_string_to_date($timestam);
+				$node->title = date('d/m/Y H:i:s',$time);
+				$node->type = "rainfall";
+				$node->created = time();
+				$node->changed = time();
+				$node->status = 1; // Published?
+				$node->promote = 0; // Display on front page?
+				$node->sticky = 0; // Display top of page?
+				$node->format = 1; // Filtered HTML?
+				$node->uid = 1; // Content owner uid (author)?
+				$node->language = 'und';
 
-			node_object_prepare($node); 
-			// station
-			$node->field_rainfall_station[$node->language][0]['nid'] = $nid;
-			// send time
-			$node->field_rainfall_send_time_sms[$node->language][0]['value'] = $send_time;
-			// total rainfall
-			$node->field_rainfall_total[$node->language][0]['value'] = $arg[4][$i]/10;
-			
-			$node = node_submit($node);
-			node_save($node);
-			// dsm($node);
-			dsm('ok');
-			*/
+				node_object_prepare($node); 
+				$node->field_rainfall_station[$node->language][0]['nid'] = $nid;
+				$node->field_rainfall_send_time[$node->language][0]['value'] = $time;
+				$node->field_rainfall_time_send_sms[$node->language][0]['value'] = $send_time;
+				$node->field_rainfall_total[$node->language][0]['value'] = $arg[4][$i]/10;
+				
+				$node = node_submit($node);
+				node_save($node);
+			}
 		}
 	}
+	// */
+	/*
+	/check and insert new node rainfall from sms/
+	for($i = 5; $i >= 0; $i--){		
+	  $is_data_valid = $is_data_valids[$i];
+		$time = $time_unix - 60*10*$i;
+		$send_time = date('dmYHis',$time);
+		if($is_data_valid == 0){
+			$arg_view = $nid;
+			
+			$rainfalls = views_get_view_result('view_rainfall_time_find', 'default' ,$send_time);
+			if(count($rainfalls) > 0){
+				foreach($rainfalls as $rainfall){
+					$rainfall = node_load($rainfall->nid);
+					if($node->field_rainfall_time_send_sms[$node->language][0]['value'] == $send_time){
+						// node_delete($rainfall->nid);
+						// drupal_render(node_view($rainfall->nid));
+					}
+				}
+			}
+			else{
+				$node = new stdClass();
+				// $node->title = _datalogger_string_to_date($timestam);
+				$node->title = date('d/m/Y H:i:s',$time);
+				$node->type = "rainfall";
+				$node->created = $time;
+				$node->changed = $time;
+				$node->status = 1; // Published?
+				$node->promote = 0; // Display on front page?
+				$node->sticky = 0; // Display top of page?
+				$node->format = 1; // Filtered HTML?
+				$node->uid = 1; // Content owner uid (author)?
+				$node->language = 'und';
+
+				node_object_prepare($node); 
+				$node->field_rainfall_station[$node->language][0]['nid'] = $nid;
+				$node->field_rainfall_time_send_sms[$node->language][0]['value'] = $send_time;
+				$node->field_rainfall_total[$node->language][0]['value'] = $arg[4][$i]/10;
+				
+				$node = node_submit($node);
+				node_save($node);
+			}
+		}
+	}
+	*/
 	// dsm('finish');
 	
 	/*
