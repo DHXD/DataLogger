@@ -2,45 +2,10 @@
 
 function _export_excel()
 {
-  /**
-   * PHPExcel
-   *
-   * Copyright (C) 2006 - 2012 PHPExcel
-   *
-   * This library is free software; you can redistribute it and/or
-   * modify it under the terms of the GNU Lesser General Public
-   * License as published by the Free Software Foundation; either
-   * version 2.1 of the License, or (at your option) any later version.
-   *
-   * This library is distributed in the hope that it will be useful,
-   * but WITHOUT ANY WARRANTY; without even the implied warranty of
-   * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-   * Lesser General Public License for more details.
-   *
-   * You should have received a copy of the GNU Lesser General Public
-   * License along with this library; if not, write to the Free Software
-   * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA  02110-1301  USA
-   *
-   * @category   PHPExcel
-   * @package    PHPExcel
-   * @copyright  Copyright (c) 2006 - 2012 PHPExcel (http://www.codeplex.com/PHPExcel)
-   * @license    http://www.gnu.org/licenses/old-licenses/lgpl-2.1.txt	LGPL
-   * @version    1.7.8, 2012-10-12
-   */
-
-  /** Error reporting */
   error_reporting(E_ALL);
-
-  /** Include PHPExcel */
   require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel.php';
-
-
-  // Create new PHPExcel object
-  //echo date('H:i:s') , " Create new PHPExcel object" , PHP_EOL;
   $objPHPExcel = new PHPExcel();
 
-  // Set document properties
-  //echo date('H:i:s') , " Set document properties" , PHP_EOL;
   $objPHPExcel->getProperties()->setCreator("Maarten Balliauw")
                  ->setLastModifiedBy("Maarten Balliauw")
                  ->setTitle("Office 2007 XLSX Test Document")
@@ -48,11 +13,10 @@ function _export_excel()
                  ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
                  ->setKeywords("office 2007 openxml php")
                  ->setCategory("Test result file");
-  // Create a first sheet, representing sales data
-  //echo date('H:i:s') , " Add some data" , PHP_EOL;
   $objPHPExcel->setActiveSheetIndex(0);
   $objPHPExcel->getActiveSheet()->setCellValue('B1', 'Trạm');
-  $objPHPExcel->getActiveSheet()->setCellValue('F1', 'Tháng...... Năm.....');
+  $objPHPExcel->getActiveSheet()->setCellValue('F1', 'Tháng');
+  $objPHPExcel->getActiveSheet()->setCellValue('H1', 'Năm');
   $objPHPExcel->getActiveSheet()->setCellValue('J1', 'Trang 4');
   $objPHPExcel->getActiveSheet()->setCellValue('A2', 'LƯỢNG GIÁNG THỦY LỚN NHẤT');
   $objPHPExcel->getActiveSheet()->setCellValue('B3', 'Trong 60 phút');
@@ -74,6 +38,7 @@ function _export_excel()
   $objPHPExcel->getActiveSheet()->setCellValue('H6', '(mm)');
   $objPHPExcel->getActiveSheet()->setCellValue('I6', '(giờ, phút)');
   $objPHPExcel->getActiveSheet()->setCellValue('F8', 'Trong một giờ');
+  
   $objPHPExcel->getActiveSheet()->setCellValue('F10', 'Trong một đợt liên tục');
   $objPHPExcel->getActiveSheet()->setCellValue('G13', 'GHI CHÚ');
 
@@ -82,10 +47,6 @@ function _export_excel()
   $objPHPExcel->getActiveSheet()->setCellValue('D7', '3');
   $objPHPExcel->getActiveSheet()->setCellValue('E7', '4');
 
-
-  // Merge cells
-  //echo date('H:i:s') , " Merge cells" , PHP_EOL;
-  $objPHPExcel->getActiveSheet()->mergeCells('F1:H1');
   $objPHPExcel->getActiveSheet()->mergeCells('A2:E2');
   $objPHPExcel->getActiveSheet()->mergeCells('A3:A6');
   $objPHPExcel->getActiveSheet()->mergeCells('B3:C3');
@@ -102,11 +63,6 @@ function _export_excel()
   $objPHPExcel->getActiveSheet()->mergeCells('H10:H11');
   $objPHPExcel->getActiveSheet()->mergeCells('I10:J11');
 
-  //$objPHPExcel->getActiveSheet()->unmergeCells('A28:B28');
-
-  // Set thin black border outline around column
-  //echo date('H:i:s') , " Set thin black border outline around column" , PHP_EOL;
-
   $styleThinBlackBorderOutline = array(
     'borders' => array(
       'outline' => array(
@@ -115,7 +71,7 @@ function _export_excel()
       ),
     ),
   );
-  $objPHPExcel->getActiveSheet()->getStyle('A2:J38')->applyFromArray($styleThinBlackBorderOutline);
+  $objPHPExcel->getActiveSheet()->getStyle('A2:J152')->applyFromArray($styleThinBlackBorderOutline);
 
   $objPHPExcel->getActiveSheet()->getStyle('A2:E2')->applyFromArray($styleThinBlackBorderOutline);
   $objPHPExcel->getActiveSheet()->getStyle('A3:A6')->applyFromArray($styleThinBlackBorderOutline);
@@ -140,21 +96,13 @@ function _export_excel()
   $sharedStyle1 = new PHPExcel_Style();
   $sharedStyle1->applyFromArray(
     array(//'fill' 	=> array(
-    //							'type'		=> PHPExcel_Style_Fill::FILL_SOLID,
-      //						'color'		=> array('argb' => 'FFCCFFCC')
-        //				),
         'borders' => array(
                   'bottom'	=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
                   'right'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN)
                 )
        ));
 
-  $objPHPExcel->getActiveSheet()->setSharedStyle($sharedStyle1, "A7:E38");
-  //$objPHPExcel->getActiveSheet()->setSharedStyle($sharedStyle1, "F2:J11");
-  //$objPHPExcel->getActiveSheet()->setSharedStyle($sharedStyle2, "C5:R95");
-
-  // Set alignments
-  //echo date('H:i:s') , " Set alignments" , PHP_EOL;
+  $objPHPExcel->getActiveSheet()->setSharedStyle($sharedStyle1, "A7:E152");
   $objPHPExcel->getActiveSheet()->getStyle('B1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
   $objPHPExcel->getActiveSheet()->getStyle('F1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_RIGHT);
   $objPHPExcel->getActiveSheet()->getStyle('J1')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_LEFT);
@@ -185,27 +133,12 @@ function _export_excel()
   $objPHPExcel->getActiveSheet()->getStyle('F10')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
   $objPHPExcel->getActiveSheet()->getStyle('F10')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 
-  /*
-  $objPHPExcel->getActiveSheet()->getStyle('A3')->applyFromArray(
-      array(
-        'alignment' => array(
-          'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_LEFT,
-        ),
-        'borders' => array(
-          'left'     => array(
-            'style' => PHPExcel_Style_Border::BORDER_THIN
-          )
-        )
-      )
-  );
-  */
-
   $styleAlignments = array(
           'alignment' => array(
           'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
           )
   );
-  $objPHPExcel->getActiveSheet()->getStyle('A2:E38')->applyFromArray($styleAlignments);
+  $objPHPExcel->getActiveSheet()->getStyle('A2:E152')->applyFromArray($styleAlignments);
   $objPHPExcel->getActiveSheet()->getStyle('F2:I10')->applyFromArray($styleAlignments);
   $objPHPExcel->getActiveSheet()->getStyle('F2:I10')->applyFromArray(
       array(
@@ -215,69 +148,58 @@ function _export_excel()
         )
   );
 
-  // Set column widths
-  //echo date('H:i:s') , " Set column widths" , PHP_EOL;
   $objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth(40);
-  $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
+  $objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(25);
   $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(15);
   $objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth(15);
   $objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth(15);
   $objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(15);
   $objPHPExcel->getActiveSheet()->getColumnDimension('H')->setWidth(10);
   $objPHPExcel->getActiveSheet()->getColumnDimension('I')->setWidth(15);
+	
+	
 
   //đánh số thứ tự
-  for ($i = 8; $i <= 38; $i++) {
-    $j = $i - 7;
-    $objPHPExcel->getActiveSheet()->setCellValue('A' . $i, "$j");
-    }
+	$cell = $objPHPExcel->getActiveSheet();
+  for ($i = 8; $i <= 152; $i++) {
+    $cell->setCellValue('A' . $i, date("d/m/Y H:i:s", time()));
+		$cell->setCellValue('B'.$i,"12.4");//luong mưa 60'
+		$cell->setCellValue('C'.$i,"10");//thoi gian keo dai 60'
+		$cell->setCellValue('D'.$i,"123,4");//luong mua mot dot quan trac
+		$cell->setCellValue('E'.$i,"60");//thoi gian keo dai mot dot quan trac
+		
+  }
+	
+	$objPHPExcel->getActiveSheet()->setCellValue('C1', 'Ky Trinh');
+  $objPHPExcel->getActiveSheet()->setCellValue('G1', date('m',time()));
+  $objPHPExcel->getActiveSheet()->setCellValue('I1', date('Y', time()));
+  // $objPHPExcel->getActiveSheet()->setCellValue('H8', '600');//
+	// $objPHPExcel->setCellValueExplicitByColumnAndRow(8,'H8' , '=MAX(B8:B152)', PHPExcel_Cell_DataType::TYPE_FORMULA);
+	$objPHPExcel->getActiveSheet()->setCellValue('H8' , '=MAX(B8:B152)');
+  $objPHPExcel->getActiveSheet()->setCellValue('I8', '10');//
+  // $objPHPExcel->getActiveSheet()->setCellValue('H10', '1233');
+	$objPHPExcel->getActiveSheet()->setCellValue('H10' , '=MAX(D8:D152)');
+  $objPHPExcel->getActiveSheet()->setCellValue('I10', '60');
    
   //set font
-  $objPHPExcel->getActiveSheet()->getStyle('A1:J38')->getFont()->setName('Times New Roman');
+  $objPHPExcel->getActiveSheet()->getStyle('A1:J152')->getFont()->setName('Times New Roman');
   $objPHPExcel->getActiveSheet()->getStyle('A2:J7')->getFont()->setSize(12);
-  $objPHPExcel->getActiveSheet()->getStyle('B8:E38')->getFont()->setSize(12);
+  $objPHPExcel->getActiveSheet()->getStyle('B8:E152')->getFont()->setSize(12);
   $objPHPExcel->getActiveSheet()->getStyle('B1')->getFont()->setSize(14);
   $objPHPExcel->getActiveSheet()->getStyle('F1:H1')->getFont()->setSize(12);
   $objPHPExcel->getActiveSheet()->getStyle('J1')->getFont()->setSize(10);
   $objPHPExcel->getActiveSheet()->getStyle('F4:G7')->getFont()->setSize(10);
   $objPHPExcel->getActiveSheet()->getStyle('H8:J11')->getFont()->setSize(10);
-  $objPHPExcel->getActiveSheet()->getStyle('A8:A38')->getFont()->setSize(12);
+  $objPHPExcel->getActiveSheet()->getStyle('A8:A152')->getFont()->setSize(12);
 
   /** Include PHPExcel_IOFactory */
   require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel/IOFactory.php';
-
-
-  // Save Excel 2007 file
-  //echo date('H:i:s') , " Write to Excel2007 format";
   $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
   //$objWriter->save(str_replace('.php', '.xlsx', __FILE__));
   
   
-  // We'll be outputting an excel file
   header('Content-type: application/vnd.ms-excel');
-  // It will be called file.xls
   header('Content-Disposition: attachment; filename="BaoCao.xls"');
-  // Write file to the browser
   $objWriter->save('php://output');
   drupal_exit();
-  
-  
-  //echo date('H:i:s') , " File written to " , str_replace('.php', '.xlsx', pathinfo(__FILE__, PATHINFO_BASENAME));
-  // Save Excel5 file
-  
-  /*
-  echo date('H:i:s') , " Write to Excel5 format";
-  $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
-  $objWriter->save(str_replace('.php', '.xls', __FILE__));
-  echo date('H:i:s') , " File written to " , str_replace('.php', '.xls', pathinfo(__FILE__, PATHINFO_BASENAME));
-
-   Echo memory peak usage
-  
-  echo date('H:i:s') , " Peak memory usage: " , (memory_get_peak_usage(true) / 1024 / 1024) , " MB";
-
-  // Echo done
-  echo date('H:i:s') , " Done writing files";
-  echo 'Files have been created in ' , getcwd();
-  */
-  
 }

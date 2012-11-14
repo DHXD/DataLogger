@@ -1,5 +1,4 @@
 <?php
-
 /**
  * 18/10. 
  */
@@ -369,24 +368,17 @@ function datalogger_permission() {
  * Implements hook_menu_alter().
  */
 function datalogger_menu_alter(&$items) {
-  // Example - disable the page at node/add
-  // $items['node/add']['access callback'] = FALSE;
-  //dpm($items);
-  
   $items['node/%node/view']['title callback'] = '_datalogger_station_title_callback';
   $items['node/%node/view']['title arguments'] = array(1);
-  
 } 
 
 function _datalogger_station_title_callback($node) {
   if ($node->type == 'station' ) {
-    // drupal_set_title(t('Thông tin trạm: ').$node->title);
-    // return t('Thông tin trạm');
 		drupal_set_title(t('Station infomation: ').$node->title);
     return t('Station infomation');
   }
   else {
-    return 'View';
+    return t('View');
   }
 }
 
@@ -397,8 +389,6 @@ function datalogger_openlayers_map_alter(&$map) {
   if (isset($map['layers']['mapquest_osm_offline'])) {
     $map['layers']['mapquest_osm_offline']['url'][0] = '/tiles/${z}/${x}/${y}.png';     // set local URL using special hard coded format.
     $map['layers']['mapquest_osm_offline']['serverResolutions'] = array();              // empty the array
-    
-    // dpm($map);
   }
 }
 
@@ -414,7 +404,6 @@ function datalogger_views_pre_render(&$view) {
       unset($view->field['views_bulk_operations']);    
       unset($view->field['nid']);
     }  
-    
     // now temporary remove sending multiple stations:
     unset($view->field['views_bulk_operations']);
   }

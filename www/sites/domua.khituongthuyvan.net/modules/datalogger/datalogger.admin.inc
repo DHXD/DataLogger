@@ -623,7 +623,7 @@ function _datalogger_check_inbox() {
 				// dsm('into 140');
 				_datalogger_separate_sms($sms,$number);
 				// Cập nhật các bản tin đã xử lý
-				// _datalogger_update_process_inbox(1,$id_inbox);
+				_datalogger_update_process_inbox(1,$id_inbox);
       }			
 			else _datalogger_update_process_inbox(2,$id_inbox);
     }
@@ -784,41 +784,42 @@ function _datalogger_insert_node_command($arg){
 
 
 function _datalogger_insert_node_rainfall(&$arg){
-	/*121110103800*/
 	$timestam = $arg[0];
-	/*nid node*/
 	$nid = $arg[1];
-	/*convert time to time unix*/
-	$time_unix = _datalogger_string_to_unix_date($timestam);
-	/*check value rainfall*/
-	$is_data_valids = $arg[2];
-	
-	// /*
-	// /check and insert new node rainfall from sms/
-	for($i = 5; $i >= 0; $i--){		
-	  $is_data_valid = $is_data_valids[$i];
-		$time = $time_unix - 60*10*$i;
-		$send_time = date('dmYHis',$time);
-		if($is_data_valid == 0){
-			$arg_view = $nid;
-			
-			$rainfalls = views_get_view_result('view_rainfall_time_find', 'default' ,$send_time);
-			if(count($rainfalls) > 0){
-				foreach($rainfalls as $rainfall){
-					$rainfall = node_load($rainfall->nid);
-					if($node->field_rainfall_time_send_sms[$node->language][0]['value'] == $send_time){
-						// node_delete($rainfall->nid);
-						// drupal_render(node_view($rainfall->nid));
+	$node = node_load($nid);
+	if( $nid != null || !empty($nid ) && (!empty($node) || $node != null)){
+		$time_unix = _datalogger_string_to_unix_date($timestam);
+		$is_data_valids = $arg[2];
+		$measuring_interval = $arg[3];//3
+		$accumulate;//4
+		$battery = $arg[5];//5
+		
+		for($i = 5; $i >= 0; $i--){		
+			$is_data_valid = $is_data_valids[$i];
+			$time = $time_unix - 60*10*$i;
+			$send_time = date('d/m/Y H:i:s',$time);
+			if($is_data_valid == 0){
+				$arg_view = $nid;
+				$rainfalls = views_get_view_result('view_rainfall_time_find', 'default' ,$send_time);
+				if(count($rainfalls) > 0){
+					foreach($rainfalls as $rainfall){
+						$rainfall = node_load($rainfall->nid);
+						if($nid == $rainfall->nid && $rainfall->field_rainfall_time_send_sms['und'][0]['value'] == $send_time){
+								node_delete($rainfall->nid);
+						}
 					}
 				}
-			}
-			else{
+				
+				//lưu giá trị điện năng vào trạm đo mưa
+				$station = node_load($nid);
+				$station->field_station_power['und'][0]['value'] = $battery[$i]/10;
+				node_save($station);
+				
 				$node = new stdClass();
-				// $node->title = _datalogger_string_to_date($timestam);
 				$node->title = date('d/m/Y H:i:s',$time);
 				$node->type = "rainfall";
 				$node->created = time();
-				$node->changed = time();
+				$node->changed = $node->created;
 				$node->status = 1; // Published?
 				$node->promote = 0; // Display on front page?
 				$node->sticky = 0; // Display top of page?
@@ -828,8 +829,11 @@ function _datalogger_insert_node_rainfall(&$arg){
 
 				node_object_prepare($node); 
 				$node->field_rainfall_station[$node->language][0]['nid'] = $nid;
+				//lượng mưa đo được trong 10p
+				$node->field_rainfall_measuring[$node->language][0]['value'] = $measuring_interval[$i]/10;
 				$node->field_rainfall_send_time[$node->language][0]['value'] = $time;
 				$node->field_rainfall_time_send_sms[$node->language][0]['value'] = $send_time;
+				//lượng mưa đo được trong 60p
 				$node->field_rainfall_total[$node->language][0]['value'] = $arg[4][$i]/10;
 				
 				$node = node_submit($node);
