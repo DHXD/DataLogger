@@ -17,7 +17,7 @@ function _datalogger_insert_data_rainfall($nid, $year_month,&$cell){
   }
 }
 
-function _export_excel()
+function _export_excel($nid = 3138,	$year_month = 201211)
 {
   error_reporting(E_ALL);
   require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel.php';
@@ -176,8 +176,8 @@ function _export_excel()
 	
 	
 
-	$nid = 3138;
-	$year_month = 201211;
+	// $nid = 3138;
+	// $year_month = 201211;
 	$rainfalls = views_get_view_result('view_export_excel',NULL, $nid, $year_month);
 	$cell = $objPHPExcel->getActiveSheet();
 	$i = 8;

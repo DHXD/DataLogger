@@ -283,7 +283,11 @@ function datalogger_menu() {
  
  $items['manage/report/rainfalls'] = array(
     'title' => 'Báo cáo số liệu Mưa',
-    'page callback' => '_report_rainfall_form',
+		'page callback' => 'drupal_get_form',
+    'page arguments' => array(
+        '_report_rainfall_form'
+    ),
+    // 'page callback' => '_report_rainfall_form',
     'file' => 'datalogger.admin.inc',
     'access arguments' => array('manage data'),
   );
