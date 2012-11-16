@@ -1274,37 +1274,30 @@ function _log_rainfall_form(){
 }
 
 function _report_rainfall_form(){
+	module_load_include('module', 'datalogger','datalogger');
+	
   $form['selectReport'] = array(
     '#type' => 'select',
     '#title' => t('Chọn loại hình báo cáo: '),
     '#options' => array(
       // 0 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKt-5'),
-      1 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKT-14'),
+      'bk1' => t('Báo cáo số liệu mưa theo mẫu báo cáo BKT-14'),
      ),
   );
   $form['selectArea'] = array(
     '#type' => 'select',
     '#title' => t('Chọn khu vực: '),
-    '#options' => array(
-      north_central_region => t('Khu Vực Bắc Trung Bộ'),
-			mid_central_region => t('Khu Vực Trung Trung Bộ'),
-			central_highlands =>t('Khu Vực Tây Nguyên'),
-			south_central_region => t('Khu Vực Nam Trung Bộ'),
-			south_region => t('Khu Vực Nam Bộ'),
-    ),
+    '#options' => _datalogger_return_area(),
   );
    
   $form['selectProvince'] = array(
      '#type' => 'select',
      '#title' => t('Chọn Tỉnh/ Thành phố: '),
-     '#options' => array(
-        ho_chi_minh => t('TP. Hồ Chí Minh'),				hai_phong => t('TP. Hải Phòng'),				da_nang => t('TP. Đà Nẵng'),				ha_giang => t('Tỉnh Hà Giang'),				cao_bang => t('Tỉnh Cao Bằng'),				lai_chau => t('Tỉnh Lai Châu'),				lao_cai => t('Tỉnh Lào Cai'),				tuyen_quang => t('Tỉnh Tuyên Quang'),				lang_son => t('Tỉnh Lạng Sơn'),				bac_kan => t('Tỉnh Bắc Kạn'),				thai_nguyen => t('Tỉnh Thái Nguyên'),				yen_bai => t('Tỉnh Yên Bái'),				son_la => t('Tỉnh Sơn La'),				phu_tho => t('Tỉnh Phú Thọ'),				vinh_phuc => t('Tỉnh Vĩnh Phúc'),				quang_ninh => t('Tỉnh Quảng Ninh'),				bac_giang => t('Tỉnh Bắc Giang'),				bac_ninh => t('Tỉnh Bắc Ninh'),				ha_noi => t('TP. Hà Nội'),				hai_duong => t('Tỉnh Hải Dương'),				hung_yen => t('Tỉnh Hưng Yên'),				hoa_binh => t('Tỉnh Hòa Bình'),				ha_nam => t('Tỉnh Hà Nam'),				nam_dinh => t('Tỉnh Nam Định'),				thai_binh => t('Tỉnh Thái Bình'),				ninh_binh => t('Tỉnh Ninh Bình'),				thanh_hoa => t('Tỉnh Thanh Hóa'),				nghe_an => t('Tỉnh Nghệ An'),				ha_tinh => t('Tỉnh Hà Tĩnh'),				quang_binh => t('Tỉnh Quảng Bình'),				quang_tri => t('Tỉnh Quảng Trị'),				thua_thien_hue => t('Tỉnh Thừa Thiên - Huế'),				quang_nam => t('Tỉnh Quảng Nam'),				quang_ngai => t('Tỉnh Quảng Ngãi'),				kom_tum => t('Tỉnh Kon Tum'),				binh_dinh => t('Tỉnh Bình Định'),				giai_lai => t('Tỉnh Gia Lai'),				phu_yen => t('Tỉnh Phú Yên'),				dak_lak => t('Tỉnh Đăk Lăk'),				khanh_hoa => t('Tỉnh Khánh Hòa'),				lam_dong => t('Tỉnh Lâm Đồng'),				binh_phuoc => t('Tỉnh Bình Phước'),				binh_duong => t('Tỉnh Bình Dương'),				ninh_thuan => t('Tỉnh Ninh Thuận'),				tay_ninh => t('Tỉnh Tây Ninh'),				binh_thuan => t('Tỉnh Bình Thuận'),				dong_nai => t('Tỉnh Đồng Nai'),				long_an => t('Tỉnh Long An'),				dong_thap => t('Tỉnh Đồng Tháp'),				an_giang => t('Tỉnh An Giang'),				ba_ria_vung_tau => t('Tỉnh Bà Rịa - Vũng Tàu'),				tien_gian => t('Tỉnh Tiền Giang'),				kien_giang => t('Tỉnh Kiên Giang'),				can_tho => t('TP. Cần Thơ'),				ben_tre => t('Tỉnh Bến Tre'),				vinh_long => t('Tỉnh Vĩnh Long'),				tra_vinh => t('Tỉnh Trà Vinh'),				soc_trang => t('Tỉnh Sóc Trăng'),				bac_lieu => t('Tỉnh Bạc Liêu'),				ca_mau => t('Tỉnh Cà Mau'),				dien_bien => t('Tỉnh Điện Biên'),				dak_nong => t('Tỉnh Đăk Nông'),				hau_giang => t('Tỉnh Hậu Giang'),
-     ),
+     '#options' => _datalogger_return_city(),
   ); 
   
 	$stations = views_get_view_result('list_all_datalogger');
 	$name_stations = array();
-	// dsm($stations);
 	foreach($stations as $station){
 		$name_stations[] = $station->node_title;
 	}
@@ -1340,6 +1333,7 @@ function _report_rainfall_form(){
      '#value' => t('Xuất báo cáo: '),
 		 "#submit" => "_report_rainfall_submit",
   );   
+	
   return $form;
 }
 // function _report_rainfall_validate(){
