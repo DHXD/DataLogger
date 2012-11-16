@@ -1365,15 +1365,19 @@ function _report_rainfall_form_validate(&$form, &$form_state){
 }
 function _report_rainfall_form_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
+	
 	$nid = $form_state['values']['station'];
 	$year = $form_state['values']['year'];
 	$month = $form_state['values']['month'];
 	$year_month = $year.$month;
-	$form_state['values']['txtNameQTV'];
-	$form_state['values']['txtNameNLB'];
-	$form_state['values']['txtNameKS'];
-	$form_state['values']['txtNamePT'];
-	_export_excel($nid, $year_month);
+	$name_qtv = $form_state['values']['txtNameQTV'];
+	$name_nlb = $form_state['values']['txtNameNLB'];
+	$name_ks = $form_state['values']['txtNameKS'];
+	$name_pt = $form_state['values']['txtNamePT'];
+	
+	$args = array($nid, $year_month, $name_qtv, $name_nlb, $name_ks, $name_pt);
+	
+	_export_excel($args);
 }
 
 function _init_rainfall_node($title, $time, $rainfall, $stationCode) {

@@ -1,6 +1,10 @@
 <?php
 
-function _datalogger_insert_data_rainfall($nid, $year_month,&$cell){
+
+error_reporting(E_ALL);
+require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel.php';
+
+function _datalogger_insert_data_rainfall($arg){
 	$nid = 3138;
 	$year_month = 201211;
 	$i = 8;
@@ -15,12 +19,21 @@ function _datalogger_insert_data_rainfall($nid, $year_month,&$cell){
 		$cell->setCellValue('E'.$i,"60");//thoi gian keo dai mot dot quan trac
 		$i++;
   }
-}
-
-function _export_excel($nid = 3138,	$year_month = 201211)
-{
-  error_reporting(E_ALL);
-  require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel.php';
+}	
+function _export_excel($args){
+	//node id
+	$nid = $args[0];
+	//year month
+	$year_month = $args[1];
+	//ten nguoi quan trac vien
+	$name_qtv = $args[2];
+	//ten nguoi lap bao cao
+	$name_nlb =$args[3];
+	//ten nguoi kiem soat
+	$name_ks = $args[4];
+	//ten nguoi phuc tham
+	$name_pt = $args[5];
+	
   $objPHPExcel = new PHPExcel();
 
   $objPHPExcel->getProperties()->setCreator("Maarten Balliauw")
