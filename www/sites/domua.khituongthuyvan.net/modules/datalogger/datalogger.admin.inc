@@ -623,7 +623,7 @@ function _datalogger_check_inbox() {
 				// dsm('into 140');
 				_datalogger_separate_sms($sms,$number);
 				// Cập nhật các bản tin đã xử lý
-				_datalogger_update_process_inbox(1,$id_inbox);
+				// _datalogger_update_process_inbox(1,$id_inbox);
       }			
 			else _datalogger_update_process_inbox(2,$id_inbox);
     }
@@ -784,6 +784,19 @@ function _datalogger_insert_node_command($arg){
 
 
 function _datalogger_insert_node_rainfall(&$arg){
+	/*
+	$rainfalls = views_get_view_result('view_export_excel',NULL, 3138, 201211);
+	dsm($rainfalls);
+	$node = node_load(3138);
+	dsm($node->title);
+	foreach($rainfalls as $rainfall){
+		dsm($rainfall->field_field_rainfall_station[0]['rendered']['title ']);
+		dsm($rainfall->node_title);
+		dsm($rainfall->field_field_rainfall_measuring[0]['raw']['value']);
+		dsm($rainfall->field_field_rainfall_total[0]['raw']['value']);
+	}
+	*/
+	
 	$timestam = $arg[0];
 	$nid = $arg[1];
 	$node = node_load($nid);
@@ -797,23 +810,17 @@ function _datalogger_insert_node_rainfall(&$arg){
 		for($i = 5; $i >= 0; $i--){		
 			$is_data_valid = $is_data_valids[$i];
 			$time = $time_unix - 60*10*$i;
-			$send_time = date('d/m/Y H:i:s',$time);
+			$send_time = date('dmYHis',$time);
+			$year_month = date('Ym',$time);
 			if($is_data_valid == 0){
 				$arg_view = $nid;
-				$rainfalls = views_get_view_result('view_rainfall_time_find', 'default' ,$send_time);
+				$rainfalls = views_get_view_result('view_find_rainfall_station', NULL, $nid, $send_time);
 				if(count($rainfalls) > 0){
 					foreach($rainfalls as $rainfall){
 						$rainfall = node_load($rainfall->nid);
-						if($nid == $rainfall->nid && $rainfall->field_rainfall_time_send_sms['und'][0]['value'] == $send_time){
-								node_delete($rainfall->nid);
-						}
+						node_delete($rainfall->nid);
 					}
 				}
-				
-				//lưu giá trị điện năng vào trạm đo mưa
-				$station = node_load($nid);
-				$station->field_station_power['und'][0]['value'] = $battery[$i]/10;
-				node_save($station);
 				
 				$node = new stdClass();
 				$node->title = date('d/m/Y H:i:s',$time);
@@ -833,94 +840,21 @@ function _datalogger_insert_node_rainfall(&$arg){
 				$node->field_rainfall_measuring[$node->language][0]['value'] = $measuring_interval[$i]/10;
 				$node->field_rainfall_send_time[$node->language][0]['value'] = $time;
 				$node->field_rainfall_time_send_sms[$node->language][0]['value'] = $send_time;
+				$node->field_rainfall_year_month[$node->language][0]['value'] = $year_month;
 				//lượng mưa đo được trong 60p
 				$node->field_rainfall_total[$node->language][0]['value'] = $arg[4][$i]/10;
 				
 				$node = node_submit($node);
 				node_save($node);
-			}
-		}
-	}
-	// */
-	/*
-	/check and insert new node rainfall from sms/
-	for($i = 5; $i >= 0; $i--){		
-	  $is_data_valid = $is_data_valids[$i];
-		$time = $time_unix - 60*10*$i;
-		$send_time = date('dmYHis',$time);
-		if($is_data_valid == 0){
-			$arg_view = $nid;
-			
-			$rainfalls = views_get_view_result('view_rainfall_time_find', 'default' ,$send_time);
-			if(count($rainfalls) > 0){
-				foreach($rainfalls as $rainfall){
-					$rainfall = node_load($rainfall->nid);
-					if($node->field_rainfall_time_send_sms[$node->language][0]['value'] == $send_time){
-						// node_delete($rainfall->nid);
-						// drupal_render(node_view($rainfall->nid));
-					}
-				}
-			}
-			else{
-				$node = new stdClass();
-				// $node->title = _datalogger_string_to_date($timestam);
-				$node->title = date('d/m/Y H:i:s',$time);
-				$node->type = "rainfall";
-				$node->created = $time;
-				$node->changed = $time;
-				$node->status = 1; // Published?
-				$node->promote = 0; // Display on front page?
-				$node->sticky = 0; // Display top of page?
-				$node->format = 1; // Filtered HTML?
-				$node->uid = 1; // Content owner uid (author)?
-				$node->language = 'und';
-
-				node_object_prepare($node); 
-				$node->field_rainfall_station[$node->language][0]['nid'] = $nid;
-				$node->field_rainfall_time_send_sms[$node->language][0]['value'] = $send_time;
-				$node->field_rainfall_total[$node->language][0]['value'] = $arg[4][$i]/10;
 				
-				$node = node_submit($node);
-				node_save($node);
+				//lưu giá trị điện năng vào trạm đo mưa
+				$station = node_load($nid);
+				$station->field_station_power['und'][0]['value'] = $battery[$i]/10;
+				node_save($station);
 			}
 		}
 	}
-	*/
-	// dsm('finish');
 	
-	/*
-	$node = new stdClass();
-  $node->title = _datalogger_string_to_date($arg[0]);
-  // $node->title = $arg[0];
-  $node->type = "rainfall";
-  $node->created = time();
-  // $node->created = $arg[0];
-  $node->changed = $node->created;
-  $node->status = 1; // Published?
-  $node->promote = 0; // Display on front page?
-  $node->sticky = 0; // Display top of page?
-  $node->format = 1; // Filtered HTML?
-  $node->uid = 1; // Content owner uid (author)?
-  $node->language = 'und';
-
-  node_object_prepare($node);  
-  $node->field_rainfall_station[$node->language][0]['nid'] = $arg[1];
-	// $node->field_rainfall_station);
-	
-	for($i = 0; $i < 6; $i++){
-		$node->field_command_is_data_valid[$node->language][$i]['value'] = $arg[2][$i]; 		  		 
-		$node->field_command_measuring_interval[$node->language][$i]['value'] = $arg[3][$i];  
-		$node->field_command_accumulated_rain[$node->language][$i]['value'] = $arg[4][$i];  
-		$node->field_command_battery_power[$node->language][$i]['value'] = $arg[5][$i];
-	}
-	// $node->field_rainfall_send_time[$node->language][0]['value'] = _datalogger_convert_date('m/d/Y - H:i',$arg[0]);
-	$node->field_rainfall_send_time[$node->language][0]['value'] = _datalogger_string_to_unix_date($arg[0]);
-	// $node->field_rainfall_send_time[$node->language][0]['value'] = '2010-01-04T00:00:00';
-	$node = node_submit($node);
-	// dsm($node);
-  node_save($node);
-	
-	*/
 }
 
 function _datalogger_generate_rainfalls_form($form, &$form_state) {
@@ -1344,16 +1278,19 @@ function _report_rainfall_form(){
     '#type' => 'select',
     '#title' => t('Chọn loại hình báo cáo: '),
     '#options' => array(
-      0 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKt-5'),
-      1 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKt-14'),
+      // 0 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKt-5'),
+      1 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKT-14'),
      ),
   );
   $form['selectArea'] = array(
     '#type' => 'select',
     '#title' => t('Chọn khu vực: '),
     '#options' => array(
-      0 => t('No'),
-      1 => t('Yes'),
+      north_central_region => t('Khu Vực Bắc Trung Bộ'),
+			mid_central_region => t('Khu Vực Trung Trung Bộ'),
+			central_highlands =>t('Khu Vực Tây Nguyên'),
+			south_central_region => t('Khu Vực Nam Trung Bộ'),
+			south_region => t('Khu Vực Nam Bộ'),
     ),
   );
    
@@ -1361,18 +1298,21 @@ function _report_rainfall_form(){
      '#type' => 'select',
      '#title' => t('Chọn Tỉnh/ Thành phố: '),
      '#options' => array(
-        0 => t('No'),
-       1 => t('Yes'),
+        ho_chi_minh => t('TP. Hồ Chí Minh'),				hai_phong => t('TP. Hải Phòng'),				da_nang => t('TP. Đà Nẵng'),				ha_giang => t('Tỉnh Hà Giang'),				cao_bang => t('Tỉnh Cao Bằng'),				lai_chau => t('Tỉnh Lai Châu'),				lao_cai => t('Tỉnh Lào Cai'),				tuyen_quang => t('Tỉnh Tuyên Quang'),				lang_son => t('Tỉnh Lạng Sơn'),				bac_kan => t('Tỉnh Bắc Kạn'),				thai_nguyen => t('Tỉnh Thái Nguyên'),				yen_bai => t('Tỉnh Yên Bái'),				son_la => t('Tỉnh Sơn La'),				phu_tho => t('Tỉnh Phú Thọ'),				vinh_phuc => t('Tỉnh Vĩnh Phúc'),				quang_ninh => t('Tỉnh Quảng Ninh'),				bac_giang => t('Tỉnh Bắc Giang'),				bac_ninh => t('Tỉnh Bắc Ninh'),				ha_noi => t('TP. Hà Nội'),				hai_duong => t('Tỉnh Hải Dương'),				hung_yen => t('Tỉnh Hưng Yên'),				hoa_binh => t('Tỉnh Hòa Bình'),				ha_nam => t('Tỉnh Hà Nam'),				nam_dinh => t('Tỉnh Nam Định'),				thai_binh => t('Tỉnh Thái Bình'),				ninh_binh => t('Tỉnh Ninh Bình'),				thanh_hoa => t('Tỉnh Thanh Hóa'),				nghe_an => t('Tỉnh Nghệ An'),				ha_tinh => t('Tỉnh Hà Tĩnh'),				quang_binh => t('Tỉnh Quảng Bình'),				quang_tri => t('Tỉnh Quảng Trị'),				thua_thien_hue => t('Tỉnh Thừa Thiên - Huế'),				quang_nam => t('Tỉnh Quảng Nam'),				quang_ngai => t('Tỉnh Quảng Ngãi'),				kom_tum => t('Tỉnh Kon Tum'),				binh_dinh => t('Tỉnh Bình Định'),				giai_lai => t('Tỉnh Gia Lai'),				phu_yen => t('Tỉnh Phú Yên'),				dak_lak => t('Tỉnh Đăk Lăk'),				khanh_hoa => t('Tỉnh Khánh Hòa'),				lam_dong => t('Tỉnh Lâm Đồng'),				binh_phuoc => t('Tỉnh Bình Phước'),				binh_duong => t('Tỉnh Bình Dương'),				ninh_thuan => t('Tỉnh Ninh Thuận'),				tay_ninh => t('Tỉnh Tây Ninh'),				binh_thuan => t('Tỉnh Bình Thuận'),				dong_nai => t('Tỉnh Đồng Nai'),				long_an => t('Tỉnh Long An'),				dong_thap => t('Tỉnh Đồng Tháp'),				an_giang => t('Tỉnh An Giang'),				ba_ria_vung_tau => t('Tỉnh Bà Rịa - Vũng Tàu'),				tien_gian => t('Tỉnh Tiền Giang'),				kien_giang => t('Tỉnh Kiên Giang'),				can_tho => t('TP. Cần Thơ'),				ben_tre => t('Tỉnh Bến Tre'),				vinh_long => t('Tỉnh Vĩnh Long'),				tra_vinh => t('Tỉnh Trà Vinh'),				soc_trang => t('Tỉnh Sóc Trăng'),				bac_lieu => t('Tỉnh Bạc Liêu'),				ca_mau => t('Tỉnh Cà Mau'),				dien_bien => t('Tỉnh Điện Biên'),				dak_nong => t('Tỉnh Đăk Nông'),				hau_giang => t('Tỉnh Hậu Giang'),
      ),
   ); 
-   
+  
+	$stations = views_get_view_result('list_all_datalogger');
+	$name_stations = array();
+	// dsm($stations);
+	foreach($stations as $station){
+		$name_stations[] = $station->node_title;
+	}
+	
   $form['selectStation'] = array(
      '#type' => 'select',
      '#title' => t('Chọn trạm: '),
-     '#options' => array(
-        0 => t('Tất cả các trạm'),
-       1 => t('Kỳ Trinh'),
-     ),
+     '#options' => $name_stations,
   );         
   
   $form['txtNameQTV'] = array(
@@ -1396,11 +1336,19 @@ function _report_rainfall_form(){
   );
   
   $form['submit'] = array(
-     '#type' => 'submit',
+     "#type" => "submit",
      '#value' => t('Xuất báo cáo: '),
-  );    
-  
+		 "#submit" => "_report_rainfall_submit",
+  );   
   return $form;
+}
+// function _report_rainfall_validate(){
+	// dsm('validate');
+	// }
+function _report_rainfall_submit($form, &$form_state){
+	$form_state['redirect'] = 'http://admin.domua.khituongthuyvan.net/phpexcel';
+	// module_load_include('inc', 'datalogger','datalogger.admin.excel');
+	// _export_excel();
 }
 
 function _init_rainfall_node($title, $time, $rainfall, $stationCode) {

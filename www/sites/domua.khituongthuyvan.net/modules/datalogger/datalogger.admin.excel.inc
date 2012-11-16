@@ -1,5 +1,22 @@
 <?php
 
+function _datalogger_insert_data_rainfall($nid, $year_month,&$cell){
+	$nid = 3138;
+	$year_month = 201211;
+	$i = 8;
+	foreach($rainfalls as $rainfall){
+		$date = $rainfall->node_title;
+		$interval = $rainfall->field_field_rainfall_measuring[0]['raw']['value'];
+		$total = $rainfall->field_field_rainfall_total[0]['raw']['value'];
+    $cell->setCellValue('A' . $i, $date);
+		$cell->setCellValue('B'.$i,$interval);//luong mưa 10'
+		$cell->setCellValue('C'.$i,"10");//thoi gian keo dai 10'
+		$cell->setCellValue('D'.$i,$total);//luong mua mot dot quan trac
+		$cell->setCellValue('E'.$i,"60");//thoi gian keo dai mot dot quan trac
+		$i++;
+  }
+}
+
 function _export_excel()
 {
   error_reporting(E_ALL);
@@ -159,28 +176,38 @@ function _export_excel()
 	
 	
 
-  //đánh số thứ tự
+	$nid = 3138;
+	$year_month = 201211;
+	$rainfalls = views_get_view_result('view_export_excel',NULL, $nid, $year_month);
 	$cell = $objPHPExcel->getActiveSheet();
-  for ($i = 8; $i <= 152; $i++) {
-    $cell->setCellValue('A' . $i, date("d/m/Y H:i:s", time()));
-		$cell->setCellValue('B'.$i,"12.4");//luong mưa 60'
-		$cell->setCellValue('C'.$i,"10");//thoi gian keo dai 60'
-		$cell->setCellValue('D'.$i,"123,4");//luong mua mot dot quan trac
+	$i = 8;
+	foreach($rainfalls as $rainfall){
+		$date = $rainfall->node_title;
+		$interval = $rainfall->field_field_rainfall_measuring[0]['raw']['value'];
+		$total = $rainfall->field_field_rainfall_total[0]['raw']['value'];
+    $cell->setCellValue('A' . $i, $date);
+		$cell->setCellValue('B'.$i,$interval);//luong mưa 10'
+		$cell->setCellValue('C'.$i,"10");//thoi gian keo dai 10'
+		$cell->setCellValue('D'.$i,$total);//luong mua mot dot quan trac
 		$cell->setCellValue('E'.$i,"60");//thoi gian keo dai mot dot quan trac
-		
+		$i++;
   }
+	// */
+	// $cell = $objPHPExcel->getActiveSheet();
+	// _datalogger_insert_data_rainfall($nid, $year_month, &$cell);
 	
-	$objPHPExcel->getActiveSheet()->setCellValue('C1', 'Ky Trinh');
-  $objPHPExcel->getActiveSheet()->setCellValue('G1', date('m',time()));
-  $objPHPExcel->getActiveSheet()->setCellValue('I1', date('Y', time()));
-  // $objPHPExcel->getActiveSheet()->setCellValue('H8', '600');//
-	// $objPHPExcel->setCellValueExplicitByColumnAndRow(8,'H8' , '=MAX(B8:B152)', PHPExcel_Cell_DataType::TYPE_FORMULA);
+	$name_station = node_load($nid);
+	//trạm đo mưa
+	$objPHPExcel->getActiveSheet()->setCellValue('C1', $name_station->title);
+	//tháng
+  $objPHPExcel->getActiveSheet()->setCellValue('G1', substr($year_month,4,2));
+	//năm
+  $objPHPExcel->getActiveSheet()->setCellValue('I1', substr($year_month,0,4));
 	$objPHPExcel->getActiveSheet()->setCellValue('H8' , '=MAX(B8:B152)');
   $objPHPExcel->getActiveSheet()->setCellValue('I8', '10');//
-  // $objPHPExcel->getActiveSheet()->setCellValue('H10', '1233');
 	$objPHPExcel->getActiveSheet()->setCellValue('H10' , '=MAX(D8:D152)');
   $objPHPExcel->getActiveSheet()->setCellValue('I10', '60');
-   
+	 
   //set font
   $objPHPExcel->getActiveSheet()->getStyle('A1:J152')->getFont()->setName('Times New Roman');
   $objPHPExcel->getActiveSheet()->getStyle('A2:J7')->getFont()->setSize(12);
