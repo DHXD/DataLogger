@@ -204,10 +204,17 @@ function _report_rainfall_year_form_submit(&$form, &$form_state) {
 	$name_nlb = $form_state['values']['txtNameNLB'];
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
+<<<<<<< HEAD
 	
 	$args = array($nid, $year, $name_qtv, $name_nlb, $name_ks, $name_pt);
 	dsm(views_get_view_result('view_export_excel','default', 3138,2012,201211));
 	// dsm(views_get_view('view_export_excel',NULL, 3138,201210));
+=======
+	$flag = 'year';
+  
+	$args = array($nid, $flag, $year, $name_qtv, $name_nlb, $name_ks, $name_pt);
+	
+>>>>>>> ef5fbe5b0e2de700cfa2f6e688a00dffd565e4ea
 	//_export_excel($args);
 }
 
@@ -1588,8 +1595,18 @@ function _report_rainfall_month_form(){
   ); 
   return $form;
 }
+<<<<<<< HEAD
+=======
+<<<<<<< HEAD
+// function _report_rainfall_form_validate(&$form, &$form_state){
+// }
+function _report_rainfall_month_submit(&$form, &$form_state) {
+=======
+
+>>>>>>> ef5fbe5b0e2de700cfa2f6e688a00dffd565e4ea
 function _report_rainfall_form_validate(&$form, &$form_state){
 }
+
 function _report_rainfall_form_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	

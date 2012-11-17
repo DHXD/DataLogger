@@ -19,7 +19,8 @@ function _datalogger_insert_data_rainfall($arg){
 		$cell->setCellValue('E'.$i,"60");//thoi gian keo dai mot dot quan trac
 		$i++;
   }
-}	
+}
+//
 function _export_excel($args){
 	//node id
 	$nid = $args[0];
