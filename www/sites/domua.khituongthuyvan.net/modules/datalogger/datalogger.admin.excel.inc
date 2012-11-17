@@ -44,7 +44,7 @@ function _export_excel($args){
                  ->setKeywords("office 2007 openxml php")
                  ->setCategory("Test result file");
   
-  $rainfalls = views_get_view_result('view_export_excel',NULL, $nid, $year_month);
+  $rainfalls = views_get_view_result('view_export_excel',NULL, $nid, $year_month,all);
   //tong so rows
   $rowcount = count($rainfalls);
   //tong so sheet

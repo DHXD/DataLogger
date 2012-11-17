@@ -313,10 +313,10 @@ function datalogger_menu() {
   );
  
  $items['manage/report/rainfalls'] = array(
-    'title' => 'Báo cáo số liệu Mưa',
+    'title' => 'Báo cáo số liệu Mưa theo tháng',
 		'page callback' => 'drupal_get_form',
     'page arguments' => array(
-        '_report_rainfall_form'
+        '_report_rainfall_month_form'
     ),
     // 'page callback' => '_report_rainfall_form',
     'file' => 'datalogger.admin.inc',

@@ -1025,8 +1025,8 @@ function _datalogger_insert_node_rainfall(&$arg){
 	
 	$timestam = $arg[0];
 	$nid = $arg[1];
-	$node = node_load($nid);
-	if( $nid != null || !empty($nid ) && (!empty($node) || $node != null)){
+	$station = node_load($nid);
+	if( $nid != null || !empty($nid ) && (!empty($station) || $station != null)){
 		$time_unix = _datalogger_string_to_unix_date($timestam);
 		$is_data_valids = $arg[2];
 		$measuring_interval = $arg[3];//3
@@ -1037,48 +1037,52 @@ function _datalogger_insert_node_rainfall(&$arg){
 			$is_data_valid = $is_data_valids[$i];
 			$time = $time_unix - 60*10*$i;
 			$send_time = date('dmYHis',$time);
+			$year = date('Y',$time);
 			$year_month = date('Ym',$time);
+			$year_month_date = date('Ymd',$time);
 			if($is_data_valid == 0){
-				$arg_view = $nid;
+				$power = $battery[$i];
 				$rainfalls = views_get_view_result('view_find_rainfall_station', NULL, $nid, $send_time);
+				
+				//xoa tat ca cac node neu trung du lieu
 				if(count($rainfalls) > 0){
-					foreach($rainfalls as $rainfall){
-						$rainfall = node_load($rainfall->nid);
-						node_delete($rainfall->nid);
+					foreach($rainfalls as $rainfall_old){
+						$rainfall_old = node_load($rainfall_old->nid);
+						node_delete($rainfall_old->nid);
 					}
 				}
 				
-				$node = new stdClass();
-				$node->title = date('d/m/Y H:i:s',$time);
-				$node->type = "rainfall";
-				$node->created = time();
-				$node->changed = $node->created;
-				$node->status = 1; // Published?
-				$node->promote = 0; // Display on front page?
-				$node->sticky = 0; // Display top of page?
-				$node->format = 1; // Filtered HTML?
-				$node->uid = 1; // Content owner uid (author)?
-				$node->language = 'und';
+				//tao node moi
+				$rainfall = new stdClass();
+				$rainfall->title = date('d/m/Y H:i:s',$time);
+				$rainfall->type = "rainfall";
+				$rainfall->created = time();
+				$rainfall->changed = $rainfall->created;
+				$rainfall->status = 1; // Published?
+				$rainfall->promote = 0; // Display on front page?
+				$rainfall->sticky = 0; // Display top of page?
+				$rainfall->format = 1; // Filtered HTML?
+				$rainfall->uid = 1; // Content owner uid (author)?
+				$rainfall->language = 'und';
 
-				node_object_prepare($node); 
-				$node->field_rainfall_station[$node->language][0]['nid'] = $nid;
+				node_object_prepare($rainfall); 
+				$rainfall->field_rainfall_station[$rainfall->language][0]['nid'] = $nid;
 				//lượng mưa đo được trong 10p
-				$node->field_rainfall_measuring[$node->language][0]['value'] = $measuring_interval[$i]/10;
-				$node->field_rainfall_send_time[$node->language][0]['value'] = $time;
-				$node->field_rainfall_time_send_sms[$node->language][0]['value'] = $send_time;
-				$node->field_rainfall_year_month[$node->language][0]['value'] = $year_month;
+				$rainfall->field_rainfall_measuring[$rainfall->language][0]['value'] = $measuring_interval[$i]/10;
+				$rainfall->field_rainfall_send_time[$rainfall->language][0]['value'] = $time;
+				$rainfall->field_rainfall_time_send_sms[$rainfall->language][0]['value'] = $send_time;
+				$rainfall->field_rainfall_year[$rainfall->language][0]['value'] = $year;
+				$rainfall->field_rainfall_year_month[$rainfall->language][0]['value'] = $year_month;
+				$rainfall->field_rainfall_year_month_date[$rainfall->language][0]['value'] = $year_month_date;
 				//lượng mưa đo được trong 60p
-				$node->field_rainfall_total[$node->language][0]['value'] = $arg[4][$i]/10;
+				$rainfall->field_rainfall_total[$rainfall->language][0]['value'] = $arg[4][$i]/10;
 				
-				$node = node_submit($node);
-				node_save($node);
-				
-				//lưu giá trị điện năng vào trạm đo mưa
-				$station = node_load($nid);
-				$station->field_station_power['und'][0]['value'] = $battery[$i]/10;
-				node_save($station);
+				$rainfall = node_submit($rainfall);
+				node_save($rainfall);
 			}
 		}
+		$station->field_station_power['und'][0]['value'] = $power/10;
+		node_save($station);
 	}
 	
 }
@@ -1499,7 +1503,7 @@ function _log_rainfall_form(){
   return $form;
 }
 
-function _report_rainfall_form(){
+function _report_rainfall_month_form(){
 	module_load_include('module', 'datalogger','datalogger');
 	
 	$months = array(1=>'01',2=>'02',3=>'03',4=>'04',5=>'05',6=>'06',7=>'07',8=>'08',9=>'09',10=>'10',11=>'11',12=>'12');
@@ -1530,6 +1534,7 @@ function _report_rainfall_form(){
      '#options' => _datalogger_return_city(),
   ); 
   */
+	
 	$stations = views_get_view_result('list_all_datalogger');
 	$name_stations = array();
 	foreach($stations as $station){
@@ -1582,16 +1587,22 @@ function _report_rainfall_form(){
       "#type" => "submit",
       "#value" => t("Send Now!"),
       "#submit" => array(
-          "_report_rainfall_form_submit"
+          "_report_rainfall_month_submit"
       ),
   ); 
   return $form;
 }
+<<<<<<< HEAD
+// function _report_rainfall_form_validate(&$form, &$form_state){
+// }
+function _report_rainfall_month_submit(&$form, &$form_state) {
+=======
 
 function _report_rainfall_form_validate(&$form, &$form_state){
 }
 
 function _report_rainfall_form_submit(&$form, &$form_state) {
+>>>>>>> 77edc75cb402c98fd16738417510a840a42a8dec
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	
 	$nid = $form_state['values']['station'];
