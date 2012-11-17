@@ -103,7 +103,7 @@ $datalogger_pattern = array(
  *author:Phan Văn Tuấn
  *description:tạo form xuất báo cáo theo năm
  */
-
+//
  function _datalogger_report_rainfall_year_form()
 {
 	drupal_set_title(t('Report annual rainfall data'));
