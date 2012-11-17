@@ -107,9 +107,6 @@ $datalogger_pattern = array(
  function _report_rainfall_year_form()
 {
   module_load_include('module', 'datalogger','datalogger');
-	/*
-	$months = array(1=>'01',2=>'02',3=>'03',4=>'04',5=>'05',6=>'06',7=>'07',8=>'08',9=>'09',10=>'10',11=>'11',12=>'12');
-  */
 	$years = array();
 	for($i = 0; $i <30; $i++){
 		$year = 2012 + $i;
@@ -209,7 +206,8 @@ function _report_rainfall_year_form_submit(&$form, &$form_state) {
 	$name_pt = $form_state['values']['txtNamePT'];
 	
 	$args = array($nid, $year, $name_qtv, $name_nlb, $name_ks, $name_pt);
-	
+	dsm(views_get_view_result('view_export_excel','default', 3138,2012,201211));
+	// dsm(views_get_view('view_export_excel',NULL, 3138,201210));
 	//_export_excel($args);
 }
 
@@ -217,8 +215,7 @@ function _report_rainfall_year_form_submit(&$form, &$form_state) {
  *author:Phan Văn Tuấn
  *description:tạo form xuất báo cáo theo ngày
  */
-function _report_rainfall_day_form()
-{
+function _report_rainfall_day_form(){
   module_load_include('module', 'datalogger','datalogger');
   /*
 	$months = array(1=>'01',2=>'02',3=>'03',4=>'04',5=>'05',6=>'06',7=>'07',8=>'08',9=>'09',10=>'10',11=>'11',12=>'12');
@@ -311,7 +308,7 @@ function _report_rainfall_day_form_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	
 	$nid = $form_state['values']['station'];
-  $day = (new DateTime($form_state['values']['day']))->format('Ymd');
+  // $day = (new DateTime($form_state['values']['day']))->format('Ymd');
 	$name_qtv = $form_state['values']['txtNameQTV'];
 	$name_nlb = $form_state['values']['txtNameNLB'];
 	$name_ks = $form_state['values']['txtNameKS'];
@@ -1591,23 +1588,9 @@ function _report_rainfall_month_form(){
   ); 
   return $form;
 }
-<<<<<<< HEAD
-// function _report_rainfall_form_validate(&$form, &$form_state){
-// }
-function _report_rainfall_month_submit(&$form, &$form_state) {
-=======
-
-
-
-
-
-
-
-
 function _report_rainfall_form_validate(&$form, &$form_state){
 }
 function _report_rainfall_form_submit(&$form, &$form_state) {
->>>>>>> 77edc75cb402c98fd16738417510a840a42a8dec
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	
 	$nid = $form_state['values']['station'];
