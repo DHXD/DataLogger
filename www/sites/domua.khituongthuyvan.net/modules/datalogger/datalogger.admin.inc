@@ -116,10 +116,10 @@ $datalogger_pattern = array(
 	
   $form['selectReport'] = array(
     '#type' => 'select',
-    '#title' => t('Chọn loại hình báo cáo: '),
+    '#title' => t('Select the type of report: '),
     '#options' => array(
       // 0 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKt-5'),
-      'bk1' => t('Báo cáo số liệu mưa theo mẫu báo cáo BKT-14'),
+      'bk1' => t('Reported rainfall data in report form BKT-14'),
      ),
   );
 	/*
@@ -142,13 +142,13 @@ $datalogger_pattern = array(
 	}
   $form['station'] = array(
      '#type' => 'select',
-     '#title' => t('Chọn trạm: '),
+     '#title' => t('Select station: '),
      '#options' => $name_stations,
   );   
 	
 	$form['year'] = array(
      '#type' => 'select',
-     '#title' => t('Năm'),
+     '#title' => t('Year'),
      '#options' => $years,
 		 // '#required' => TRUE,	
   );         
@@ -166,22 +166,22 @@ $datalogger_pattern = array(
 	
   $form['txtNameQTV'] = array(
      '#type' => 'textfield',
-     '#title' => t('Họ tên quan trắc viên: '),
+     '#title' => t('Full name of the person observation: '),
   );  
   
   $form['txtNameNLB'] = array(
      '#type' => 'textfield',
-     '#title' => t('Họ tên người lập bảng: '),
+     '#title' => t('Full name of the person creating the table: '),
   );    
   
   $form['txtNameKS'] = array(
      '#type' => 'textfield',
-     '#title' => t('Họ tên người kiểm soát: '),
+     '#title' => t('Full name of the person control: '),
   );    
   
   $form['txtNamePT'] = array(
      '#type' => 'textfield',
-     '#title' => t('Họ tên người phúc thẩm: '),
+     '#title' => t('Full name of person Appeal: '),
   );
   $form["submit"] = array(
       "#type" => "submit",
@@ -222,10 +222,10 @@ function _datalogger_report_rainfall_day_form(){
 
 	$form['selectReport'] = array(
     '#type' => 'select',
-    '#title' => t('Chọn loại hình báo cáo: '),
+    '#title' => t('Select the type of report: '),
     '#options' => array(
       // 0 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKt-5'),
-      'bk1' => t('Báo cáo số liệu mưa theo mẫu báo cáo BKT-14'),
+      'bk1' => t('Reported rainfall data in report form BKT-14'),
      ),
   );
 
@@ -237,34 +237,35 @@ function _datalogger_report_rainfall_day_form(){
 	
   $form['station'] = array(
      '#type' => 'select',
-     '#title' => t('Chọn trạm: '),
+     '#title' => t('Select station: '),
      '#options' => $name_stations,
   );   
 
 	$form['day']= array(
     '#type' => 'date_popup',
+    //'#title' => t('Day'),
 		'#date_format' => 'd/m/Y', 
 		'#required' => TRUE,	
   );
 	
   $form['txtNameQTV'] = array(
      '#type' => 'textfield',
-     '#title' => t('Họ tên quan trắc viên: '),
+     '#title' => t('Full name of the person observation: '),
   );  
   
   $form['txtNameNLB'] = array(
      '#type' => 'textfield',
-     '#title' => t('Họ tên người lập bảng: '),
+     '#title' => t('Full name of the person creating the table: '),
   );    
   
   $form['txtNameKS'] = array(
      '#type' => 'textfield',
-     '#title' => t('Họ tên người kiểm soát: '),
+     '#title' => t('Full name of the person control: '),
   );    
   
   $form['txtNamePT'] = array(
      '#type' => 'textfield',
-     '#title' => t('Họ tên người phúc thẩm: '),
+     '#title' => t('Full name of person Appeal: '),
   );
   $form["submit"] = array(
       "#type" => "submit",
@@ -1489,10 +1490,13 @@ function _datalogger_report_rainfall_month_form(){
 	
   $form['selectReport'] = array(
     '#type' => 'select',
-    '#title' => t('Chọn loại hình báo cáo: '),
+    //'#title' => t('Chọn loại hình báo cáo: '),
+    '#title' => t('Select the type of report: '),
     '#options' => array(
       // 0 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKt-5'),
-      'bk1' => t('Báo cáo số liệu mưa theo mẫu báo cáo BKT-14'),
+      //'bk1' => t('Báo cáo số liệu mưa theo mẫu báo cáo BKT-14'),
+      'bk1' => t('Reported rainfall data in report form BKT-14'),
+      
      ),
   );
 	/*
@@ -1516,19 +1520,22 @@ function _datalogger_report_rainfall_month_form(){
 	}
   $form['station'] = array(
      '#type' => 'select',
-     '#title' => t('Chọn trạm: '),
+     //'#title' => t('Chọn trạm: '),
+     '#title' => t('Select station: '),
      '#options' => $name_stations,
   );   
 	
 	$form['year'] = array(
      '#type' => 'select',
-     '#title' => t('Năm'),
+     //'#title' => t('Năm'),
+     '#title' => t('Year'),
      '#options' => $years,
   );         
 	
 	$form['month'] = array(
      '#type' => 'select',
-     '#title' => t('Tháng'),
+     //'#title' => t('Tháng'),
+     '#title' => t('Month'),
      '#options' => $months,
   );  
 	
@@ -1540,22 +1547,27 @@ function _datalogger_report_rainfall_month_form(){
 	
   $form['txtNameQTV'] = array(
      '#type' => 'textfield',
-     '#title' => t('Họ tên quan trắc viên: '),
+     //'#title' => t('Họ tên quan trắc viên: '),
+     '#title' => t('Full name of the person observation: '),
   );  
   
   $form['txtNameNLB'] = array(
      '#type' => 'textfield',
-     '#title' => t('Họ tên người lập bảng: '),
+     //'#title' => t('Họ tên người lập bảng: '),
+     '#title' => t('Full name of the person creating the table: '),
+     
   );    
   
   $form['txtNameKS'] = array(
      '#type' => 'textfield',
-     '#title' => t('Họ tên người kiểm soát: '),
+     //'#title' => t('Họ tên người kiểm soát: '),
+     '#title' => t('Full name of the person control: '),
   );    
   
   $form['txtNamePT'] = array(
      '#type' => 'textfield',
-     '#title' => t('Họ tên người phúc thẩm: '),
+     //'#title' => t('Họ tên người phúc thẩm: '),
+     '#title' => t('Full name of person Appeal: '),
   );
   $form["submit"] = array(
       "#type" => "submit",
