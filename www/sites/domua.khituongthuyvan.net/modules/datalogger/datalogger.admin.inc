@@ -623,7 +623,7 @@ function _datalogger_check_inbox() {
 				// dsm('into 140');
 				_datalogger_separate_sms($sms,$number);
 				// Cập nhật các bản tin đã xử lý
-				// _datalogger_update_process_inbox(1,$id_inbox);
+				_datalogger_update_process_inbox(1,$id_inbox);
       }			
 			else _datalogger_update_process_inbox(2,$id_inbox);
     }

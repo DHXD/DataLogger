@@ -56,14 +56,13 @@ function _export_excel($args){
     {
       $objPHPExcel->createSheet();
     }
-//echo date('H:i:s') , " Add some data" , PHP_EOL;
     
+		//sheet luôn bắt đầy từ 0
     $objPHPExcel->setActiveSheetIndex($number - 1);
     //$objPHPExcel->setActiveSheetIndex(0);
     $objPHPExcel->getActiveSheet()->setCellValue('B1', 'Trạm');
     $objPHPExcel->getActiveSheet()->setCellValue('F1', 'Tháng');
     $objPHPExcel->getActiveSheet()->setCellValue('H1', 'Năm');
-    //$objPHPExcel->getActiveSheet()->setCellValue('J1', 'Trang 4');
     $objPHPExcel->getActiveSheet()->setCellValue('A2', 'LƯỢNG GIÁNG THỦY LỚN NHẤT');
     $objPHPExcel->getActiveSheet()->setCellValue('B3', 'Trong 60 phút');
     $objPHPExcel->getActiveSheet()->setCellValue('D3', 'Trong một đợt liên tục');
@@ -93,14 +92,7 @@ function _export_excel($args){
     $objPHPExcel->getActiveSheet()->setCellValue('D7', '3');
     $objPHPExcel->getActiveSheet()->setCellValue('E7', '4');
     
-    $objPHPExcel->getActiveSheet()->setCellValue('F15', 'Quan trắc viên');
-    $objPHPExcel->getActiveSheet()->setCellValue('F16', 'Người lập bảng');
-    $objPHPExcel->getActiveSheet()->setCellValue('F17', 'Người kiểm soát');
-    $objPHPExcel->getActiveSheet()->setCellValue('F18', 'Người phúc thẩm');
-    $objPHPExcel->getActiveSheet()->setCellValue('G15', "$name_qtv");
-    $objPHPExcel->getActiveSheet()->setCellValue('G16', "$name_nlb");
-    $objPHPExcel->getActiveSheet()->setCellValue('G17', "$name_ks");
-    $objPHPExcel->getActiveSheet()->setCellValue('G18', "$name_pt");
+    
     
     $objPHPExcel->getActiveSheet()->mergeCells('A2:E2');
     $objPHPExcel->getActiveSheet()->mergeCells('A3:A6');
@@ -261,6 +253,16 @@ function _export_excel($args){
     $objPHPExcel->getActiveSheet()->setCellValue('I8', '10');//
     $objPHPExcel->getActiveSheet()->setCellValue('H10' , '=MAX(D8:D152)');
     $objPHPExcel->getActiveSheet()->setCellValue('I10', '60');
+		
+		//phan ghi chú:
+		$objPHPExcel->getActiveSheet()->setCellValue('F15', 'Quan trắc viên');
+    $objPHPExcel->getActiveSheet()->setCellValue('F16', 'Người lập bảng');
+    $objPHPExcel->getActiveSheet()->setCellValue('F17', 'Người kiểm soát');
+    $objPHPExcel->getActiveSheet()->setCellValue('F18', 'Người phúc thẩm');
+    $objPHPExcel->getActiveSheet()->setCellValue('G15', "$name_qtv");
+    $objPHPExcel->getActiveSheet()->setCellValue('G16', "$name_nlb");
+    $objPHPExcel->getActiveSheet()->setCellValue('G17', "$name_ks");
+    $objPHPExcel->getActiveSheet()->setCellValue('G18', "$name_pt");
      
     //set font
     $objPHPExcel->getActiveSheet()->getStyle('A1:J152')->getFont()->setName('Times New Roman');

@@ -253,7 +253,7 @@ ini_set('display_errors', 1);
       array (
         'default' => 
         array (
-          'database' => 'datalogger',
+          'database' => 'datalogger2',
           'username' => 'root',
           'password' => 'root',
           'host' => 'localhost',
