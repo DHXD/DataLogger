@@ -139,7 +139,7 @@ function datalogger_menu() {
     'title' => 'Báo cáo số liệu mưa theo năm',
 		'page callback' => 'drupal_get_form',
     'page arguments' => array(
-        '_report_rainfall_form_year'
+        '_report_rainfall_year_form'
     ),
     // 'page callback' => '_report_rainfall_form',
     'file' => 'datalogger.admin.inc',
@@ -154,7 +154,7 @@ function datalogger_menu() {
     'title' => 'Báo cáo số liệu mưa theo ngày',
 		'page callback' => 'drupal_get_form',
     'page arguments' => array(
-        '_report_rainfall_form_day'
+        '_report_rainfall_day_form'
     ),
     // 'page callback' => '_report_rainfall_form',
     'file' => 'datalogger.admin.inc',

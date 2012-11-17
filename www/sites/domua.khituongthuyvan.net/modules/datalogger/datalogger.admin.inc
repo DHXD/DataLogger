@@ -104,7 +104,7 @@ $datalogger_pattern = array(
  *description:tạo form xuất báo cáo theo năm
  */
 
- function _report_rainfall_form_year()
+ function _report_rainfall_year_form()
 {
   module_load_include('module', 'datalogger','datalogger');
 	/*
@@ -188,13 +188,13 @@ $datalogger_pattern = array(
       "#type" => "submit",
       "#value" => t("Send Now!"),
       "#submit" => array(
-          "_report_rainfall_form_submit_year"
+          "_report_rainfall_year_form_submit"
       ),
   ); 
   return $form;
 }
-/*
-function _report_rainfall_form_submit_year(&$form, &$form_state) {
+
+function _report_rainfall_year_form_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	
 	$nid = $form_state['values']['station'];
@@ -210,14 +210,14 @@ function _report_rainfall_form_submit_year(&$form, &$form_state) {
 	
 	$args = array($nid, $year, $name_qtv, $name_nlb, $name_ks, $name_pt);
 	
-	_export_excel($args);
+	//_export_excel($args);
 }
-*/
+
 /**
  *author:Phan Văn Tuấn
  *description:tạo form xuất báo cáo theo ngày
  */
-function _report_rainfall_form_day()
+function _report_rainfall_day_form()
 {
   module_load_include('module', 'datalogger','datalogger');
   /*
@@ -273,7 +273,7 @@ function _report_rainfall_form_day()
   );  
 	*/
 
-	$form['day_month_year']= array(
+	$form['day']= array(
     '#type' => 'date_popup',
 		'#date_format' => 'd/m/Y', 
   );
@@ -301,32 +301,28 @@ function _report_rainfall_form_day()
       "#type" => "submit",
       "#value" => t("Send Now!"),
       "#submit" => array(
-          "_report_rainfall_form_submit_day"
+          "_report_rainfall_day_form_submit"
       ),
   ); 
   return $form;
 }
-/*
-function _report_rainfall_form_submit_day(&$form, &$form_state) {
+
+function _report_rainfall_day_form_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	
 	$nid = $form_state['values']['station'];
-  
-	//$year = $form_state['values']['year'];
-	//$month = $form_state['values']['month'];
-	//$year_month = $year.$month;
-  
-  $day_month_year = $form_state['values']['date_popup'];
+  $day = (new DateTime($form_state['values']['day']))->format('Ymd');
 	$name_qtv = $form_state['values']['txtNameQTV'];
 	$name_nlb = $form_state['values']['txtNameNLB'];
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
+	$flag = 'date';
+  
+	$args = array($nid, $flag, $day, $name_qtv, $name_nlb, $name_ks, $name_pt);
 	
-	$args = array($nid, $day_month_year, $name_qtv, $name_nlb, $name_ks, $name_pt);
-	
-	_export_excel($args);
+	//_export_excel($args);
 }
-*/
+
 function _datalogger_send_command($nid, $select, $form, &$form_state) {
 	//$nids = arg();
 	define('DATEymdHis', date('ymdHis',time()));  
