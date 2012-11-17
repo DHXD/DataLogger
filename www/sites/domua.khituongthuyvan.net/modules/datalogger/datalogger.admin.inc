@@ -207,8 +207,9 @@ function _report_rainfall_year_form_submit(&$form, &$form_state) {
 	$name_nlb = $form_state['values']['txtNameNLB'];
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
-	
-	$args = array($nid, $year, $name_qtv, $name_nlb, $name_ks, $name_pt);
+	$flag = 'year';
+  
+	$args = array($nid, $flag, $year, $name_qtv, $name_nlb, $name_ks, $name_pt);
 	
 	//_export_excel($args);
 }
@@ -1587,15 +1588,9 @@ function _report_rainfall_form(){
   return $form;
 }
 
-
-
-
-
-
-
-
 function _report_rainfall_form_validate(&$form, &$form_state){
 }
+
 function _report_rainfall_form_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	
