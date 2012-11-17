@@ -98,6 +98,231 @@ $datalogger_pattern = array(
 		// 38 => t('Reset All'),);	
 
 
+/**
+ *Begin: 17/11. 
+ *author:Phan Văn Tuấn
+ *description:tạo form xuất báo cáo theo năm
+ */
+
+ function _report_rainfall_year_form()
+{
+  module_load_include('module', 'datalogger','datalogger');
+	/*
+	$months = array(1=>'01',2=>'02',3=>'03',4=>'04',5=>'05',6=>'06',7=>'07',8=>'08',9=>'09',10=>'10',11=>'11',12=>'12');
+  */
+	$years = array();
+	for($i = 0; $i <30; $i++){
+		$year = 2012 + $i;
+		$years[$year] = $year;
+	}
+	
+  $form['selectReport'] = array(
+    '#type' => 'select',
+    '#title' => t('Chọn loại hình báo cáo: '),
+    '#options' => array(
+      // 0 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKt-5'),
+      'bk1' => t('Báo cáo số liệu mưa theo mẫu báo cáo BKT-14'),
+     ),
+  );
+	/*
+  $form['selectArea'] = array(
+    '#type' => 'select',
+    '#title' => t('Chọn khu vực: '),
+    '#options' => _datalogger_return_area(),
+  );
+   
+  $form['selectProvince'] = array(
+     '#type' => 'select',
+     '#title' => t('Chọn Tỉnh/ Thành phố: '),
+     '#options' => _datalogger_return_city(),
+  ); 
+  */
+	$stations = views_get_view_result('list_all_datalogger');
+	$name_stations = array();
+	foreach($stations as $station){
+		$name_stations[$station->nid] = $station->node_title;
+	}
+  $form['station'] = array(
+     '#type' => 'select',
+     '#title' => t('Chọn trạm: '),
+     '#options' => $name_stations,
+  );   
+	
+	$form['year'] = array(
+     '#type' => 'select',
+     '#title' => t('Năm'),
+     '#options' => $years,
+  );         
+	
+	//$form['month'] = array(
+    // '#type' => 'select',
+     //'#title' => t('Tháng'),
+     //'#options' => $months,
+  //);  
+
+	// $form['month_year']= array(
+    // '#type' => 'date',
+		// '#date_format' => 'Y:m', 
+  // );
+	
+  $form['txtNameQTV'] = array(
+     '#type' => 'textfield',
+     '#title' => t('Họ tên quan trắc viên: '),
+  );  
+  
+  $form['txtNameNLB'] = array(
+     '#type' => 'textfield',
+     '#title' => t('Họ tên người lập bảng: '),
+  );    
+  
+  $form['txtNameKS'] = array(
+     '#type' => 'textfield',
+     '#title' => t('Họ tên người kiểm soát: '),
+  );    
+  
+  $form['txtNamePT'] = array(
+     '#type' => 'textfield',
+     '#title' => t('Họ tên người phúc thẩm: '),
+  );
+  $form["submit"] = array(
+      "#type" => "submit",
+      "#value" => t("Send Now!"),
+      "#submit" => array(
+          "_report_rainfall_year_form_submit"
+      ),
+  ); 
+  return $form;
+}
+
+function _report_rainfall_year_form_submit(&$form, &$form_state) {
+	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
+	
+	$nid = $form_state['values']['station'];
+	$year = $form_state['values']['year'];
+  
+	//$month = $form_state['values']['month'];
+	//$year_month = $year.$month;
+  
+	$name_qtv = $form_state['values']['txtNameQTV'];
+	$name_nlb = $form_state['values']['txtNameNLB'];
+	$name_ks = $form_state['values']['txtNameKS'];
+	$name_pt = $form_state['values']['txtNamePT'];
+	
+	$args = array($nid, $year, $name_qtv, $name_nlb, $name_ks, $name_pt);
+	
+	//_export_excel($args);
+}
+
+/**
+ *author:Phan Văn Tuấn
+ *description:tạo form xuất báo cáo theo ngày
+ */
+function _report_rainfall_day_form()
+{
+  module_load_include('module', 'datalogger','datalogger');
+  /*
+	$months = array(1=>'01',2=>'02',3=>'03',4=>'04',5=>'05',6=>'06',7=>'07',8=>'08',9=>'09',10=>'10',11=>'11',12=>'12');
+	$years = array();
+	for($i = 0; $i <30; $i++){
+		$year = 2012 + $i;
+		$years[$year] = $year;
+	}
+	*/
+  $form['selectReport'] = array(
+    '#type' => 'select',
+    '#title' => t('Chọn loại hình báo cáo: '),
+    '#options' => array(
+      // 0 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKt-5'),
+      'bk1' => t('Báo cáo số liệu mưa theo mẫu báo cáo BKT-14'),
+     ),
+  );
+	/*
+  $form['selectArea'] = array(
+    '#type' => 'select',
+    '#title' => t('Chọn khu vực: '),
+    '#options' => _datalogger_return_area(),
+  );
+   
+  $form['selectProvince'] = array(
+     '#type' => 'select',
+     '#title' => t('Chọn Tỉnh/ Thành phố: '),
+     '#options' => _datalogger_return_city(),
+  ); 
+  */
+	$stations = views_get_view_result('list_all_datalogger');
+	$name_stations = array();
+	foreach($stations as $station){
+		$name_stations[$station->nid] = $station->node_title;
+	}
+  $form['station'] = array(
+     '#type' => 'select',
+     '#title' => t('Chọn trạm: '),
+     '#options' => $name_stations,
+  );   
+	/*
+	$form['year'] = array(
+     '#type' => 'select',
+     '#title' => t('Năm'),
+     '#options' => $years,
+  );         
+	
+	$form['month'] = array(
+     '#type' => 'select',
+     '#title' => t('Tháng'),
+     '#options' => $months,
+  );  
+	*/
+
+	$form['day']= array(
+    '#type' => 'date_popup',
+		'#date_format' => 'd/m/Y', 
+  );
+	
+  $form['txtNameQTV'] = array(
+     '#type' => 'textfield',
+     '#title' => t('Họ tên quan trắc viên: '),
+  );  
+  
+  $form['txtNameNLB'] = array(
+     '#type' => 'textfield',
+     '#title' => t('Họ tên người lập bảng: '),
+  );    
+  
+  $form['txtNameKS'] = array(
+     '#type' => 'textfield',
+     '#title' => t('Họ tên người kiểm soát: '),
+  );    
+  
+  $form['txtNamePT'] = array(
+     '#type' => 'textfield',
+     '#title' => t('Họ tên người phúc thẩm: '),
+  );
+  $form["submit"] = array(
+      "#type" => "submit",
+      "#value" => t("Send Now!"),
+      "#submit" => array(
+          "_report_rainfall_day_form_submit"
+      ),
+  ); 
+  return $form;
+}
+
+function _report_rainfall_day_form_submit(&$form, &$form_state) {
+	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
+	
+	$nid = $form_state['values']['station'];
+  $day = (new DateTime($form_state['values']['day']))->format('Ymd');
+	$name_qtv = $form_state['values']['txtNameQTV'];
+	$name_nlb = $form_state['values']['txtNameNLB'];
+	$name_ks = $form_state['values']['txtNameKS'];
+	$name_pt = $form_state['values']['txtNamePT'];
+	$flag = 'date';
+  
+	$args = array($nid, $flag, $day, $name_qtv, $name_nlb, $name_ks, $name_pt);
+	
+	//_export_excel($args);
+}
+
 function _datalogger_send_command($nid, $select, $form, &$form_state) {
 	//$nids = arg();
 	define('DATEymdHis', date('ymdHis',time()));  
@@ -1366,9 +1591,23 @@ function _report_rainfall_month_form(){
   ); 
   return $form;
 }
+<<<<<<< HEAD
 // function _report_rainfall_form_validate(&$form, &$form_state){
 // }
 function _report_rainfall_month_submit(&$form, &$form_state) {
+=======
+
+
+
+
+
+
+
+
+function _report_rainfall_form_validate(&$form, &$form_state){
+}
+function _report_rainfall_form_submit(&$form, &$form_state) {
+>>>>>>> 77edc75cb402c98fd16738417510a840a42a8dec
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	
 	$nid = $form_state['values']['station'];
