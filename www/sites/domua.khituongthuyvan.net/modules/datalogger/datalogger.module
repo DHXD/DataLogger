@@ -129,7 +129,38 @@ function datalogger_send_command_action(&$object, $context = array()){
  */
  
 function datalogger_menu() {
-	
+
+/**
+ *Begin: 17/11. 
+ *author: Phan Văn Tuấn
+ *description: tạo menu xuất báo cáo theo năm
+ */
+  $items['manage/report/rainfalls/year'] = array(
+    'title' => 'Báo cáo số liệu mưa theo năm',
+		'page callback' => 'drupal_get_form',
+    'page arguments' => array(
+        '_report_rainfall_form_year'
+    ),
+    // 'page callback' => '_report_rainfall_form',
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+  );
+
+/**
+ *author: Phan Văn Tuấn
+ *description: tạo menu xuất báo cáo theo ngày
+ */
+  $items['manage/report/rainfalls/day'] = array(
+    'title' => 'Báo cáo số liệu mưa theo ngày',
+		'page callback' => 'drupal_get_form',
+    'page arguments' => array(
+        '_report_rainfall_form_day'
+    ),
+    // 'page callback' => '_report_rainfall_form',
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+  );
+
 /**
 	*Begin date:10-10-12
  *Tạo menu gọi lại menu command
@@ -411,7 +442,6 @@ function datalogger_menu() {
       'access callback' => TRUE
   );
  
-  //test phpexcel
   $items['phpexcel'] = array(
       'title' => t('Export to excel'),
       'page callback' => '_export_excel',

@@ -92,6 +92,11 @@ function _export_excel($args){
     $objPHPExcel->getActiveSheet()->setCellValue('D7', '3');
     $objPHPExcel->getActiveSheet()->setCellValue('E7', '4');
     
+    //phan ghi chú:
+		$objPHPExcel->getActiveSheet()->setCellValue('F15', 'Quan trắc viên');
+    $objPHPExcel->getActiveSheet()->setCellValue('F16', 'Người lập bảng');
+    $objPHPExcel->getActiveSheet()->setCellValue('F17', 'Người kiểm soát');
+    $objPHPExcel->getActiveSheet()->setCellValue('F18', 'Người phúc thẩm');
     
     
     $objPHPExcel->getActiveSheet()->mergeCells('A2:E2');
@@ -225,7 +230,7 @@ function _export_excel($args){
     }
     */
     //echo array_values($rainfall);
-    for($k = $j; $k < 2 * $number; $k++)
+    for($k = $j; $k < 152 * $number; $k++)
     {
       $date = $rainfalls[$k]->node_title;
       $interval = $rainfalls[$k]->field_field_rainfall_measuring[0]['raw']['value'];
@@ -253,12 +258,7 @@ function _export_excel($args){
     $objPHPExcel->getActiveSheet()->setCellValue('I8', '10');//
     $objPHPExcel->getActiveSheet()->setCellValue('H10' , '=MAX(D8:D152)');
     $objPHPExcel->getActiveSheet()->setCellValue('I10', '60');
-		
-		//phan ghi chú:
-		$objPHPExcel->getActiveSheet()->setCellValue('F15', 'Quan trắc viên');
-    $objPHPExcel->getActiveSheet()->setCellValue('F16', 'Người lập bảng');
-    $objPHPExcel->getActiveSheet()->setCellValue('F17', 'Người kiểm soát');
-    $objPHPExcel->getActiveSheet()->setCellValue('F18', 'Người phúc thẩm');
+
     $objPHPExcel->getActiveSheet()->setCellValue('G15', "$name_qtv");
     $objPHPExcel->getActiveSheet()->setCellValue('G16', "$name_nlb");
     $objPHPExcel->getActiveSheet()->setCellValue('G17', "$name_ks");
