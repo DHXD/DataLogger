@@ -106,6 +106,7 @@ $datalogger_pattern = array(
 
  function _datalogger_report_rainfall_year_form()
 {
+	drupal_set_title(t('Report annual rainfall data'));
   module_load_include('module', 'datalogger','datalogger');
 	$years = array();
 	for($i = 0; $i <30; $i++){
@@ -1476,6 +1477,7 @@ function _log_rainfall_form(){
 }
 
 function _datalogger_report_rainfall_month_form(){
+	drupal_set_title(t('Report monthly rainfall data'));
 	module_load_include('module', 'datalogger','datalogger');
 	
 	$months = array(1=>'01',2=>'02',3=>'03',4=>'04',5=>'05',6=>'06',7=>'07',8=>'08',9=>'09',10=>'10',11=>'11',12=>'12');

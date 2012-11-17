@@ -136,8 +136,15 @@ function datalogger_menu() {
  *description: tạo menu xuất báo cáo theo năm+ngay
  */
  
+  $items['manage/report/rainfalls/day'] = array(
+    'title' => 'Daily rainfall data reports',
+    'access arguments' => array('manage data'),
+		'type' => MENU_DEFAULT_LOCAL_TASK, 
+		'weight' => -25,
+  );
+	
  $items['manage/report/rainfalls'] = array(
-    'title' => 'Báo cáo số liệu mưa theo ngày',
+    'title' => 'Daily rainfall data reports',
 		'page callback' => 'drupal_get_form',
     'page arguments' => array(
         '_datalogger_report_rainfall_day_form'
@@ -148,15 +155,9 @@ function datalogger_menu() {
 		'weight' => -26,
 	);
 	
-  $items['manage/report/rainfalls/day'] = array(
-    'title' => 'Báo cáo số liệu mưa theo ngày',
-    'access arguments' => array('manage data'),
-		'type' => MENU_DEFAULT_LOCAL_TASK, 
-		'weight' => -25,
-  );
   
   $items['manage/report/rainfalls/year'] = array(
-    'title' => 'Báo cáo số liệu mưa theo năm',
+    'title' => 'Report annual rainfall data',
 		'page callback' => 'drupal_get_form',
     'page arguments' => array(
         '_datalogger_report_rainfall_year_form'
@@ -320,12 +321,11 @@ function datalogger_menu() {
   );
  
  $items['manage/report/rainfalls/month'] = array(
-    'title' => 'Báo cáo số liệu Mưa theo tháng',
+    'title' => 'Report monthly rainfall data',
 		'page callback' => 'drupal_get_form',
     'page arguments' => array(
         '_datalogger_report_rainfall_month_form'
     ),
-    // 'page callback' => '_report_rainfall_form',
     'file' => 'datalogger.admin.inc',
     'access arguments' => array('manage data'),
 		 'type' => MENU_LOCAL_TASK,
@@ -508,9 +508,6 @@ function datalogger_permission() {
  * Implements hook_menu_alter().
  */
 function datalogger_menu_alter(&$items) {
-	if($items['manage/report/rainfalls/year']){
-		drupal_set_title('Báo cáo số liệu mưa theo năm');
-	}
   $items['node/%node/view']['title callback'] = '_datalogger_station_title_callback';
   $items['node/%node/view']['title arguments'] = array(1);
 } 
