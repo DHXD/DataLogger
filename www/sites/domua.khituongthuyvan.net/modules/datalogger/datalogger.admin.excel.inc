@@ -1,31 +1,14 @@
 <?php
-
-
 error_reporting(E_ALL);
 require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel.php';
 
-function _datalogger_insert_data_rainfall($arg){
-	$nid = 3138;
-	$year_month = 201211;
-	$i = 8;
-	foreach($rainfalls as $rainfall){
-		$date = $rainfall->node_title;
-		$interval = $rainfall->field_field_rainfall_measuring[0]['raw']['value'];
-		$total = $rainfall->field_field_rainfall_total[0]['raw']['value'];
-    $cell->setCellValue('A' . $i, $date);
-		$cell->setCellValue('B'.$i,$interval);//luong mưa 10'
-		$cell->setCellValue('C'.$i,"10");//thoi gian keo dai 10'
-		$cell->setCellValue('D'.$i,$total);//luong mua mot dot quan trac
-		$cell->setCellValue('E'.$i,"60");//thoi gian keo dai mot dot quan trac
-		$i++;
-  }
-}
-//
 function _export_excel($args){
 	//node id
 	$nid = $args[0];
 	//year month
-	$year_month = $args[1];
+	// $year_month = $args[1];
+	 $rainfalls = $args[1];
+  // $rainfalls = views_get_view_result('view_export_excel',NULL, $nid, $year_month,all);
 	//ten nguoi quan trac vien
 	$name_qtv = $args[2];
 	//ten nguoi lap bao cao
@@ -45,7 +28,7 @@ function _export_excel($args){
                  ->setKeywords("office 2007 openxml php")
                  ->setCategory("Test result file");
   
-  $rainfalls = views_get_view_result('view_export_excel',NULL, $nid, $year_month,all);
+  // $rainfalls = views_get_view_result('view_export_excel',NULL, $nid, $year_month,all);
   //tong so rows
   $rowcount = count($rainfalls);
   //tong so sheet
@@ -191,7 +174,7 @@ function _export_excel($args){
             'horizontal' => PHPExcel_Style_Alignment::HORIZONTAL_CENTER,
             )
     );
-    $objPHPExcel->getActiveSheet()->getStyle('A2:E152')->applyFromArray($styleAlignments);
+    $objPHPExcel->getActiveSheet()->getStyle('A2:E165')->applyFromArray($styleAlignments);
     $objPHPExcel->getActiveSheet()->getStyle('F2:I10')->applyFromArray($styleAlignments);
     $objPHPExcel->getActiveSheet()->getStyle('F2:I10')->applyFromArray(
         array(
@@ -212,25 +195,8 @@ function _export_excel($args){
     
     
 
-    // $nid = 3138;
-    // $year_month = 201211;
-    //$rainfalls = views_get_view_result('view_export_excel',NULL, $nid, $year_month);
     $cell = $objPHPExcel->getActiveSheet();
     $i = 8;
-    /*
-    foreach($rainfalls as $rainfall){
-      $date = $rainfall->node_title;
-      $interval = $rainfall->field_field_rainfall_measuring[0]['raw']['value'];
-      $total = $rainfall->field_field_rainfall_total[0]['raw']['value'];
-      $cell->setCellValue('A' . $i, $date);
-      $cell->setCellValue('B'.$i,$interval);//luong mưa 10'
-      $cell->setCellValue('C'.$i,"10");//thoi gian keo dai 10'
-      $cell->setCellValue('D'.$i,$total);//luong mua mot dot quan trac
-      $cell->setCellValue('E'.$i,"60");//thoi gian keo dai mot dot quan trac
-      $i++;
-    }
-    */
-    //echo array_values($rainfall);
     for($k = $j; $k < 152 * $number; $k++)
     {
       $date = $rainfalls[$k]->node_title;
@@ -244,17 +210,17 @@ function _export_excel($args){
       $i++;
     }
     $j = $k;
-    // */
-    // $cell = $objPHPExcel->getActiveSheet();
-    // _datalogger_insert_data_rainfall($nid, $year_month, &$cell);
     
     $name_station = node_load($nid);
     //trạm đo mưa
     $objPHPExcel->getActiveSheet()->setCellValue('C1', $name_station->title);
-    //tháng
-    $objPHPExcel->getActiveSheet()->setCellValue('G1', substr($year_month,4,2));
+    // //tháng
+    // $objPHPExcel->getActiveSheet()->setCellValue('G1', substr($year_month,4,2));
+    // //năm
+    // $objPHPExcel->getActiveSheet()->setCellValue('I1', substr($year_month,0,4));//tháng
+    $objPHPExcel->getActiveSheet()->setCellValue('G1',date('m',time()));
     //năm
-    $objPHPExcel->getActiveSheet()->setCellValue('I1', substr($year_month,0,4));
+    $objPHPExcel->getActiveSheet()->setCellValue('I1', date('Y',time()));
     $objPHPExcel->getActiveSheet()->setCellValue('H8' , '=MAX(B8:B152)');
     $objPHPExcel->getActiveSheet()->setCellValue('I8', '10');//
     $objPHPExcel->getActiveSheet()->setCellValue('H10' , '=MAX(D8:D152)');
@@ -276,8 +242,6 @@ function _export_excel($args){
     $objPHPExcel->getActiveSheet()->getStyle('H8:J11')->getFont()->setSize(10);
     $objPHPExcel->getActiveSheet()->getStyle('A8:A152')->getFont()->setSize(12);
     
-    //rename sheet
-    //$namesheet = $number + 1;
     $objPHPExcel->getActiveSheet()->setTitle('Trang '."$number");
     
   }

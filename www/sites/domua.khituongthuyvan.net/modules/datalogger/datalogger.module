@@ -133,33 +133,40 @@ function datalogger_menu() {
 /**
  *Begin: 17/11. 
  *author: Phan Văn Tuấn
- *description: tạo menu xuất báo cáo theo năm
+ *description: tạo menu xuất báo cáo theo năm+ngay
  */
+ 
+ $items['manage/report/rainfalls'] = array(
+    'title' => 'Báo cáo số liệu mưa theo ngày',
+		'page callback' => 'drupal_get_form',
+    'page arguments' => array(
+        '_datalogger_report_rainfall_day_form'
+    ),
+    'file' => 'datalogger.admin.inc',
+    'access arguments' => array('manage data'),
+		'type' => MENU_NORMAL_ITEM, 
+		'weight' => -26,
+	);
+	
+  $items['manage/report/rainfalls/day'] = array(
+    'title' => 'Báo cáo số liệu mưa theo ngày',
+    'access arguments' => array('manage data'),
+		'type' => MENU_DEFAULT_LOCAL_TASK, 
+		'weight' => -25,
+  );
+  
   $items['manage/report/rainfalls/year'] = array(
     'title' => 'Báo cáo số liệu mưa theo năm',
 		'page callback' => 'drupal_get_form',
     'page arguments' => array(
-        '_report_rainfall_year_form'
+        '_datalogger_report_rainfall_year_form'
     ),
-    // 'page callback' => '_report_rainfall_form',
     'file' => 'datalogger.admin.inc',
     'access arguments' => array('manage data'),
+		'type' => MENU_LOCAL_TASK,
+		'weight' => -23,
   );
 
-/**
- *author: Phan Văn Tuấn
- *description: tạo menu xuất báo cáo theo ngày
- */
-  $items['manage/report/rainfalls/day'] = array(
-    'title' => 'Báo cáo số liệu mưa theo ngày',
-		'page callback' => 'drupal_get_form',
-    'page arguments' => array(
-        '_report_rainfall_day_form'
-    ),
-    // 'page callback' => '_report_rainfall_form',
-    'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
-  );
 
 /**
 	*Begin date:10-10-12
@@ -312,15 +319,17 @@ function datalogger_menu() {
     'access arguments' => array('manage data'),
   );
  
- $items['manage/report/rainfalls'] = array(
+ $items['manage/report/rainfalls/month'] = array(
     'title' => 'Báo cáo số liệu Mưa theo tháng',
 		'page callback' => 'drupal_get_form',
     'page arguments' => array(
-        '_report_rainfall_month_form'
+        '_datalogger_report_rainfall_month_form'
     ),
     // 'page callback' => '_report_rainfall_form',
     'file' => 'datalogger.admin.inc',
     'access arguments' => array('manage data'),
+		 'type' => MENU_LOCAL_TASK,
+		 'weight' => -24,
   );
  
   $items['manage/init/rainfalls'] = array(
@@ -499,6 +508,9 @@ function datalogger_permission() {
  * Implements hook_menu_alter().
  */
 function datalogger_menu_alter(&$items) {
+	if($items['manage/report/rainfalls/year']){
+		drupal_set_title('Báo cáo số liệu mưa theo năm');
+	}
   $items['node/%node/view']['title callback'] = '_datalogger_station_title_callback';
   $items['node/%node/view']['title arguments'] = array(1);
 } 
@@ -522,22 +534,3 @@ function datalogger_openlayers_map_alter(&$map) {
     $map['layers']['mapquest_osm_offline']['serverResolutions'] = array();              // empty the array
   }
 }
-
-/*
- * Implements hook_views_pre_render().
- */
- /*
-function datalogger_views_pre_render(&$view) {
-  global $user;
-  //dpm($view);
-  switch ($view->name) {
-  case 'view_control_province':
-    if (!in_array('control datalogger', $user->roles)) {      // control visible sending command field
-      unset($view->field['views_bulk_operations']);    
-      unset($view->field['nid']);
-    }  
-    // now temporary remove sending multiple stations:
-    unset($view->field['views_bulk_operations']);
-  }
-  
-}*/

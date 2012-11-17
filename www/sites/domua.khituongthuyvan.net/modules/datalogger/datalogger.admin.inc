@@ -104,7 +104,7 @@ $datalogger_pattern = array(
  *description:tạo form xuất báo cáo theo năm
  */
 
- function _report_rainfall_year_form()
+ function _datalogger_report_rainfall_year_form()
 {
   module_load_include('module', 'datalogger','datalogger');
 	$years = array();
@@ -149,6 +149,7 @@ $datalogger_pattern = array(
      '#type' => 'select',
      '#title' => t('Năm'),
      '#options' => $years,
+		 // '#required' => TRUE,	
   );         
 	
 	//$form['month'] = array(
@@ -183,56 +184,42 @@ $datalogger_pattern = array(
   );
   $form["submit"] = array(
       "#type" => "submit",
-      "#value" => t("Send Now!"),
+      "#value" => t("Report"),
       "#submit" => array(
-          "_report_rainfall_year_form_submit"
+          "_datalogger_report_rainfall_year_form_submit"
       ),
   ); 
   return $form;
 }
 
-function _report_rainfall_year_form_submit(&$form, &$form_state) {
+function _datalogger_report_rainfall_year_form_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	
 	$nid = $form_state['values']['station'];
 	$year = $form_state['values']['year'];
-  
-	//$month = $form_state['values']['month'];
-	//$year_month = $year.$month;
-  
 	$name_qtv = $form_state['values']['txtNameQTV'];
 	$name_nlb = $form_state['values']['txtNameNLB'];
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
-<<<<<<< HEAD
 	
-	$args = array($nid, $year, $name_qtv, $name_nlb, $name_ks, $name_pt);
-	dsm(views_get_view_result('view_export_excel','default', 3138,2012,201211));
-	// dsm(views_get_view('view_export_excel',NULL, 3138,201210));
-=======
-	$flag = 'year';
-  
-	$args = array($nid, $flag, $year, $name_qtv, $name_nlb, $name_ks, $name_pt);
-	
->>>>>>> ef5fbe5b0e2de700cfa2f6e688a00dffd565e4ea
-	//_export_excel($args);
+	$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, 'all', 'all');
+	if(count($rainfalls) <= 0){
+		drupal_set_message(t('Trạm đo mưa trên chưa có số liệu để lập báo cáo'),'error');
+	}
+	else{
+		$args = array($nid, $rainfalls, $name_qtv, $name_nlb, $name_ks, $name_pt);
+		_export_excel($args);
+	}
 }
 
 /**
  *author:Phan Văn Tuấn
  *description:tạo form xuất báo cáo theo ngày
  */
-function _report_rainfall_day_form(){
+function _datalogger_report_rainfall_day_form(){
   module_load_include('module', 'datalogger','datalogger');
-  /*
-	$months = array(1=>'01',2=>'02',3=>'03',4=>'04',5=>'05',6=>'06',7=>'07',8=>'08',9=>'09',10=>'10',11=>'11',12=>'12');
-	$years = array();
-	for($i = 0; $i <30; $i++){
-		$year = 2012 + $i;
-		$years[$year] = $year;
-	}
-	*/
-  $form['selectReport'] = array(
+
+	$form['selectReport'] = array(
     '#type' => 'select',
     '#title' => t('Chọn loại hình báo cáo: '),
     '#options' => array(
@@ -240,46 +227,23 @@ function _report_rainfall_day_form(){
       'bk1' => t('Báo cáo số liệu mưa theo mẫu báo cáo BKT-14'),
      ),
   );
-	/*
-  $form['selectArea'] = array(
-    '#type' => 'select',
-    '#title' => t('Chọn khu vực: '),
-    '#options' => _datalogger_return_area(),
-  );
-   
-  $form['selectProvince'] = array(
-     '#type' => 'select',
-     '#title' => t('Chọn Tỉnh/ Thành phố: '),
-     '#options' => _datalogger_return_city(),
-  ); 
-  */
+
 	$stations = views_get_view_result('list_all_datalogger');
 	$name_stations = array();
 	foreach($stations as $station){
 		$name_stations[$station->nid] = $station->node_title;
 	}
+	
   $form['station'] = array(
      '#type' => 'select',
      '#title' => t('Chọn trạm: '),
      '#options' => $name_stations,
   );   
-	/*
-	$form['year'] = array(
-     '#type' => 'select',
-     '#title' => t('Năm'),
-     '#options' => $years,
-  );         
-	
-	$form['month'] = array(
-     '#type' => 'select',
-     '#title' => t('Tháng'),
-     '#options' => $months,
-  );  
-	*/
 
 	$form['day']= array(
     '#type' => 'date_popup',
 		'#date_format' => 'd/m/Y', 
+		'#required' => TRUE,	
   );
 	
   $form['txtNameQTV'] = array(
@@ -303,28 +267,33 @@ function _report_rainfall_day_form(){
   );
   $form["submit"] = array(
       "#type" => "submit",
-      "#value" => t("Send Now!"),
+      "#value" => t("Report"),
       "#submit" => array(
-          "_report_rainfall_day_form_submit"
+          "_datalogger_report_rainfall_day_form_submit"
       ),
   ); 
   return $form;
 }
 
-function _report_rainfall_day_form_submit(&$form, &$form_state) {
+function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	
 	$nid = $form_state['values']['station'];
-  // $day = (new DateTime($form_state['values']['day']))->format('Ymd');
+  $day = new DateTime($form_state['values']['day']);
+  $day = $day->format('Ymd');
 	$name_qtv = $form_state['values']['txtNameQTV'];
 	$name_nlb = $form_state['values']['txtNameNLB'];
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
-	$flag = 'date';
   
-	$args = array($nid, $flag, $day, $name_qtv, $name_nlb, $name_ks, $name_pt);
-	
-	//_export_excel($args);
+	$rainfalls = views_get_view_result('view_export_excel','default', $nid, 'all', 'all', $day);
+	if(count($rainfalls) <= 0){
+		drupal_set_message(t('Trạm đo mưa trên chưa có số liệu để lập báo cáo'),'error');
+	}
+	else{
+		$args = array($nid, $rainfalls, $name_qtv, $name_nlb, $name_ks, $name_pt);
+		_export_excel($args);
+	}
 }
 
 function _datalogger_send_command($nid, $select, $form, &$form_state) {
@@ -1506,7 +1475,7 @@ function _log_rainfall_form(){
   return $form;
 }
 
-function _report_rainfall_month_form(){
+function _datalogger_report_rainfall_month_form(){
 	module_load_include('module', 'datalogger','datalogger');
 	
 	$months = array(1=>'01',2=>'02',3=>'03',4=>'04',5=>'05',6=>'06',7=>'07',8=>'08',9=>'09',10=>'10',11=>'11',12=>'12');
@@ -1588,26 +1557,16 @@ function _report_rainfall_month_form(){
   );
   $form["submit"] = array(
       "#type" => "submit",
-      "#value" => t("Send Now!"),
+      "#value" => t("Report"),
       "#submit" => array(
-          "_report_rainfall_month_submit"
+          "_datalogger_report_rainfall_month_submit"
       ),
   ); 
   return $form;
 }
-<<<<<<< HEAD
-=======
-<<<<<<< HEAD
-// function _report_rainfall_form_validate(&$form, &$form_state){
+// function _datalogger_report_rainfall_form_validate(&$form, &$form_state){
 // }
-function _report_rainfall_month_submit(&$form, &$form_state) {
-=======
-
->>>>>>> ef5fbe5b0e2de700cfa2f6e688a00dffd565e4ea
-function _report_rainfall_form_validate(&$form, &$form_state){
-}
-
-function _report_rainfall_form_submit(&$form, &$form_state) {
+function _datalogger_report_rainfall_month_form_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	
 	$nid = $form_state['values']['station'];
@@ -1619,9 +1578,14 @@ function _report_rainfall_form_submit(&$form, &$form_state) {
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
 	
-	$args = array($nid, $year_month, $name_qtv, $name_nlb, $name_ks, $name_pt);
-	
-	_export_excel($args);
+	$rainfalls = views_get_view_result('view_export_excel','default', $nid, 'all', $year_month, 'all');
+	if(count($rainfalls) <= 0){
+		drupal_set_message(t('Trạm đo mưa trên chưa có số liệu để lập báo cáo'),'error');
+	}
+	else{
+		$args = array($nid, $rainfalls, $name_qtv, $name_nlb, $name_ks, $name_pt);
+		_export_excel($args);
+	}
 }
 
 function _init_rainfall_node($title, $time, $rainfall, $stationCode) {
