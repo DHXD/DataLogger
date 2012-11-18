@@ -1,4 +1,9 @@
 <?php
+$stations = views_get_view_result('list_all_datalogger');
+$station_name = array();
+foreach($stations as $station){
+	$station_name[$station->nid] = $station->node_title;
+}
 global $timeInterval;
 $timeInterval = array('10','20','30','60','120','180');
 
@@ -136,14 +141,14 @@ $datalogger_pattern = array(
   ); 
   */
 	$stations = views_get_view_result('list_all_datalogger');
-	$name_stations = array();
+	$station_name = array();
 	foreach($stations as $station){
-		$name_stations[$station->nid] = $station->node_title;
+		$station_name[$station->nid] = $station->node_title;
 	}
   $form['station'] = array(
      '#type' => 'select',
      '#title' => t('Chọn trạm: '),
-     '#options' => $name_stations,
+     '#options' => $station_name,
   );   
 	
 	$form['year'] = array(
@@ -230,15 +235,15 @@ function _datalogger_report_rainfall_day_form(){
   );
 
 	$stations = views_get_view_result('list_all_datalogger');
-	$name_stations = array();
+	$station_name = array();
 	foreach($stations as $station){
-		$name_stations[$station->nid] = $station->node_title;
+		$station_name[$station->nid] = $station->node_title;
 	}
 	
   $form['station'] = array(
      '#type' => 'select',
      '#title' => t('Chọn trạm: '),
-     '#options' => $name_stations,
+     '#options' => $station_name,
   );   
 
 	$form['day']= array(
@@ -1413,7 +1418,7 @@ function _log_rainfall_form(){
        0 => t('Tất cả các trạm'),
        1 => t('Kỳ Trinh'),
      ),
-  ); 
+  );
   
    $form['logDate'] = array(
      '#type' => 'date_popup',
@@ -1509,15 +1514,16 @@ function _datalogger_report_rainfall_month_form(){
   ); 
   */
 	
-	$stations = views_get_view_result('list_all_datalogger');
-	$name_stations = array();
-	foreach($stations as $station){
-		$name_stations[$station->nid] = $station->node_title;
-	}
+	// $stations = views_get_view_result('list_all_datalogger');
+	// $station_name = array();
+	// foreach($stations as $station){
+		// $station_name[$station->nid] = $station->node_title;
+	// }
+	GLOBAL $station_name;
   $form['station'] = array(
      '#type' => 'select',
      '#title' => t('Chọn trạm: '),
-     '#options' => $name_stations,
+     '#options' => $station_name,
   );   
 	
 	$form['year'] = array(

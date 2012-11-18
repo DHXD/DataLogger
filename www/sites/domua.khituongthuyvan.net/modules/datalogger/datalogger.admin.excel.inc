@@ -31,18 +31,21 @@ function _export_excel($args){
   // $rainfalls = views_get_view_result('view_export_excel',NULL, $nid, $year_month,all);
   //tong so rows
   $rowcount = count($rainfalls);
+	$limit_row = 152;
   //tong so sheet
-  $numbersheet = (int)$rowcount/152 + 1; //mot ngay co 152 rows
+  $total_page = (int)$rowcount/$limit_row + 1; //mot ngay co 152 rows
   $j = 0;
-  for($number = 1; $number < $numbersheet; $number++)
+	$row = 0;
+  for($page = 0; $page < $total_page; $page++)
   {
-    if($number != 1)
+		if($page != 0)
     {
       $objPHPExcel->createSheet();
     }
-    
+    // for( ; $row < $page*$limit_row; $row++){
+		// $objPHPExcel->createSheet();
 		//sheet luôn bắt đầy từ 0
-    $objPHPExcel->setActiveSheetIndex($number - 1);
+    $objPHPExcel->setActiveSheetIndex($page);
     //$objPHPExcel->setActiveSheetIndex(0);
     $objPHPExcel->getActiveSheet()->setCellValue('B1', 'Trạm');
     $objPHPExcel->getActiveSheet()->setCellValue('F1', 'Tháng');
@@ -197,19 +200,21 @@ function _export_excel($args){
 
     $cell = $objPHPExcel->getActiveSheet();
     $i = 8;
-    for($k = $j; $k < 152 * $number; $k++)
+    for(; $row < $limit_row * ($page + 1); $row++)
     {
-      $date = $rainfalls[$k]->node_title;
-      $interval = $rainfalls[$k]->field_field_rainfall_measuring[0]['raw']['value'];
-      $total = $rainfalls[$k]->field_field_rainfall_total[0]['raw']['value'];
+			if($row > $rowcount){
+				break;
+			}
+      $date = $rainfalls[$row]->node_title;
+      $interval = $rainfalls[$row]->field_field_rainfall_measuring[0]['raw']['value'];
+      $total = $rainfalls[$row]->field_field_rainfall_total[0]['raw']['value'];
       $cell->setCellValue('A' . $i, $date);
       $cell->setCellValue('B'.$i,$interval);//luong mưa 10'
       $cell->setCellValue('C'.$i,"10");//thoi gian keo dai 10'
       $cell->setCellValue('D'.$i,$total);//luong mua mot dot quan trac
       $cell->setCellValue('E'.$i,"60");//thoi gian keo dai mot dot quan trac
-      $i++;
+      $i++;  
     }
-    $j = $k;
     
     $name_station = node_load($nid);
     //trạm đo mưa
@@ -242,7 +247,7 @@ function _export_excel($args){
     $objPHPExcel->getActiveSheet()->getStyle('H8:J11')->getFont()->setSize(10);
     $objPHPExcel->getActiveSheet()->getStyle('A8:A152')->getFont()->setSize(12);
     
-    $objPHPExcel->getActiveSheet()->setTitle('Trang '."$number");
+    $objPHPExcel->getActiveSheet()->setTitle('Trang '.($page+1));
     
   }
   
