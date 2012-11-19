@@ -56,6 +56,7 @@ function datalogger_node_access($node, $op, $account) {
  *Begin: 16/11. 
  *author:Nguyễn Mạnh Hùng
  */
+ /*
 function _datalogger_return_area(){
 		return array(
       north_central_region => t('Khu Vực Bắc Trung Bộ'),
