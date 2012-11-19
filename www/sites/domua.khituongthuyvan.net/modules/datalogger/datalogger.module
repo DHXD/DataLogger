@@ -1,5 +1,58 @@
 <?php
 /**
+ *Begin: 19/11. 
+ *author:Nguyễn Mạnh Hùng
+ *Implements hook__node_access()
+ */
+ /*
+function datalogger_node_access($node, $op, $account) {
+	dsm('into');
+  if (is_object($node)) {
+    $bool = (
+      ($node->type == 'station') && 
+      (($op == 'view') || ($op == 'update'))
+    );
+    if ($bool) {
+			// GLOBAL $user;
+			// GLOBAL $account;
+      if ($account->uid == 1) {
+        return NODE_ACCESS_ALLOW;
+        // return NODE_ACCESS_ALLOW;
+      }
+      else {
+				dsm('into');
+        return NODE_ACCESS_DENY;
+        // return NODE_ACCESS_IGNORE;
+      }
+    }
+  }
+
+  return NODE_ACCESS_IGNORE;
+}
+*/
+
+/** 
+	* Implements hook_access()
+*/
+
+// function datalogger_access ( $op, $node, $account ) {
+// // $nodeProfile = content_profile_load(profile, $node->uid);
+	// $nodeProfile = node_load($node->nid);
+	// $accountProfile = content_profile_load(profile, $account->uid);
+	// GLOBAL $user;
+	// dsm($user);
+	// dsm($accountProfile);
+	// if ( $op == 'view') {
+	 // // if ( $accountProfile->field_profile_organization[0]['value'] == $nodeProfile->field_profile_organization[0]['value'] ) {
+			 // // return TRUE;
+		 // // } else return FALSE;
+		 // if (user_access('khuvuctaynguyen', $account)) {
+      // return TRUE;
+    // }
+	// }
+// }
+
+ /**
  *Begin: 16/11. 
  *author:Nguyễn Mạnh Hùng
  */
@@ -80,6 +133,20 @@ function _datalogger_return_city(){
 				hau_giang => t('Tỉnh Hậu Giang'),
      );
 }
+/*
+	//alter form user
+function datalogger_form_alter(&$form, &$form_state, $form_id){
+	if ($form['#id' ] == 'user-register-form'){
+		dsm(1);
+		dsm($form);
+	}
+	if ($form['#id' ] == 'user-profile-form'){
+		dsm(2);
+		dsm($form);
+	}
+	
+}
+*/
  /**
  * Begin:15/11. 
  * Implements hook_views_pre_render().
@@ -135,10 +202,19 @@ function datalogger_menu() {
  *author: Phan Văn Tuấn
  *description: tạo menu xuất báo cáo theo năm+ngay
  */
- 
+ $managedata = array(
+		'manage data',
+		'khuvucbactrungbo',
+		'khuvuctrungtrungbo',
+		'khuvucnamtrungbo',
+		'khuvucnambo',
+		'khuvuctaynguyen',
+	);
   $items['manage/report/rainfalls/day'] = array(
     'title' => 'Daily rainfall data reports',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+    // 'access arguments' => $managedata,
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		'type' => MENU_DEFAULT_LOCAL_TASK, 
 		'weight' => -25,
   );
@@ -150,7 +226,8 @@ function datalogger_menu() {
         '_datalogger_report_rainfall_day_form'
     ),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		'type' => MENU_NORMAL_ITEM, 
 		'weight' => -26,
 	);
@@ -163,7 +240,8 @@ function datalogger_menu() {
         '_datalogger_report_rainfall_year_form'
     ),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		'type' => MENU_LOCAL_TASK,
 		'weight' => -23,
   );
@@ -240,7 +318,8 @@ function datalogger_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_user_form'),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
     // 'access callback' => TRUE,
     'type' => MENU_NORMAL_ITEM,  
   );
@@ -251,7 +330,8 @@ function datalogger_menu() {
     // 'page callback' => 'drupal_get_form',
     // 'page arguments' => array('_user_form'),
     // 'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
     // // 'access callback' => TRUE,
     'type' => MENU_DEFAULT_LOCAL_TASK,   
     
@@ -261,7 +341,8 @@ function datalogger_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_user_group_form'),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
     'type' => MENU_LOCAL_TASK,
     'weight' => -25,
   );
@@ -271,7 +352,8 @@ function datalogger_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_user_pass_form'),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
     // 'access callback' => TRUE,
     'type' => MENU_LOCAL_TASK,
     'weight' => -24,
@@ -282,7 +364,8 @@ function datalogger_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_user_profile_form'),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
     // 'access callback' => TRUE,
     'type' => MENU_LOCAL_TASK,
     'weight' => -23,
@@ -303,21 +386,14 @@ function datalogger_menu() {
  *Begin date:11-09-12
  *tạo dữ liệu Mưa.
  */
- 
- 
- $items['test3'] = array(
-    'title' => 'Nhật ký tích hợp số liệu',
-    'page callback' => '_datalogger_test3',
-    'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
-  );
 
  /*nhat ki tich hop du lieu*/
  $items['manage/log/rainfall'] = array(
     'title' => 'Nhật ký tích hợp số liệu',
     'page callback' => '_log_rainfall_form',
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
   );
  
  $items['manage/report/rainfalls/month'] = array(
@@ -327,7 +403,8 @@ function datalogger_menu() {
         '_datalogger_report_rainfall_month_form'
     ),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		 'type' => MENU_LOCAL_TASK,
 		 'weight' => -24,
   );
@@ -337,7 +414,8 @@ function datalogger_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_datalogger_generate_rainfalls_form'),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),  
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
   );
   
 /**
@@ -349,7 +427,7 @@ function datalogger_menu() {
     'page callback' => '_manage_data',
     'file' => 'datalogger.admin.inc',
     'access arguments' => array('manage data'),
-    'access callback' => ' _datalogger_menu_access_callback_manage_data',
+    'access callback' => '_datalogger_menu_access_callback_manage_data',
   );
   
   // $items['node/%node'] = array(
@@ -478,11 +556,12 @@ function _datalogger_menu_access_callback_command() {
 function _datalogger_menu_access_callback_manage_data() {
   //dpm($permission);
   //dpm($node);
-  // if(!user_access('administrator') && !user_access('control datalogger')){
+  // if(!user_access('control datalogger')){
       // $user_acc = true;
   // }
   // dpm( $user_acc);
-  return user_access('manage data') || $user_acc;
+  // return user_access('manage data') || $user_acc;
+  return user_access('manage data')|| user_access('khuvucbactrungbo')|| user_access('khuvuctrungtrungbo')|| user_access('khuvucnamtrungbo')|| user_access('khuvucnambo')|| user_access('khuvuctaynguyen');
 }
 
 /**
@@ -496,11 +575,43 @@ function datalogger_permission() {
       'description' => t('Perform manage data.'),
       'restrict access' => TRUE,
     ),
+		
     'control datalogger' => array(
       'title' => t('Control Datalogger'), 
       'description' => t('Perform control datalogger.'),
       'restrict access' => TRUE,
     ),
+		
+    'khuvucbactrungbo' => array(
+      'title' => t('khuvucbactrungbo'), 
+      'description' => t('Perform khuvucbactrungbo.'),
+      'restrict access' => TRUE,
+    ),
+		
+    'khuvuctrungtrungbo' => array(
+      'title' => t('khuvuctrungtrungbo'), 
+      'description' => t('Perform khuvuctrungtrungbo.'),
+      'restrict access' => TRUE,
+    ),
+		
+    'khuvucnamtrungbo' => array(
+      'title' => t('khuvucnamtrungbo'), 
+      'description' => t('Perform khuvucnamtrungbo.'),
+      'restrict access' => TRUE,
+    ),
+		
+    'khuvucnambo' => array(
+      'title' => t('khuvucnambo'), 
+      'description' => t('Perform khuvucnambo.'),
+      'restrict access' => TRUE,
+    ),
+		
+    'khuvuctaynguyen' => array(
+      'title' => t('khuvuctaynguyen'), 
+      'description' => t('Perform khuvuctaynguyen.'),
+      'restrict access' => TRUE,
+    ),
+		
   );
 }
 
