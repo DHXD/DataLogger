@@ -162,37 +162,83 @@ function datalogger_views_pre_render(&$view) {
 				}
 			}
   }
-	// /*
+	// dsm();
+	
+	// if($view->name == "view_list_stations_role_manage") {
+			// global $user;
+			// // dsm($view);
+			// if($user->uid != 1){
+				// $account = user_load($user->uid);
+				// if(isset($account->field_station_region['und'])){
+					// foreach(dsm($account->field_station_region['und']) as $region){
+						// foreach($view->result as $obj){
+							// if($obj->field_field_station_region[0]['raw']['value'] != $region['value']){
+							// // $view->args = array($obj->field_field_station_region[0]['raw']['value']);
+							// // $view->args = array($region['value']);
+								// unset($view->result[key($view->result)]);
+							// }
+						// }
+					// }
+				// }
+			// }
+  // }
+	
+} 
+
+function datalogger_views_pre_view(&$view, &$display_id, &$args) {
+  // Change the display if the acting user has 'administer site configuration'
+  // permission, to display something radically different.
+  // (Note that this is not necessarily the best way to solve that task. Feel
+  // free to contribute another example!)
+	
+	
+  // if (
+    // $view->name == 'my_special_view' && 
+    // user_access('administer site configuration') && 
+    // $display_id == 'public_display'
+  // ) {
+    // $display_id = 'private_display';
+  // }
+	/*
 	if($view->name == "view_list_stations_role_manage") {
+			global $user;
+			// dsm($view);
+			if($user->uid != 1){
+				$account = user_load($user->uid);
+				if(isset($account->field_station_region['und'])){
+					foreach($account->field_station_region['und'] as $region){
+						// foreach($view->result as $obj){
+							// if($obj->field_field_station_region[0]['raw']['value'] != $region['value']){
+							// $view->args = array($obj->field_field_station_region[0]['raw']['value']);
+							$view->args = array($region['value']);
+							// dsm('ok');
+								// unset($view->result[key($view->result)]);
+							// }
+						// }
+					}
+				}
+			}
+			// dsm($view->display['page']);
+  }
+	*/
+}
+
+function datalogger_views_query_alter(&$view, &$query) {
+  if($view->name == "view_list_stations_role_manage") {
 			global $user;
 			if($user->uid != 1){
 				$account = user_load($user->uid);
-				foreach($account->field_station_region['und'] as $region){
-					dsm($region['value']);
-					foreach($view->result as $obj){
-						if($obj->field_field_station_region[0]['raw']['value'] != $region['value']){
-							// unset($obj);
-				// dsm($view);
-							// dsm($obj);
-							// dsm($view->result);
-							// dsm(key($view->result));
-							unset($view->result[key($view->result)]);
-							// $obj = Null;
-							
-						}
+				if(isset($account->field_station_region['und'])){
+					foreach($account->field_station_region['und'] as $region){
+								$query->where[1]['conditions'][2]['value'] = $region['value'];
 					}
-					// for($i; $i < $view->total_rows; $i++){
-						// dsm($obj->field_field_station_region[$i]['raw']['value']);
-						// if($obj->field_field_station_region[$i]['raw']['value'] != $region['value']){
-							// unset($view->result[$i]);
-						// }
-					// }
 				}
 			}
   }
-	// */
-} 
- 
+	// dsm($query);
+	// dsm($view);
+}
+
 /**
  * 18/10. 
  */
