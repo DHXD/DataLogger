@@ -116,10 +116,15 @@ function _datalogger_return_area($areas){
 		central_highlands => t('Central Highlands Region'),
 	);
 	// $regions = array();
-	foreach($areas as $area){
-		$regions[] = $regions_list[$area[0]];
+	if($areas == Null){
+		return $regions_list;
 	}
-	return $regions;
+	else{
+		foreach($areas as $area){
+			$regions[] = $regions_list[$area[0]];
+		}
+		return $regions;
+	}
 }
 
 function _datalogger_return_city($citys){

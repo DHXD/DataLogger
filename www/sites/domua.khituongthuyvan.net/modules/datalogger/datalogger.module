@@ -162,6 +162,35 @@ function datalogger_views_pre_render(&$view) {
 				}
 			}
   }
+	// /*
+	if($view->name == "view_list_stations_role_manage") {
+			global $user;
+			if($user->uid != 1){
+				$account = user_load($user->uid);
+				foreach($account->field_station_region['und'] as $region){
+					dsm($region['value']);
+					foreach($view->result as $obj){
+						if($obj->field_field_station_region[0]['raw']['value'] != $region['value']){
+							// unset($obj);
+				// dsm($view);
+							// dsm($obj);
+							// dsm($view->result);
+							// dsm(key($view->result));
+							unset($view->result[key($view->result)]);
+							// $obj = Null;
+							
+						}
+					}
+					// for($i; $i < $view->total_rows; $i++){
+						// dsm($obj->field_field_station_region[$i]['raw']['value']);
+						// if($obj->field_field_station_region[$i]['raw']['value'] != $region['value']){
+							// unset($view->result[$i]);
+						// }
+					// }
+				}
+			}
+  }
+	// */
 } 
  
 /**
