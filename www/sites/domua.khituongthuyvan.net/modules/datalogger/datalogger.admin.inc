@@ -104,6 +104,32 @@ $datalogger_pattern = array(
 		// 38 => t('Reset All'),);	
 
 /**
+ *Begin: 21/11. 
+ *author:hungnm0302
+ *Lay ten cac tram do mua theo role khu vuc
+ */
+ 
+function _datalogger_station_name_list(){
+	global $user;
+	if($user->uid != 1){
+				$account = user_load($user->uid);
+				// dsm($account);
+				if(isset($account->field_station_region['und'])){
+					foreach($account->field_station_region['und'] as $region){
+						$stations[] = views_get_view_result('view_station_filter_parameter',Null,$region['value'], 'all','all');
+					}
+				}
+	}
+	else{
+		$stations[] = views_get_view_result('view_station_filter_parameter',Null,'all', 'all','all');
+	}
+	foreach($stations[0] as $station){
+		$station_name[$station->nid] = $station->node_title;
+	}
+	return $station_name;
+} 
+
+/**
 	*Begin: 16/11. 
  *author:Nguyễn Mạnh Hùng
  */
@@ -212,7 +238,7 @@ function _datalogger_return_city($citys){
  *description:danh sach cac tram do mưa theo khu vực/tinh/tram
  */
 function _datalogger_station_ajax($area, $province,$nid){
-	$stations = views_get_view_result('view_station_filter_parameter',$area, $province, $nid);
+	$stations = views_get_view_result('view_station_filter_parameter',Null, $area, $province, $nid);
 	return $stations;
 }
 		
@@ -249,7 +275,7 @@ function _datalogger_set_station_options($area, $province) {
         // return $options[$key];
     // }
     // else {
-        $stations = dsm(views_get_view_result('view_station_filter_parameter', NULL, $area, $province, 'all'));
+        $stations = views_get_view_result('view_station_filter_parameter', NULL, $area, $province, 'all');
 				foreach($stations as $station){
 					$titles[] = array($station->nid => $station->node_title);
 				}
@@ -400,11 +426,11 @@ function _datalogger_set_station_options($area, $province) {
      // '#options' => _datalogger_return_city(),
   // ); 
 	
-	GLOBAL $station_name;
+	// GLOBAL $station_name = _datalogger_station_ajax();
   $form['station'] = array(
      '#type' => 'select',
      '#title' => t('Select station: '),
-     '#options' => $station_name,
+     '#options' => _datalogger_station_name_list(),
   );   
 	
 	$form['year'] = array(
@@ -465,7 +491,7 @@ function _datalogger_report_rainfall_year_form_submit(&$form, &$form_state) {
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
 	
-	$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, 'all', 'all');
+	$rainfalls = views_get_view_result('view_export_excel',Null, $nid, $year, 'all', 'all');
 	if(count($rainfalls) <= 0){
 		drupal_set_message(t('Trạm đo mưa trên chưa có số liệu để lập báo cáo'),'error');
 	}
@@ -491,11 +517,11 @@ function _datalogger_report_rainfall_day_form(){
      ),
   );
 
-	GLOBAL $station_name;
+	// GLOBAL $station_name;
   $form['station'] = array(
      '#type' => 'select',
      '#title' => t('Select station: '),
-     '#options' => $station_name,
+     '#options' => _datalogger_station_name_list(),
   );   
 
 	$form['day']= array(
@@ -1772,11 +1798,11 @@ function _datalogger_report_rainfall_month_form(){
   ); 
   */
 	
-	GLOBAL $station_name;
+	// GLOBAL $station_name;
   $form['station'] = array(
      '#type' => 'select',
      '#title' => t('Select station: '),
-     '#options' => $station_name,
+     '#options' => _datalogger_station_name_list(),
   );   
 	
 	$form['year'] = array(
