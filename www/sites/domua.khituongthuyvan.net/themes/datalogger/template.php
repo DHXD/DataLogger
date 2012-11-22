@@ -196,18 +196,21 @@ function datalogger_field__taxonomy_term_reference($variables) {
 }
 
 function datalogger_preprocess_page(&$variables) {
-	$area = arg(3);
-	$areas = _datalogger_areas($area);
-	$province = arg(4);
-	$provinces = _datalogger_provinces($province);
-	if(!empty($area)&& $province != 'all'){
-		$province = t('List of automatic rainfall stations '.$provinces);
-		drupal_set_title($province);
-	}else
-		if(!empty($area)&& $province == 'all'){
-			$area = t('List of meteorological stations '.$areas);
-			drupal_set_title($area);
+	if(count(arg()) == 5 && arg(0) == 'view' && arg(1) == 'list' && arg(2) == 'station'){
+		$area = arg(3);
+		$areas = _datalogger_areas($area);
+		$province = arg(4);
+		$provinces = _datalogger_provinces($province);
+		if(!empty($area)&& $province != 'all'){
+			$province = t('List of automatic rainfall stations '.$provinces);
+			drupal_set_title($province);
+		}else{
+			if(!empty($area)&& $province == 'all'){
+				$area = t('List of meteorological stations '.$areas);
+				drupal_set_title($area);
+			}
 		}
+	}
 }
 
 function _datalogger_provinces($arg){

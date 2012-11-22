@@ -583,12 +583,13 @@ function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
 }
 
 function _datalogger_send_command($nid, $select, $form, &$form_state) {
-	//$nids = arg();
+	// $nids = arg();
 	define('DATEymdHis', date('ymdHis',time()));  
   define('DATEymdHi', date('ymdHi',time()));  
   define('DATEYmdHi', date('YmdHi',time()));  
   
-  $nids = array(0, intval($form_state['values']['station_nid']));
+  // $nids = array(0, intval($form_state['values']['station_nid']));
+  $nids = $form_state['values']['station_nid'];
 	
 	// dsm('_datalogger_send_command :'.$form_state['values']['station_nid']);
   
@@ -1860,7 +1861,7 @@ function _datalogger_report_rainfall_month_submit(&$form, &$form_state) {
 	
 	$rainfalls = views_get_view_result('view_export_excel','default', $nid, 'all', $year_month, 'all');
 	if(count($rainfalls) <= 0){
-		drupal_set_message(t('Trạm đo mưa trên chưa có số liệu để lập báo cáo'),'error');
+		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
 	}
 	else{
 		$args = array($nid, $rainfalls, $name_qtv, $name_nlb, $name_ks, $name_pt);
@@ -2223,12 +2224,15 @@ function _command_form($form, &$form_state) {
   
   // /*
 	//gui lenh toi mot tram ok.
-	$station_nid = !empty($form_state['values']['station_nid']) ? $form_state['values']['station_nid'] : intval(arg(1));
+	// dsm(explode("/",arg()));
+	// $station_nid = !empty($form_state['values']['station_nid']) ? $form_state['values']['station_nid'] : intval(arg(1));
+	$station_nid = !empty($form_state['values']['station_nid']) ? $form_state['values']['station_nid'] : arg();
 	// dsm('Form '.$station_nid);
 	$form['station_nid'] = array(
     '#type' => 'hidden',    
     '#value' => $station_nid,
   );
+	// */
 	// */
 	
   /*

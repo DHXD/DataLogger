@@ -15,6 +15,12 @@ function datalogger_views_pre_render(&$view) {
 				}
 			}
   }
+	if($view->name == "view_all_station") {
+		global $user;
+		if (!in_array('administrator', array_values($user->roles)) || !in_array('control datalogger', array_values($user->roles))) {
+			unset($view->field['nid']);
+		}
+	}
 } 
 
 /*
@@ -25,7 +31,6 @@ function datalogger_views_pre_render(&$view) {
 function datalogger_views_query_alter(&$view, &$query) {
   if($view->name == "view_list_stations_role_manage") {
 			global $user;
-			// dsm($query);
 			if($user->uid != 1){
 				$account = user_load($user->uid);
 				if(isset($account->field_station_region['und'])){
@@ -41,28 +46,6 @@ function datalogger_views_query_alter(&$view, &$query) {
 				// $query->where[1]['conditions'][2]['value'] = $region['value'];
 			}
   }
-	
-	if($view->name == "rainfall_chart") {
-			global $user;
-			// dsm($query);
-			/*
-			if($user->uid != 1){
-				$account = user_load($user->uid);
-				if(isset($account->field_station_region['und'])){
-					foreach($account->field_station_region['und'] as $region){
-								$query->where[1]['conditions'][2]['value'] = $region['value'];
-					}
-				}
-			}
-			else{
-				$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
-								south_central_region,south_region,central_highlands);
-				$query->where[1]['conditions'][2]['operator'] = 'IN';
-				// $query->where[1]['conditions'][2]['value'] = $region['value'];
-			}
-			*/
-  }
-	
 }
 
 /**
