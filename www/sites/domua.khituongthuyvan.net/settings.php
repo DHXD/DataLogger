@@ -227,7 +227,7 @@ ini_set('display_errors', 1);
 		
 	/*Database: 192.168.1.34*/
 	/*Database: 192.168.1.36*/
-	
+	/*
 	$databases = array (
 		'default' => 
 		array (
@@ -243,20 +243,20 @@ ini_set('display_errors', 1);
 			),
 		),
 	);
- 
+  */
 	//	
 	
 	/*Database: localhost*/
 	
-	/*
+	// /*
 	$databases = array (
       'default' => 
       array (
         'default' => 
         array (
-          'database' => 'datalogger',
+          'database' => 'datalogger2',
           'username' => 'root',
-          'password' => '',
+          'password' => 'root',
           'host' => 'localhost',
           'port' => '',
           'driver' => 'mysql',
@@ -264,8 +264,7 @@ ini_set('display_errors', 1);
         ),
       ),
     );
-		
-  */
+  // */
 /**
  * Access control for update.php script.
  *

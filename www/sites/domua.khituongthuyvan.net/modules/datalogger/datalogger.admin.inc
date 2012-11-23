@@ -111,7 +111,8 @@ $datalogger_pattern = array(
  
 function _datalogger_station_name_list(){
 	global $user;
-	if($user->uid != 1){
+	// if($user->uid != 1){
+	if(!in_array('administrator', array_values($user->roles)) || !in_array('control datalogger', array_values($user->roles))){
 				$account = user_load($user->uid);
 				// dsm($account);
 				if(isset($account->field_station_region['und'])){
