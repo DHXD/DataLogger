@@ -567,3 +567,46 @@ function datalogger_openlayers_map_alter(&$map) {
     $map['layers']['mapquest_osm_offline']['serverResolutions'] = array();              // empty the array
   }
 }
+
+function _datalogger_array_station_province_city_array() {
+  return array(
+    thanh_hoa => ('Thanh Hoa'),
+    nghe_an => ('Nghe An'),
+    ha_inh => ('Ha Tinh'),
+    paging1 => '------------------',
+    quang_ri => ('Quang Tri'),
+    quang_binh => ('Quang Binh'),
+    hua_hien_hue => ('Thua Thien - Hue'),
+    da_nang => ('Da Nang'),
+    quang_nam => ('Quang Nam'),
+    quang_ngai => ('Quang Ngai'),
+    paging2 => '------------------',
+    binh_dinh => ('Binh Dinh'),
+    phu_yen => ('Phu Yen'),
+    khanh_hoa => ('Khanh Hoa'),
+    ninh_huan => ('Ninh Thuan'),
+    binh_huan => ('Binh Thuan'),
+    paging3 => '------------------',
+    binh_duong => ('Binh Duong'),
+    ay_ninh => ('Tay Ninh'),
+    ien_gian => ('Tien Giang'),
+    ra_vinh => ('Tra Vinh'),
+    can_ho => ('Can Tho'),
+    soc_rang => ('Soc Trang'),
+    dong_hap => ('Dong Thap'),
+    binh_phuoc => ('Binh Phuoc'),
+    an_giang => ('An Giang'),
+    kien_giang => ('Kien Giang'),
+    ca_mau => ('Ca Mau'),
+    ben_re => ('Ben Tre'),
+    ba_ria_vung_au => ('Ba Ria - Vung Tau'),
+    vinh_long => ('Vinh Long'),
+    hau_giang => ('Hau Giang'),
+    paging4 => '------------------',
+    lam_dong => ('La^m Dong'),
+    kom_um => ('Kon Tum'),
+    giai_lai => ('Gia Lai'),
+    dak_lak => ('Dak Lak'),
+    dak_nong => ('Dak Nong'),
+    );
+}
