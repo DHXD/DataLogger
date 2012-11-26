@@ -648,7 +648,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
       
 			$phone = $node->field_station_sim_number['und']['0']['value'];
 			// $modem = $node->field_station_modem['und']['0']['value'];
-			$modem = node_load($node->field_station_modem['vi']['0']['nid']);
+			$modem = dsm(node_load($node->field_station_modem['und']['0']['nid']));
       switch ($select) {
         //Data call command
         case 1 :
@@ -1136,6 +1136,9 @@ function _datalogger_check_inbox() {
   foreach ($result as $row) {
     // //tin nhắn từ datalogger
 		$id_inbox = $row->ID;
+    
+    print "{$row->ID}\n";
+    
 		$number = _datalogger_convert_number($row->SenderNumber);
 		$sms = $row->TextDecoded;
     if(_datalogger_startsWith($row->TextDecoded,'HS') && _datalogger_endsWith($row->TextDecoded,';')) {
@@ -1161,7 +1164,9 @@ function _datalogger_check_inbox() {
 			_datalogger_update_process_inbox(2,$id_inbox);
 		}
   }
-	return 'Ok';
+	//return 'Ok';
+  print "Ok.";
+  drupal_exit();
 }
 
 function _datalogger_update_process_inbox($process, $id_inbox){
@@ -1509,6 +1514,7 @@ function _datalogger_CheckSum($str){
 // }
 function _datalogger_insert_outbox($phone, $sms, $modem){
   /*cach 1:*/
+  dsm($modem);
   $sql = "INSERT INTO outbox(DestinationNumber, TextDecoded, CreatorID, SenderID) VALUES('$phone', '$sms', '', '$modem')";
   $nid = db_query($sql);
 }
