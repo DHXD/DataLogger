@@ -104,6 +104,50 @@ $datalogger_pattern = array(
 		// 38 => t('Reset All'),);	
 
 /**
+ *Begin: 25/11. 
+ *author:hungnm0302
+ *Lay ten cac tram do mua theo role khu vuc
+ */
+function _datalogger_ftp_server(){
+	try {
+		/*
+		$jail = dsm(drupal_realpath('public://'));
+		
+		$settings['username'] = 'root';
+		$settings['password'] = 'root';
+		$settings['advanced']['hostname'] = 'localhost';
+		$settings['advanced']['port'] = '21';
+		*/
+		$jail = FTP_JAIL;
+		$settings = array(
+				// 'username' => FTP_USER,
+				// 'password' => FTP_PASS,		
+				'username' => 'root',
+				'password' => 'root',
+				'advanced' => array(
+						// 'hostname' => FTP_HOST,
+						// 'port' => FTP_PORT,
+						'hostname' => 'localhost',
+						'port' => '21',
+				),
+		);
+	
+		// $ftpserver = FileTransferFTP::factory($jail, $settings);
+		$ftpserver = FileTransferFTP::factory($jail, $settings);
+		$ftpserver->connect();
+		$source = '/shareFile';
+		$destination = drupal_realpath('public://shareFile//');
+		// $ftpserver->copyDirectory($destination,$source);
+		$ftpserver->copyFile($destination.'abc.jpg',$source);
+		// dsm('ok');
+	}
+	catch(Exception $e) {
+	}
+	
+	// return $ftpserver->getSettingsForm();
+}
+ 
+ /**
  *Begin: 21/11. 
  *author:hungnm0302
  *Lay ten cac tram do mua theo role khu vuc
@@ -112,7 +156,7 @@ $datalogger_pattern = array(
 function _datalogger_station_name_list(){
 	global $user;
 	// if($user->uid != 1){
-	if(!in_array('administrator', array_values($user->roles)) || !in_array('control datalogger', array_values($user->roles))){
+	if (!in_array('administrator', array_values($user->roles)) && !in_array('control datalogger', array_values($user->roles)) && !in_array('manage data', array_values($user->roles))) {
 				$account = user_load($user->uid);
 				// dsm($account);
 				if(isset($account->field_station_region['und'])){

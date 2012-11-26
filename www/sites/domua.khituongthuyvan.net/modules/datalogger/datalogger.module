@@ -30,9 +30,13 @@ function datalogger_views_pre_render(&$view) {
  *Description: thay đổi query hiển thị trạm theo từng khu vực trên user
  */
 function datalogger_views_query_alter(&$view, &$query) {
-  if($view->name == "view_list_stations_role_manage") {
+	//view: hien thi ban do cac tram do mưa
+  if($view->name == "view_map_stations") {
 			global $user;
-			if(!in_array('administrator', array_values($user->roles))){
+			$path = drupal_realpath(file_default_scheme() . '://');
+			$path = drupal_realpath('public://'.'shareFile');
+			// dsm($view);
+			if (!in_array('administrator', array_values($user->roles)) && !in_array('control datalogger', array_values($user->roles)) && !in_array('manage data', array_values($user->roles))) {
 				$account = user_load($user->uid);
 				if(isset($account->field_station_region['und'])){
 					foreach($account->field_station_region['und'] as $region){
@@ -48,9 +52,29 @@ function datalogger_views_query_alter(&$view, &$query) {
 			}
   }
 	
+	//view: quan ly thong tin tram
+	if($view->name == "view_list_stations_role_manage") {
+			global $user;
+			if (!in_array('administrator', array_values($user->roles)) && !in_array('manage data', array_values($user->roles))) {
+				$account = user_load($user->uid);
+				if(isset($account->field_station_region['und'])){
+					foreach($account->field_station_region['und'] as $region){
+								$query->where[1]['conditions'][2]['value'] = $region['value'];
+					}
+				}
+			}
+			else{
+				$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
+								south_central_region,south_region,central_highlands);
+				$query->where[1]['conditions'][2]['operator'] = 'IN';
+				// $query->where[1]['conditions'][2]['value'] = $region['value'];
+			}
+  }
+	
+	//view: thong tin modem theo tung khu vuc dat tram
 	if($view->name == "view_modems") {
 		global $user;
-			if(!in_array('administrator', array_values($user->roles))){
+			if (!in_array('administrator', array_values($user->roles)) && !in_array('manage data', array_values($user->roles))) {
 				$account = user_load($user->uid);
 				if(isset($account->field_station_region['und'])){
 					foreach($account->field_station_region['und'] as $region){
@@ -121,24 +145,25 @@ function datalogger_send_command_action(&$object, $context = array()){
  */
  
 function datalogger_menu() {
+/**
+ *Begin: 25/11. 
+ *author: hungnm0302
+ *description: ftp tranferer
+ */		
+  $items['manage/ftpserver'] = array(
+    'title' => 'FPT server',
+    'page callback' => '_datalogger_ftp_server',
+		'file' => 'datalogger.admin.inc',
+    'access callback' => TRUE,
+  );
 
 /**
  *Begin: 17/11. 
  *author: Phan Văn Tuấn
  *description: tạo menu xuất báo cáo theo năm+ngay
  */
- $managedata = array(
-		'manage data',
-		'khuvucbactrungbo',
-		'khuvuctrungtrungbo',
-		'khuvucnamtrungbo',
-		'khuvucnambo',
-		'khuvuctaynguyen',
-	);
-  $items['manage/report/rainfalls/day'] = array(
+	$items['manage/report/rainfalls/day'] = array(
     'title' => 'Daily rainfall data reports',
-    // 'access arguments' => array('manage data'),
-    // 'access arguments' => $managedata,
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		'type' => MENU_DEFAULT_LOCAL_TASK, 
 		'weight' => -25,
