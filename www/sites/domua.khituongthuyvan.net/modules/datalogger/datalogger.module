@@ -1,5 +1,21 @@
 <?php
 
+/**
+ * Implements hook_openlayers_styles().
+ */
+function datalogger_openlayers_styles() {
+	dsm('ok');
+}
+
+ /**
+ *Begin:15/11. 
+ *Implements hook_views_pre_render().
+ *Author:hungnm0302
+ *Description: thay doi ket qua hien thi tren form cua view
+ */	
+function datalogger_form_alter(&$form, $form_state, $form_id){
+	// dsm($form);
+}
  /**
  *Begin:15/11. 
  *Implements hook_views_pre_render().
@@ -18,10 +34,12 @@ function datalogger_views_pre_render(&$view) {
 	if($view->name == "view_all_station") {
 		global $user;
 		if (!in_array('administrator', array_values($user->roles)) && !in_array('control datalogger', array_values($user->roles))) {
-			// dsm('into');
 			unset($view->field['nid']);
 		}
 	}
+	// if($view->name == "admin_command_from_phone_code") {
+		// dsm($view);
+	// }
 } 
 
 /*
@@ -30,26 +48,27 @@ function datalogger_views_pre_render(&$view) {
  *Description: thay đổi query hiển thị trạm theo từng khu vực trên user
  */
 function datalogger_views_query_alter(&$view, &$query) {
-	//view: hien thi ban do cac tram do mưa
-  if($view->name == "view_map_stations") {
-			global $user;
-			$path = drupal_realpath(file_default_scheme() . '://');
-			$path = drupal_realpath('public://'.'shareFile');
-			// dsm($view);
-			if (!in_array('administrator', array_values($user->roles)) && !in_array('control datalogger', array_values($user->roles)) && !in_array('manage data', array_values($user->roles))) {
-				$account = user_load($user->uid);
-				if(isset($account->field_station_region['und'])){
-					foreach($account->field_station_region['und'] as $region){
-								$query->where[1]['conditions'][2]['value'] = $region['value'];
-					}
-				}
+	//view: hien thi cac tram do mưa theo khu vuc thuc hien lenh
+  if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == 'view_command_send_station' ) {
+		global $user;
+		$account = user_load($user->uid);
+		if(in_array('administrator', array_values($user->roles))){
+			$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
+							south_central_region,south_region,central_highlands);
+			$query->where[1]['conditions'][2]['operator'] = 'IN';
+		}
+		elseif(isset($account->field_station_region['und'])){
+			foreach($account->field_station_region['und'] as $region){
+				$regions[] = $region['value'];
+			}
+			if(count($regions) > 1){
+				$query->where[1]['conditions'][2]['value'] = $regions;
+				$query->where[1]['conditions'][2]['operator'] = 'IN';
 			}
 			else{
-				$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
-								south_central_region,south_region,central_highlands);
-				$query->where[1]['conditions'][2]['operator'] = 'IN';
-				// $query->where[1]['conditions'][2]['value'] = $region['value'];
+				$query->where[1]['conditions'][2]['value'] = $regions;
 			}
+		}
   }
 	
 	//view: quan ly thong tin tram
@@ -67,7 +86,6 @@ function datalogger_views_query_alter(&$view, &$query) {
 				$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
 								south_central_region,south_region,central_highlands);
 				$query->where[1]['conditions'][2]['operator'] = 'IN';
-				// $query->where[1]['conditions'][2]['value'] = $region['value'];
 			}
   }
 	
@@ -86,29 +104,8 @@ function datalogger_views_query_alter(&$view, &$query) {
 				$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
 								south_central_region,south_region,central_highlands);
 				$query->where[1]['conditions'][2]['operator'] = 'IN';
-				// $query->where[1]['conditions'][2]['value'] = $region['value'];
 			}
   }
-	
-	if($view->name == "view_list_user") {
-		global $user;
-		// if(!in_array('administrator', array_values($user->roles))){
-			// $account = user_load($user->uid);
-			// if(isset($account->field_station_region['und'])){
-				// foreach($account->field_station_region['und'] as $region){
-							// $query->where[1]['conditions'][2]['value'] = $region['value'];
-				// }
-			// }
-			// dsm($view);
-		// }
-		// else{
-			// $query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
-							// south_central_region,south_region,central_highlands);
-			// $query->where[1]['conditions'][2]['operator'] = 'IN';
-			// // $query->where[1]['conditions'][2]['value'] = $region['value'];
-		// }
-  }
-	
 	
 }
 
@@ -593,45 +590,95 @@ function datalogger_openlayers_map_alter(&$map) {
   }
 }
 
-function _datalogger_array_station_province_city_array() {
-  return array(
-    thanh_hoa => ('Thanh Hoa'),
-    nghe_an => ('Nghe An'),
-    ha_inh => ('Ha Tinh'),
-    paging1 => '------------------',
-    quang_ri => ('Quang Tri'),
-    quang_binh => ('Quang Binh'),
-    hua_hien_hue => ('Thua Thien - Hue'),
-    da_nang => ('Da Nang'),
-    quang_nam => ('Quang Nam'),
-    quang_ngai => ('Quang Ngai'),
-    paging2 => '------------------',
-    binh_dinh => ('Binh Dinh'),
-    phu_yen => ('Phu Yen'),
-    khanh_hoa => ('Khanh Hoa'),
-    ninh_huan => ('Ninh Thuan'),
-    binh_huan => ('Binh Thuan'),
-    paging3 => '------------------',
-    binh_duong => ('Binh Duong'),
-    ay_ninh => ('Tay Ninh'),
-    ien_gian => ('Tien Giang'),
-    ra_vinh => ('Tra Vinh'),
-    can_ho => ('Can Tho'),
-    soc_rang => ('Soc Trang'),
-    dong_hap => ('Dong Thap'),
-    binh_phuoc => ('Binh Phuoc'),
-    an_giang => ('An Giang'),
-    kien_giang => ('Kien Giang'),
-    ca_mau => ('Ca Mau'),
-    ben_re => ('Ben Tre'),
-    ba_ria_vung_au => ('Ba Ria - Vung Tau'),
-    vinh_long => ('Vinh Long'),
-    hau_giang => ('Hau Giang'),
-    paging4 => '------------------',
-    lam_dong => ('La^m Dong'),
-    kom_um => ('Kon Tum'),
-    giai_lai => ('Gia Lai'),
-    dak_lak => ('Dak Lak'),
-    dak_nong => ('Dak Nong'),
-    );
+function _datalogger_return_area(){
+	return array(
+		north_central_region => t('North Central Region'),
+		mid_central_region  => t('Central Central Region'),  
+		south_central_region  => t('South Central Region'),
+		south_region => t('South Region'),
+		central_highlands => t('Central Highlands Region'),
+	);
+}
+
+function _datalogger_return_city(){
+	return array(
+		// ho_chi_minh => ('Ho Chi Minh'),
+		// hai_phong => ('Hai Phong'),
+		// ha_giang => ('Ha Giang'),
+		// cao_bang => ('Cao Bang'),
+		// lai_chau => ('Lai Chau'),
+		// lao_cai => ('Lao Cai'),
+		// tuyen_quang => ('Tuyen Quang'),
+		// lang_son => ('Lang Son'),
+		// bac_kan => ('Bac Kan'),
+		// thai_nguyen => ('Thai Nguyen'),
+		// yen_bai => ('Yen Bai'),
+		// son_la => ('Son La'),
+		// phu_tho => ('Phu Tho'),
+		// vinh_phuc => ('Vinh Phuc'),
+		// quang_ninh => ('Quang Ninh'),
+		// bac_giang => ('Bac Giang'),
+		// bac_ninh => ('Bac Ninh'),
+		// ha_noi => ('Ha Noi'),
+		// hai_duong => ('Hai Duong'),
+		// hung_yen => ('Hung Yen'),
+		// hoa_binh => ('Hoa Binh'),
+		// ha_nam => ('Ha Nam'),
+		// nam_dinh => ('Nam Dinh'),
+		// thai_binh => ('Thai Binh'),
+		// ninh_binh => ('Ninh Binh'),
+		// dong_nai => ('Dong Nai'),
+		// long_an => ('Long An'),
+		// bac_lieu => ('Bac Lieu'),
+		// dien_bien => ('Dien Bien'),
+		paging0 => '------------------',				
+		// north_central_region => array(
+			thanh_hoa => t('Thanh Hóa'),
+			nghe_an => t('Nghệ An'),
+			ha_tinh => t('Hà Tĩnh'),
+		// ),
+		paging1 => '------------------',
+		// mid_central_region => array(
+			quang_tri => ('Quảng Trị'),
+			quang_binh => ('Quảng Bình'),
+			thua_thien_hue => ('Thừa Thiên - Huế'),
+			da_nang => ('Đà Nẵng'),
+			quang_nam => ('Quảng Nam'),
+			quang_ngai => ('Quảng Ngãi'),
+		// ),
+		paging2 => '------------------',
+		// south_central_region => array(
+			binh_dinh => ('Bình Định'),
+			phu_yen => ('Phú Yên'),
+			khanh_hoa => ('Khánh Hòa'),
+			ninh_thuan => ('Ninh Thuận'),
+			binh_thuan => ('Bình Thuận'),
+		// ),
+		paging3 => '------------------',
+		// south_region => array(
+			binh_duong => ('Bình Dương'),
+			tay_ninh => ('Tây Ninh'),
+			tien_gian => ('Tiền Giang'),
+			tra_vinh => ('Trà Vinh'),
+			can_tho => ('Cần Thơ'),
+			soc_trang => ('Sóc Trăng'),
+			dong_thap => ('Đồng Tháp'),
+			binh_phuoc => ('Bình Phước'),
+			an_giang => ('An Giang'),
+			kien_giang => ('Kiên Giang'),
+			ca_mau => ('Cà Mau'),
+			ben_tre => ('Bến Tre'),
+			ba_ria_vung_tau => ('Bà Rịa - Vũng Tàu'),
+			vinh_long => ('Vĩnh Long'),
+			hau_giang => ('Hậu Giang'),
+		// ),
+		paging4 => '------------------',
+		// central_highlands  => array(
+			lam_dong => ('Lâm Đồng'),
+			kom_tum => ('Kon Tum'),
+			giai_lai => ('Gia Lai'),
+			dak_lak => ('Đắk Lắk'),
+			dak_nong => ('Đắk Nông'),
+		// ),
+	);
 }

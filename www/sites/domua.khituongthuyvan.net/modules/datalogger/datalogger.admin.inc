@@ -178,6 +178,7 @@ function _datalogger_station_name_list(){
 	*Begin: 16/11. 
  *author:Nguyễn Mạnh Hùng
  */
+ /*
 function _datalogger_return_area($areas){
 	$regions_list = array(
 		north_central_region => t('North Central Region'),
@@ -648,7 +649,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
       
 			$phone = $node->field_station_sim_number['und']['0']['value'];
 			// $modem = $node->field_station_modem['und']['0']['value'];
-			$modem = dsm(node_load($node->field_station_modem['und']['0']['nid']));
+			$modem = node_load($node->field_station_modem['und']['0']['nid']);
       switch ($select) {
         //Data call command
         case 1 :
@@ -1187,7 +1188,7 @@ function _datalogger_separate_sms_command($sms, $number){
 	}
 
 	$result = views_get_view_result('admin_command_from_phone_code', 'default', $number, $malenh);
-	$nid = $result[0]->nid;
+	$nid = $result['result'][0]->nid;
 	if($nid != 0 || !empty($nid)){
 		$node_command = node_load($nid);	
 		$node_command->field_command_result["und"][0]["value"] = _datalogger_result($sms, $malenh);	
@@ -1221,10 +1222,7 @@ function _datalogger_string_to_unix_date($str){
 }
 
 function _datalogger_separate_sms($sms,$number) {
-    // $data = "HS123456,121005161045,121005161000,0    0    0  127,0    0    0  127,0    0    0  126,0    0    0  127,0    0    0  127,0    0    0  127,78;";
   list($code, $timenow, $timestart, $arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $chk) = explode(",", $sms);
-	// dsm($sms);
-	// dsm($number);
 	$id = substr($code,2,6);
 	$is_valid = array();
 	$measuaring = array();
@@ -1241,19 +1239,14 @@ function _datalogger_separate_sms($sms,$number) {
 	}
 
 	$station = _datalogger_get_station('view_station_find', $number);
-	// dsm($station);
 	$nid = $station[0]->nid;
 	$title = $station[0]->node_title;
-	// $time1 = _datalogger_string_to_date($timestart);
-	// $arg = array($time1, $nid, $is_valid, $measuaring, $accumulate, $battery);
 	$arg = array($timestart, $nid, $is_valid, $measuaring, $accumulate, $battery);
 
 	_datalogger_insert_node_rainfall($arg);
-	// dsm('insert thanh cong');
 }
 
 function _datalogger_separate_opp($sms){
-    // $sms = "0    0    0  127";
   $arg = array(substr($sms,0,1), substr($sms,1,5), substr($sms,6,5), substr($sms,11,5));
 	return $arg;
 }
@@ -1319,19 +1312,6 @@ function _datalogger_insert_node_command($arg){
 
 
 function _datalogger_insert_node_rainfall(&$arg){
-	/*
-	$rainfalls = views_get_view_result('view_export_excel',NULL, 3138, 201211);
-	dsm($rainfalls);
-	$node = node_load(3138);
-	dsm($node->title);
-	foreach($rainfalls as $rainfall){
-		dsm($rainfall->field_field_rainfall_station[0]['rendered']['title ']);
-		dsm($rainfall->node_title);
-		dsm($rainfall->field_field_rainfall_measuring[0]['raw']['value']);
-		dsm($rainfall->field_field_rainfall_total[0]['raw']['value']);
-	}
-	*/
-	
 	$timestam = $arg[0];
 	$nid = $arg[1];
 	$station = node_load($nid);
@@ -1514,7 +1494,6 @@ function _datalogger_CheckSum($str){
 // }
 function _datalogger_insert_outbox($phone, $sms, $modem){
   /*cach 1:*/
-  dsm($modem);
   $sql = "INSERT INTO outbox(DestinationNumber, TextDecoded, CreatorID, SenderID) VALUES('$phone', '$sms', '', '$modem')";
   $nid = db_query($sql);
 }
@@ -2272,13 +2251,7 @@ function _command_form($form, &$form_state) {
       'effect' => 'fade',
     ),
   );
-  
-  // /*
-	//gui lenh toi mot tram ok.
-	// dsm(explode("/",arg()));
-	// $station_nid = !empty($form_state['values']['station_nid']) ? $form_state['values']['station_nid'] : intval(arg(1));
 	$station_nid = !empty($form_state['values']['station_nid']) ? $form_state['values']['station_nid'] : arg();
-	// dsm('Form '.$station_nid);
 	$form['station_nid'] = array(
     '#type' => 'hidden',    
     '#value' => $station_nid,
