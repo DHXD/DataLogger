@@ -139,12 +139,9 @@ function _datalogger_ftp_server(){
 		$destination = drupal_realpath('public://shareFile//');
 		// $ftpserver->copyDirectory($destination,$source);
 		$ftpserver->copyFile($destination.'abc.jpg',$source);
-		// dsm('ok');
 	}
 	catch(Exception $e) {
 	}
-	
-	// return $ftpserver->getSettingsForm();
 }
  
  /**
@@ -329,20 +326,19 @@ function _datalogger_set_station_options($area, $province) {
     // }
 }
 
- function _datalogger_report_rainfall_year_form()
-{
-	/*
+function _datalogger_report_rainfall_year_form($form, &$form_state){
 	drupal_set_title(t('Report annual rainfall data'));
+	module_load_include('module', 'datalogger','datalogger');
 	$years = array();
 	for($i = 0; $i <30; $i++){
 		$year = 2012 + $i;
 		$years[$year] = $year;
 	}
+	
   $form['selectReport'] = array(
     '#type' => 'select',
     '#title' => t('Select the type of report: '),
     '#options' => array(
-      // 0 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKt-5'),
       'bk1' => t('Reported rainfall data in report form BKT-14'),
      ),
   );
@@ -350,59 +346,67 @@ function _datalogger_set_station_options($area, $province) {
 	global $user;
 	$account = user_load($user->uid,true);
 	foreach($account->field_station_region['und'] as $region){
-		$regions[] = array($region['value']);
+		$regions[$region['value']] = _datalogger_return_area($region['value']);
 	}
-	$area = $account->field_station_region['und'][0]['value'];
-	$value_select_area = isset($form_state['values']['selectArea']) ? $form_state['values']['selectArea'] : $area;
+	
+	$value_select_area = isset($form_state['values']['selectArea']) ? $form_state['values']['selectArea'] : key($regions);
   $form['selectArea'] = array(
     '#type' => 'select',
     '#title' => t('Chọn khu vực: '),
-    '#options' => _datalogger_return_area($regions),
+    '#options' => $regions,
+		'#default_value' => $value_select_area,
+		'#ajax' => array(
+      'event'=>'change',
+      'callback' =>'_datalogger_ajax_dropdown_area',
+      'wrapper' => 'area-wrapper',
+			'method' => 'replace',
+      'effect' => 'fade',
+    ),
   );
-  
-	$provinces = _datalogger_return_city($regions);
-	$value_select_province = isset($form_state['values']['selectProvince']) ? $form_state['values']['selectProvince'] : key($provinces[0]);
-	$form['selectProvince'] = array(
-		 '#type' => 'select',
-		 '#title' => t('Chọn Tỉnh/ Thành phố: '),
-		 '#options' => $provinces,
-		 '#ajax' => array(
-				'event' => 'change',
-				'callback' => '_datalogger_set_station_callback',
-				'wrapper' => 'station_name_replace',
-			),
-			
-	); 
-	// dsm($form_state['values']['selectProvince']);
 	
-	GLOBAL $station_name;
-	$form['station'] = array(
+	$form['selectProvince'] = array(
+	 '#prefix' => '<div id="area-wrapper">',
+	 '#suffix' => '</div>',
+	);
+	
+	$value_select_province = isset($form_state['values']['province']) ? $form_state['values']['province'] : key(_datalogger_return_city2($value_select_area));
+	$form['selectProvince']['province'] = array(
+		'#type' => 'select',
+		'#title' => t('Chọn Tỉnh/ Thành phố: '),
+		'#options' => _datalogger_return_city2($value_select_area),
+		'#default_value' => $value_select_province,
+		'#ajax' => array(
+      'event'=>'change',
+      'callback' =>'_datalogger_ajax_dropdown_province',
+      'wrapper' => 'province-wrapper',
+			'method' => 'replace',
+      'effect' => 'fade',
+    ),
+	); 
+	// dsm(key(_datalogger_return_city2($value_select_area)));
+	$form['selectStation'] = array(
+	 '#prefix' => '<div id="province-wrapper">',
+	 '#suffix' => '</div>',
+	);
+	// dsm($value_select_province);
+	$stations = views_get_view_result('view_station_filter_parameter', Null, 	$value_select_area, $value_select_province, 'all');
+	foreach($stations as $station){
+		$station_name[$station->nid] = $station->node_title;
+	}
+	
+	$form['selectStation']['station'] = array(
 		 '#type' => 'select',
 		 '#title' => t('Select station: '),
-		 '#prefix' => '<div id="station_name_replace">',
-		 '#suffix' => '</div>',
-		 '#options' => _datalogger_set_station_options($value_select_area, $value_select_province),
-		 // '#default_value' => isset($form_state['values']['station']) ? $form_state['values']['station'] : 'aaa',
+		 '#options' => $station_name,
+		 '#default_value' => isset($form_state['values']['station']) ? $form_state['values']['station']: key($station_name),
 	);   
-
+	
 	$form['year'] = array(
 		 '#type' => 'select',
 		 '#title' => t('Year'),
 		 '#options' => $years,
-		 // '#required' => TRUE,	
+		 '#default_value' => key($years),
 	);         
-	
-	//$form['month'] = array(
-    // '#type' => 'select',
-     //'#title' => t('Tháng'),
-     //'#options' => $months,
-  //);  
-
-	// $form['month_year']= array(
-    // '#type' => 'date',
-		// '#date_format' => 'Y:m', 
-  // );
-	
   $form['txtNameQTV'] = array(
      '#type' => 'textfield',
      '#title' => t('Full name of the person observation: '),
@@ -429,115 +433,28 @@ function _datalogger_set_station_options($area, $province) {
           "_datalogger_report_rainfall_year_form_submit"
       ),
   ); 
-	*/
-	/*-------------------------------------------------------*/
-	// /*
-	drupal_set_title(t('Report annual rainfall data'));
-  module_load_include('module', 'datalogger','datalogger');
-	$years = array();
-	for($i = 0; $i <30; $i++){
-		$year = 2012 + $i;
-		$years[$year] = $year;
-	}
-	
-  $form['selectReport'] = array(
-    '#type' => 'select',
-    '#title' => t('Select the type of report: '),
-    '#options' => array(
-      // 0 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKt-5'),
-      'bk1' => t('Reported rainfall data in report form BKT-14'),
-     ),
-  );
-  // $form['selectArea'] = array(
-    // '#type' => 'select',
-    // '#title' => t('Chọn khu vực: '),
-    // '#options' => return array(
-			// north_central_region => t('North Central Region'),
-			// mid_central_region  => t('Central Central Region'),  
-			// south_central_region  => t('South Central Region'),
-			// south_region => t('South Region'),
-			// central_highlands => t('Central Highlands Region'),
-		// ),
-		// '#ajax' => array(
-      // 'callback' => '_command_callback',
-      // 'wrapper' => 'command-div',
-      // 'method' => 'replace',
-      // 'effect' => 'fade',
-    // ),
-  // );
-   
-  // $form['selectProvince'] = array(
-     // '#type' => 'select',
-     // '#title' => t('Chọn Tỉnh/ Thành phố: '),
-     // '#options' => _datalogger_return_city(),
-  // ); 
-	
-	// GLOBAL $station_name = _datalogger_station_ajax();
-  $form['station'] = array(
-     '#type' => 'select',
-     '#title' => t('Select station: '),
-     '#options' => _datalogger_station_name_list(),
-  );   
-	
-	$form['year'] = array(
-     '#type' => 'select',
-     '#title' => t('Year'),
-     '#options' => $years,
-		 // '#required' => TRUE,	
-  );         
-	
-	//$form['month'] = array(
-    // '#type' => 'select',
-     //'#title' => t('Tháng'),
-     //'#options' => $months,
-  //);  
-
-	// $form['month_year']= array(
-    // '#type' => 'date',
-		// '#date_format' => 'Y:m', 
-  // );
-	
-  $form['txtNameQTV'] = array(
-     '#type' => 'textfield',
-     '#title' => t('Full name of the person observation: '),
-  );  
-  
-  $form['txtNameNLB'] = array(
-     '#type' => 'textfield',
-     '#title' => t('Full name of the person creating the table: '),
-  );    
-  
-  $form['txtNameKS'] = array(
-     '#type' => 'textfield',
-     '#title' => t('Full name of the person control: '),
-  );    
-  
-  $form['txtNamePT'] = array(
-     '#type' => 'textfield',
-     '#title' => t('Full name of person Appeal: '),
-  );
-  $form["submit"] = array(
-      "#type" => "submit",
-      "#value" => t("Report"),
-      "#submit" => array(
-          "_datalogger_report_rainfall_year_form_submit"
-      ),
-  ); 
-	// */
   return $form;
+}
+
+function _datalogger_ajax_dropdown_area(&$form, &$form_state){
+	return $form['selectProvince'];
+}
+
+function _datalogger_ajax_dropdown_province(&$form, &$form_state){
+	return $form['selectStation'];
 }
 
 function _datalogger_report_rainfall_year_form_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
-	
 	$nid = $form_state['values']['station'];
+	$area = $form_state['values']['selectArea'];
+	$province = $form_state['values']['province'];
 	$year = $form_state['values']['year'];
 	$name_qtv = $form_state['values']['txtNameQTV'];
 	$name_nlb = $form_state['values']['txtNameNLB'];
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
-	
-	$rainfalls = views_get_view_result('view_export_excel',Null, $nid, $year, 'all', 'all');
+	$rainfalls = views_get_view_result('view_export_excel', Null, $nid, $year, 'all', 'all');
 	if(count($rainfalls) <= 0){
 		drupal_set_message(t('Trạm đo mưa trên chưa có số liệu để lập báo cáo'),'error');
 	}
@@ -552,23 +469,79 @@ function _datalogger_report_rainfall_year_form_submit(&$form, &$form_state) {
  *description:tạo form xuất báo cáo theo ngày
  */
 function _datalogger_report_rainfall_day_form(){
+	drupal_set_title(t('Reports daily rainfall data'));
   module_load_include('module', 'datalogger','datalogger');
-
-	$form['selectReport'] = array(
+	$years = array();
+	for($i = 0; $i <30; $i++){
+		$year = 2012 + $i;
+		$years[$year] = $year;
+	}
+	
+  $form['selectReport'] = array(
     '#type' => 'select',
     '#title' => t('Select the type of report: '),
     '#options' => array(
-      // 0 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKt-5'),
       'bk1' => t('Reported rainfall data in report form BKT-14'),
      ),
   );
-
-	// GLOBAL $station_name;
-  $form['station'] = array(
-     '#type' => 'select',
-     '#title' => t('Select station: '),
-     '#options' => _datalogger_station_name_list(),
-  );   
+	
+	global $user;
+	$account = user_load($user->uid,true);
+	foreach($account->field_station_region['und'] as $region){
+		$regions[$region['value']] = _datalogger_return_area($region['value']);
+	}
+	
+	$value_select_area = isset($form_state['values']['selectArea']) ? $form_state['values']['selectArea'] : key($regions);
+  $form['selectArea'] = array(
+    '#type' => 'select',
+    '#title' => t('Chọn khu vực: '),
+    '#options' => $regions,
+		'#default_value' => $value_select_area,
+		'#ajax' => array(
+      'event'=>'change',
+      'callback' =>'_datalogger_ajax_dropdown_area',
+      'wrapper' => 'area-wrapper',
+			'method' => 'replace',
+      'effect' => 'fade',
+    ),
+  );
+	
+	$form['selectProvince'] = array(
+	 '#prefix' => '<div id="area-wrapper">',
+	 '#suffix' => '</div>',
+	);
+	
+	$value_select_province = isset($form_state['values']['province']) ? $form_state['values']['province'] : key(_datalogger_return_city2($value_select_area));
+	$form['selectProvince']['province'] = array(
+		'#type' => 'select',
+		'#title' => t('Chọn Tỉnh/ Thành phố: '),
+		'#options' => _datalogger_return_city2($value_select_area),
+		'#default_value' => $value_select_province,
+		'#ajax' => array(
+      'event'=>'change',
+      'callback' =>'_datalogger_ajax_dropdown_province',
+      'wrapper' => 'province-wrapper',
+			'method' => 'replace',
+      'effect' => 'fade',
+    ),
+	); 
+	// dsm(key(_datalogger_return_city2($value_select_area)));
+	$form['selectStation'] = array(
+	 '#prefix' => '<div id="province-wrapper">',
+	 '#suffix' => '</div>',
+	);
+	// dsm($value_select_province);
+	$stations = views_get_view_result('view_station_filter_parameter', Null, 	$value_select_area, $value_select_province, 'all');
+	foreach($stations as $station){
+		$station_name[$station->nid] = $station->node_title;
+	}
+	
+	$form['selectStation']['station'] = array(
+		 '#type' => 'select',
+		 '#title' => t('Select station: '),
+		 '#options' => $station_name,
+		 '#default_value' => isset($form_state['values']['station']) ? $form_state['values']['station']: key($station_name),
+	);   
 
 	$form['day']= array(
     '#type' => 'date_popup',
@@ -1337,37 +1310,43 @@ function _datalogger_insert_node_rainfall(&$arg){
 				if(count($rainfalls) > 0){
 					foreach($rainfalls as $rainfall_old){
 						$rainfall_old = node_load($rainfall_old->nid);
-						node_delete($rainfall_old->nid);
+						//lượng mưa đo được trong 10p
+						$rainfall_old->field_rainfall_measuring['und'][0]['value'] = $measuring_interval[$i]/10;
+						//lượng mưa đo được trong 60p
+						$rainfall_old->field_rainfall_total['und'][0]['value'] = $arg[4][$i]/10;
+						node_save($rainfall_old);
+						// node_delete($rainfall_old->nid);
 					}
 				}
-				
-				//tao node moi
-				$rainfall = new stdClass();
-				$rainfall->title = date('d/m/Y H:i:s',$time);
-				$rainfall->type = "rainfall";
-				$rainfall->created = time();
-				$rainfall->changed = $rainfall->created;
-				$rainfall->status = 1; // Published?
-				$rainfall->promote = 0; // Display on front page?
-				$rainfall->sticky = 0; // Display top of page?
-				$rainfall->format = 1; // Filtered HTML?
-				$rainfall->uid = 1; // Content owner uid (author)?
-				$rainfall->language = 'und';
+				else{
+					//tao node moi
+					$rainfall = new stdClass();
+					$rainfall->title = date('d/m/Y H:i:s',$time);
+					$rainfall->type = "rainfall";
+					$rainfall->created = time();
+					$rainfall->changed = $rainfall->created;
+					$rainfall->status = 1; // Published?
+					$rainfall->promote = 0; // Display on front page?
+					$rainfall->sticky = 0; // Display top of page?
+					$rainfall->format = 1; // Filtered HTML?
+					$rainfall->uid = 1; // Content owner uid (author)?
+					$rainfall->language = 'und';
 
-				node_object_prepare($rainfall); 
-				$rainfall->field_rainfall_station[$rainfall->language][0]['nid'] = $nid;
-				//lượng mưa đo được trong 10p
-				$rainfall->field_rainfall_measuring[$rainfall->language][0]['value'] = $measuring_interval[$i]/10;
-				$rainfall->field_rainfall_send_time[$rainfall->language][0]['value'] = $time;
-				$rainfall->field_rainfall_time_send_sms[$rainfall->language][0]['value'] = $send_time;
-				$rainfall->field_rainfall_year[$rainfall->language][0]['value'] = $year;
-				$rainfall->field_rainfall_year_month[$rainfall->language][0]['value'] = $year_month;
-				$rainfall->field_rainfall_year_month_date[$rainfall->language][0]['value'] = $year_month_date;
-				//lượng mưa đo được trong 60p
-				$rainfall->field_rainfall_total[$rainfall->language][0]['value'] = $arg[4][$i]/10;
-				
-				$rainfall = node_submit($rainfall);
-				node_save($rainfall);
+					node_object_prepare($rainfall); 
+					$rainfall->field_rainfall_station[$rainfall->language][0]['nid'] = $nid;
+					//lượng mưa đo được trong 10p
+					$rainfall->field_rainfall_measuring[$rainfall->language][0]['value'] = $measuring_interval[$i]/10;
+					//lượng mưa đo được trong 60p
+					$rainfall->field_rainfall_total[$rainfall->language][0]['value'] = $arg[4][$i]/10;
+					$rainfall->field_rainfall_send_time[$rainfall->language][0]['value'] = $time;
+					$rainfall->field_rainfall_time_send_sms[$rainfall->language][0]['value'] = $send_time;
+					$rainfall->field_rainfall_year[$rainfall->language][0]['value'] = $year;
+					$rainfall->field_rainfall_year_month[$rainfall->language][0]['value'] = $year_month;
+					$rainfall->field_rainfall_year_month_date[$rainfall->language][0]['value'] = $year_month_date;
+					
+					$rainfall = node_submit($rainfall);
+					node_save($rainfall);																										
+				}
 			}
 		}
 		$station->field_station_power['und'][0]['value'] = $power/10;
@@ -1796,8 +1775,6 @@ function _log_rainfall_form(){
 function _datalogger_report_rainfall_month_form(){
 	drupal_set_title(t('Report monthly rainfall data'));
 	module_load_include('module', 'datalogger','datalogger');
-	
-	$months = array(1=>'01',2=>'02',3=>'03',4=>'04',5=>'05',6=>'06',7=>'07',8=>'08',9=>'09',10=>'10',11=>'11',12=>'12');
 	$years = array();
 	for($i = 0; $i <30; $i++){
 		$year = 2012 + $i;
@@ -1806,35 +1783,69 @@ function _datalogger_report_rainfall_month_form(){
 	
   $form['selectReport'] = array(
     '#type' => 'select',
-    //'#title' => t('Chọn loại hình báo cáo: '),
     '#title' => t('Select the type of report: '),
     '#options' => array(
-      // 0 => t('Báo cáo số liệu mưa theo mẫu báo cáo BKt-5'),
-      //'bk1' => t('Báo cáo số liệu mưa theo mẫu báo cáo BKT-14'),
       'bk1' => t('Reported rainfall data in report form BKT-14'),
-      
      ),
   );
-	/*
+	
+	global $user;
+	$account = user_load($user->uid,true);
+	foreach($account->field_station_region['und'] as $region){
+		$regions[$region['value']] = _datalogger_return_area($region['value']);
+	}
+	
+	$value_select_area = isset($form_state['values']['selectArea']) ? $form_state['values']['selectArea'] : key($regions);
   $form['selectArea'] = array(
     '#type' => 'select',
     '#title' => t('Chọn khu vực: '),
-    '#options' => _datalogger_return_area(),
+    '#options' => $regions,
+		'#default_value' => $value_select_area,
+		'#ajax' => array(
+      'event'=>'change',
+      'callback' =>'_datalogger_ajax_dropdown_area',
+      'wrapper' => 'area-wrapper',
+			'method' => 'replace',
+      'effect' => 'fade',
+    ),
   );
-   
-  $form['selectProvince'] = array(
-     '#type' => 'select',
-     '#title' => t('Chọn Tỉnh/ Thành phố: '),
-     '#options' => _datalogger_return_city(),
-  ); 
-  */
 	
-	// GLOBAL $station_name;
-  $form['station'] = array(
-     '#type' => 'select',
-     '#title' => t('Select station: '),
-     '#options' => _datalogger_station_name_list(),
-  );   
+	$form['selectProvince'] = array(
+	 '#prefix' => '<div id="area-wrapper">',
+	 '#suffix' => '</div>',
+	);
+	
+	$value_select_province = isset($form_state['values']['province']) ? $form_state['values']['province'] : key(_datalogger_return_city2($value_select_area));
+	$form['selectProvince']['province'] = array(
+		'#type' => 'select',
+		'#title' => t('Chọn Tỉnh/ Thành phố: '),
+		'#options' => _datalogger_return_city2($value_select_area),
+		'#default_value' => $value_select_province,
+		'#ajax' => array(
+      'event'=>'change',
+      'callback' =>'_datalogger_ajax_dropdown_province',
+      'wrapper' => 'province-wrapper',
+			'method' => 'replace',
+      'effect' => 'fade',
+    ),
+	); 
+	// dsm(key(_datalogger_return_city2($value_select_area)));
+	$form['selectStation'] = array(
+	 '#prefix' => '<div id="province-wrapper">',
+	 '#suffix' => '</div>',
+	);
+	// dsm($value_select_province);
+	$stations = views_get_view_result('view_station_filter_parameter', Null, 	$value_select_area, $value_select_province, 'all');
+	foreach($stations as $station){
+		$station_name[$station->nid] = $station->node_title;
+	}
+	
+	$form['selectStation']['station'] = array(
+		 '#type' => 'select',
+		 '#title' => t('Select station: '),
+		 '#options' => $station_name,
+		 '#default_value' => isset($form_state['values']['station']) ? $form_state['values']['station']: key($station_name),
+	);   
 	
 	$form['year'] = array(
      '#type' => 'select',

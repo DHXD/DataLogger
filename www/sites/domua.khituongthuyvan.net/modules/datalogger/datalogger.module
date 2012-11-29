@@ -3,8 +3,11 @@
 /**
  * Implements hook_openlayers_styles().
  */
-function datalogger_openlayers_styles() {
-	dsm('ok');
+function datalogger_openlayers_styles(&$map) {
+	// dsm($map['styles']);
+	// dsm($style);
+	// $map['styles']['default']['pointRadius'] = '12';
+	// dsm('okfdfdfdfdf');
 }
 
  /**
@@ -14,7 +17,21 @@ function datalogger_openlayers_styles() {
  *Description: thay doi ket qua hien thi tren form cua view
  */	
 function datalogger_form_alter(&$form, $form_state, $form_id){
-	// dsm($form);
+	global $user;
+	$account = user_load($user->uid);
+	/*
+	if($form_id = 'views_exposed_form'){
+		if($form['#id'] == 'views-exposed-form-view-command-send-station-page'){
+			// dsm($account->field_station_province_city['und']);
+			$form['field_station_province_city_value ']['#type'] = 'select';
+			$form['field_station_province_city_value ']['#options'] = $account->field_station_province_city['und'];
+			$form['field_station_province_city_value ']['#default_value'] = 'All';
+			// $form['field_station_province_city_value ']['#size'] = Null;
+			dsm($form);
+			dsm($form_state);
+		}
+	}
+	*/
 }
  /**
  *Begin:15/11. 
@@ -37,9 +54,6 @@ function datalogger_views_pre_render(&$view) {
 			unset($view->field['nid']);
 		}
 	}
-	// if($view->name == "admin_command_from_phone_code") {
-		// dsm($view);
-	// }
 } 
 
 /*
@@ -49,8 +63,11 @@ function datalogger_views_pre_render(&$view) {
  */
 function datalogger_views_query_alter(&$view, &$query) {
 	//view: hien thi cac tram do mưa theo khu vuc thuc hien lenh
-  if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == 'view_command_send_station' ) {
+	//view: hien thi cac tram do mưa theo khu vuc tren ban do
+	//view: hien thi cac lenh da thuc hien  theo khu vuc
+  if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' ) {
 		global $user;
+		dsm($query);
 		$account = user_load($user->uid);
 		if(in_array('administrator', array_values($user->roles))){
 			$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
@@ -67,6 +84,7 @@ function datalogger_views_query_alter(&$view, &$query) {
 			}
 			else{
 				$query->where[1]['conditions'][2]['value'] = $regions;
+				dsm('into');
 			}
 		}
   }
@@ -590,18 +608,22 @@ function datalogger_openlayers_map_alter(&$map) {
   }
 }
 
-function _datalogger_return_area(){
-	return array(
+function _datalogger_return_area($arg = null){
+	$areas = array(
 		north_central_region => t('North Central Region'),
 		mid_central_region  => t('Central Central Region'),  
 		south_central_region  => t('South Central Region'),
 		south_region => t('South Region'),
 		central_highlands => t('Central Highlands Region'),
 	);
+	if(empty($arg) || $arg == Null || $arg == ''){
+		return $areas;
+	}
+	return $areas[$arg];
 }
 
-function _datalogger_return_city(){
-	return array(
+function _datalogger_return_city($arg = null){
+	$provinces = array(
 		// ho_chi_minh => ('Ho Chi Minh'),
 		// hai_phong => ('Hai Phong'),
 		// ha_giang => ('Ha Giang'),
@@ -631,22 +653,22 @@ function _datalogger_return_city(){
 		// long_an => ('Long An'),
 		// bac_lieu => ('Bac Lieu'),
 		// dien_bien => ('Dien Bien'),
-		paging0 => '------------------',				
+		// paging0 => '------------------',				
 		// north_central_region => array(
-			thanh_hoa => t('Thanh Hóa'),
-			nghe_an => t('Nghệ An'),
-			ha_tinh => t('Hà Tĩnh'),
+			thanh_hoa => ('Thanh Hóa'),
+			nghe_an => ('Nghệ An'),
+			ha_tinh => ('Hà Tĩnh'),
 		// ),
-		paging1 => '------------------',
+		// paging1 => '------------------',
 		// mid_central_region => array(
-			quang_tri => ('Quảng Trị'),
 			quang_binh => ('Quảng Bình'),
+			quang_tri => ('Quảng Trị'),
 			thua_thien_hue => ('Thừa Thiên - Huế'),
 			da_nang => ('Đà Nẵng'),
 			quang_nam => ('Quảng Nam'),
 			quang_ngai => ('Quảng Ngãi'),
 		// ),
-		paging2 => '------------------',
+		// paging2 => '------------------',
 		// south_central_region => array(
 			binh_dinh => ('Bình Định'),
 			phu_yen => ('Phú Yên'),
@@ -654,7 +676,7 @@ function _datalogger_return_city(){
 			ninh_thuan => ('Ninh Thuận'),
 			binh_thuan => ('Bình Thuận'),
 		// ),
-		paging3 => '------------------',
+		// paging3 => '------------------',
 		// south_region => array(
 			binh_duong => ('Bình Dương'),
 			tay_ninh => ('Tây Ninh'),
@@ -672,7 +694,7 @@ function _datalogger_return_city(){
 			vinh_long => ('Vĩnh Long'),
 			hau_giang => ('Hậu Giang'),
 		// ),
-		paging4 => '------------------',
+		// paging4 => '------------------',
 		// central_highlands  => array(
 			lam_dong => ('Lâm Đồng'),
 			kom_tum => ('Kon Tum'),
@@ -681,4 +703,65 @@ function _datalogger_return_city(){
 			dak_nong => ('Đắk Nông'),
 		// ),
 	);
+	if(empty($arg) || $arg == Null || $arg == ''){
+		return $provinces;
+	}
+	return $provinces[$arg];
+}
+
+function _datalogger_return_city2($arg = null){
+	$provinces = array(
+		north_central_region => array(
+			thanh_hoa => ('Thanh Hóa'),
+			nghe_an => ('Nghệ An'),
+			ha_tinh => ('Hà Tĩnh'),
+		),
+		// paging1 => '------------------',
+		mid_central_region => array(
+			quang_binh => ('Quảng Bình'),
+			quang_tri => ('Quảng Trị'),
+			thua_thien_hue => ('Thừa Thiên - Huế'),
+			da_nang => ('Đà Nẵng'),
+			quang_nam => ('Quảng Nam'),
+			quang_ngai => ('Quảng Ngãi'),
+		),
+		// paging2 => '------------------',
+		south_central_region => array(
+			binh_dinh => ('Bình Định'),
+			phu_yen => ('Phú Yên'),
+			khanh_hoa => ('Khánh Hòa'),
+			ninh_thuan => ('Ninh Thuận'),
+			binh_thuan => ('Bình Thuận'),
+		),
+		// paging3 => '------------------',
+		south_region => array(
+			binh_duong => ('Bình Dương'),
+			tay_ninh => ('Tây Ninh'),
+			tien_gian => ('Tiền Giang'),
+			tra_vinh => ('Trà Vinh'),
+			can_tho => ('Cần Thơ'),
+			soc_trang => ('Sóc Trăng'),
+			dong_thap => ('Đồng Tháp'),
+			binh_phuoc => ('Bình Phước'),
+			an_giang => ('An Giang'),
+			kien_giang => ('Kiên Giang'),
+			ca_mau => ('Cà Mau'),
+			ben_tre => ('Bến Tre'),
+			ba_ria_vung_tau => ('Bà Rịa - Vũng Tàu'),
+			vinh_long => ('Vĩnh Long'),
+			hau_giang => ('Hậu Giang'),
+		),
+		// paging4 => '------------------',
+		central_highlands  => array(
+			lam_dong => ('Lâm Đồng'),
+			kom_tum => ('Kon Tum'),
+			giai_lai => ('Gia Lai'),
+			dak_lak => ('Đắk Lắk'),
+			dak_nong => ('Đắk Nông'),
+		),
+	);
+	if(empty($arg) || $arg == Null || $arg == ''){
+		return $provinces;
+	}
+	return $provinces[$arg];
 }
