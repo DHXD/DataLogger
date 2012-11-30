@@ -1,37 +1,88 @@
 <?php
+ 
+function datalogger_ctools_plugin_api($module, $api) {
+  if ($module == "openlayers") {
+    switch ($api) {
+      case 'openlayers_presets':
+        return array('version' => 1);
+
+      case 'openlayers_layers':
+        return array('version' => 1);
+
+      case 'openlayers_styles':
+        return array('version' => 1);
+
+    }
+  }
+}
 
 /**
  * Implements hook_openlayers_styles().
  */
 function datalogger_openlayers_styles(&$map) {
-	// dsm($map['styles']);
-	// dsm($style);
-	// $map['styles']['default']['pointRadius'] = '12';
-	// dsm('okfdfdfdfdf');
+	
+	$styles = array();
+
+  $style = new stdClass();
+  $style->api_version = 1;
+  $style->name = 'test_style';
+  $style->title = t('Default style');
+  $style->description = t('Basic default style.');
+  $style->data = array(
+    'pointRadius' => '5', 
+    'fillColor' => '#FFCC66', 
+    'strokeColor' => '#FF9933', 
+    'strokeWidth' => '7', 
+    'fillOpacity' => '3.5',
+  );
+  $styles[$style->name] = $style;
+
+  return $styles;
 }
 
  /**
  *Begin:15/11. 
- *Implements hook_views_pre_render().
+ *Implements hook_views_form_alter().
  *Author:hungnm0302
  *Description: thay doi ket qua hien thi tren form cua view
  */	
 function datalogger_form_alter(&$form, $form_state, $form_id){
 	global $user;
 	$account = user_load($user->uid);
-	/*
-	if($form_id = 'views_exposed_form'){
-		if($form['#id'] == 'views-exposed-form-view-command-send-station-page'){
-			// dsm($account->field_station_province_city['und']);
-			$form['field_station_province_city_value ']['#type'] = 'select';
-			$form['field_station_province_city_value ']['#options'] = $account->field_station_province_city['und'];
-			$form['field_station_province_city_value ']['#default_value'] = 'All';
-			// $form['field_station_province_city_value ']['#size'] = Null;
-			dsm($form);
-			dsm($form_state);
+
+	if(!in_array('administrator', array_values($account->roles))){
+		if($form_id = 'views_exposed_form'){
+			//tinh thanh quan li
+			if($form['#id'] == 'views-exposed-form-view-command-send-station-page' || $form['#id'] == 'views-exposed-form-view-rainfall-default-page' ){
+				$provinces = array();
+				$provinces['All'] = t('- Any -');
+				$provinces = array_merge($provinces, _datalogger_return_city2($account->field_station_region['und'][0]['value']));
+				
+				//tram do mưa
+				$region_station = $account->field_station_region['und'][0]['value'];
+				$stations_list = views_get_view_result('view_all_station', null, $region_station , 'all');
+				$stations = array();
+				$stations['All'] = t('- Any -');
+				foreach($stations_list as $station){
+					$stations[$station->nid] = $station->node_title;
+				}
+				
+				$form['field_station_province_city_value']['#options'] = $provinces;
+				
+				//view cac lenh da thuc hien theo tung khu vuc
+				if($form['#id'] == 'views-exposed-form-view-rainfall-default-page'){
+					$form['field_command_station_nid']['#options'] = $stations;
+				}
+				
+				//view luong mua theo tung khu vuc
+				if($form['#id'] == 'views-exposed-form-view-rainfall-default-page'){
+					$form['field_station_region_value']['#disabled'] = TRUE;
+					$form['field_rainfall_station_nid_1']['#options'] = $stations;
+					
+				}
+			}
 		}
 	}
-	*/
 }
  /**
  *Begin:15/11. 
@@ -62,13 +113,34 @@ function datalogger_views_pre_render(&$view) {
  *Description: thay đổi query hiển thị trạm theo từng khu vực trên user
  */
 function datalogger_views_query_alter(&$view, &$query) {
+  if($view->name == 'view_list_user' ) {
+		global $user;
+		$account = user_load($user->uid);
+		if(in_array('administrator', array_values($user->roles))){
+			$query->where[1]['conditions'][1]['value'] = array(north_central_region,mid_central_region,
+							south_central_region,south_region,central_highlands);
+			$query->where[1]['conditions'][1]['operator'] = 'IN';
+		}
+		elseif(isset($account->field_station_region['und']) && in_array('manage data', array_values($user->roles))){
+			foreach($account->field_station_region['und'] as $region){
+				$regions[] = $region['value'];
+			}
+			if(count($regions) > 1){
+				$query->where[1]['conditions'][1]['value'] = $regions;
+				$query->where[1]['conditions'][1]['operator'] = 'IN';
+			}
+			else{
+				$query->where[1]['conditions'][1]['value'] = $regions;
+			}
+		}
+  }
 	//view: hien thi cac tram do mưa theo khu vuc thuc hien lenh
 	//view: hien thi cac tram do mưa theo khu vuc tren ban do
 	//view: hien thi cac lenh da thuc hien  theo khu vuc
-  if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' ) {
+	if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' || $view->name == 'rainfall_chart'||$view->name == 'search_rainfall' ) {
 		global $user;
-		dsm($query);
 		$account = user_load($user->uid);
+		// dsm($query);
 		if(in_array('administrator', array_values($user->roles))){
 			$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
 							south_central_region,south_region,central_highlands);
@@ -84,7 +156,6 @@ function datalogger_views_query_alter(&$view, &$query) {
 			}
 			else{
 				$query->where[1]['conditions'][2]['value'] = $regions;
-				dsm('into');
 			}
 		}
   }
@@ -623,6 +694,7 @@ function _datalogger_return_area($arg = null){
 }
 
 function _datalogger_return_city($arg = null){
+	/*
 	$provinces = array(
 		// ho_chi_minh => ('Ho Chi Minh'),
 		// hai_phong => ('Hai Phong'),
@@ -703,6 +775,13 @@ function _datalogger_return_city($arg = null){
 			dak_nong => ('Đắk Nông'),
 		// ),
 	);
+	*/
+	// */
+	$areas = _datalogger_return_city2(null);
+	$provinces = array();
+	foreach($areas as $area){
+		$provinces = array_merge($provinces, $area);
+	}
 	if(empty($arg) || $arg == Null || $arg == ''){
 		return $provinces;
 	}
@@ -763,5 +842,7 @@ function _datalogger_return_city2($arg = null){
 	if(empty($arg) || $arg == Null || $arg == ''){
 		return $provinces;
 	}
+	// dsm($provinces['central_highlands']);
+	// dsm($arg);
 	return $provinces[$arg];
 }
