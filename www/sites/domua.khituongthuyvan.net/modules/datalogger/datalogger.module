@@ -1,89 +1,43 @@
 <?php
+
 /**
- *Begin: 16/11. 
- *author:Nguyễn Mạnh Hùng
+ * Implements hook_openlayers_styles().
  */
-function _datalogger_return_area(){
-		return array(
-      north_central_region => t('Khu Vực Bắc Trung Bộ'),
-			mid_central_region => t('Khu Vực Trung Trung Bộ'),
-			central_highlands =>t('Khu Vực Tây Nguyên'),
-			south_central_region => t('Khu Vực Nam Trung Bộ'),
-			south_region => t('Khu Vực Nam Bộ'),
-    );
+function datalogger_openlayers_styles(&$map) {
+	// dsm($map['styles']);
+	// dsm($style);
+	// $map['styles']['default']['pointRadius'] = '12';
+	// dsm('okfdfdfdfdf');
 }
 
-function _datalogger_return_city(){
-		return  array(
-        ho_chi_minh => t('TP. Hồ Chí Minh'),
-				hai_phong => t('TP. Hải Phòng'),
-				da_nang => t('TP. Đà Nẵng'),
-				ha_giang => t('Tỉnh Hà Giang'),
-				cao_bang => t('Tỉnh Cao Bằng'),
-				lai_chau => t('Tỉnh Lai Châu'),
-				lao_cai => t('Tỉnh Lào Cai'),
-				tuyen_quang => t('Tỉnh Tuyên Quang'),
-				lang_son => t('Tỉnh Lạng Sơn'),
-				bac_kan => t('Tỉnh Bắc Kạn'),
-				thai_nguyen => t('Tỉnh Thái Nguyên'),
-				yen_bai => t('Tỉnh Yên Bái'),
-				son_la => t('Tỉnh Sơn La'),
-				phu_tho => t('Tỉnh Phú Thọ'),
-				vinh_phuc => t('Tỉnh Vĩnh Phúc'),
-				quang_ninh => t('Tỉnh Quảng Ninh'),
-				bac_giang => t('Tỉnh Bắc Giang'),
-				bac_ninh => t('Tỉnh Bắc Ninh'),
-				ha_noi => t('TP. Hà Nội'),
-				hai_duong => t('Tỉnh Hải Dương'),
-				hung_yen => t('Tỉnh Hưng Yên'),
-				hoa_binh => t('Tỉnh Hòa Bình'),
-				ha_nam => t('Tỉnh Hà Nam'),
-				nam_dinh => t('Tỉnh Nam Định'),
-				thai_binh => t('Tỉnh Thái Bình'),
-				ninh_binh => t('Tỉnh Ninh Bình'),
-				thanh_hoa => t('Tỉnh Thanh Hóa'),
-				nghe_an => t('Tỉnh Nghệ An'),
-				ha_tinh => t('Tỉnh Hà Tĩnh'),
-				quang_binh => t('Tỉnh Quảng Bình'),
-				quang_tri => t('Tỉnh Quảng Trị'),
-				thua_thien_hue => t('Tỉnh Thừa Thiên - Huế'),
-				quang_nam => t('Tỉnh Quảng Nam'),
-				quang_ngai => t('Tỉnh Quảng Ngãi'),
-				kom_tum => t('Tỉnh Kon Tum'),
-				binh_dinh => t('Tỉnh Bình Định'),
-				giai_lai => t('Tỉnh Gia Lai'),
-				phu_yen => t('Tỉnh Phú Yên'),
-				dak_lak => t('Tỉnh Đăk Lăk'),
-				khanh_hoa => t('Tỉnh Khánh Hòa'),
-				lam_dong => t('Tỉnh Lâm Đồng'),
-				binh_phuoc => t('Tỉnh Bình Phước'),
-				binh_duong => t('Tỉnh Bình Dương'),
-				ninh_thuan => t('Tỉnh Ninh Thuận'),
-				tay_ninh => t('Tỉnh Tây Ninh'),
-				binh_thuan => t('Tỉnh Bình Thuận'),
-				dong_nai => t('Tỉnh Đồng Nai'),
-				long_an => t('Tỉnh Long An'),
-				dong_thap => t('Tỉnh Đồng Tháp'),
-				an_giang => t('Tỉnh An Giang'),
-				ba_ria_vung_tau => t('Tỉnh Bà Rịa - Vũng Tàu'),
-				tien_gian => t('Tỉnh Tiền Giang'),
-				kien_giang => t('Tỉnh Kiên Giang'),
-				can_tho => t('TP. Cần Thơ'),
-				ben_tre => t('Tỉnh Bến Tre'),
-				vinh_long => t('Tỉnh Vĩnh Long'),
-				tra_vinh => t('Tỉnh Trà Vinh'),
-				soc_trang => t('Tỉnh Sóc Trăng'),
-				bac_lieu => t('Tỉnh Bạc Liêu'),
-				ca_mau => t('Tỉnh Cà Mau'),
-				dien_bien => t('Tỉnh Điện Biên'),
-				dak_nong => t('Tỉnh Đăk Nông'),
-				hau_giang => t('Tỉnh Hậu Giang'),
-     );
+ /**
+ *Begin:15/11. 
+ *Implements hook_views_pre_render().
+ *Author:hungnm0302
+ *Description: thay doi ket qua hien thi tren form cua view
+ */	
+function datalogger_form_alter(&$form, $form_state, $form_id){
+	global $user;
+	$account = user_load($user->uid);
+	/*
+	if($form_id = 'views_exposed_form'){
+		if($form['#id'] == 'views-exposed-form-view-command-send-station-page'){
+			// dsm($account->field_station_province_city['und']);
+			$form['field_station_province_city_value ']['#type'] = 'select';
+			$form['field_station_province_city_value ']['#options'] = $account->field_station_province_city['und'];
+			$form['field_station_province_city_value ']['#default_value'] = 'All';
+			// $form['field_station_province_city_value ']['#size'] = Null;
+			dsm($form);
+			dsm($form_state);
+		}
+	}
+	*/
 }
  /**
- * Begin:15/11. 
- * Implements hook_views_pre_render().
- *khong hien thi thong tin admin
+ *Begin:15/11. 
+ *Implements hook_views_pre_render().
+ *Author:hungnm0302
+ *Description: khong hien thi thong tin admin tren view
  */	
  
 function datalogger_views_pre_render(&$view) {
@@ -94,8 +48,85 @@ function datalogger_views_pre_render(&$view) {
 				}
 			}
   }
+	if($view->name == "view_all_station") {
+		global $user;
+		if (!in_array('administrator', array_values($user->roles)) && !in_array('control datalogger', array_values($user->roles))) {
+			unset($view->field['nid']);
+		}
+	}
 } 
- 
+
+/*
+ *Implements hook_views_pre_render().
+ *Author:hungnm0302
+ *Description: thay đổi query hiển thị trạm theo từng khu vực trên user
+ */
+function datalogger_views_query_alter(&$view, &$query) {
+	//view: hien thi cac tram do mưa theo khu vuc thuc hien lenh
+	//view: hien thi cac tram do mưa theo khu vuc tren ban do
+	//view: hien thi cac lenh da thuc hien  theo khu vuc
+  if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' ) {
+		global $user;
+		dsm($query);
+		$account = user_load($user->uid);
+		if(in_array('administrator', array_values($user->roles))){
+			$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
+							south_central_region,south_region,central_highlands);
+			$query->where[1]['conditions'][2]['operator'] = 'IN';
+		}
+		elseif(isset($account->field_station_region['und'])){
+			foreach($account->field_station_region['und'] as $region){
+				$regions[] = $region['value'];
+			}
+			if(count($regions) > 1){
+				$query->where[1]['conditions'][2]['value'] = $regions;
+				$query->where[1]['conditions'][2]['operator'] = 'IN';
+			}
+			else{
+				$query->where[1]['conditions'][2]['value'] = $regions;
+				dsm('into');
+			}
+		}
+  }
+	
+	//view: quan ly thong tin tram
+	if($view->name == "view_list_stations_role_manage") {
+			global $user;
+			if (!in_array('administrator', array_values($user->roles)) && !in_array('manage data', array_values($user->roles))) {
+				$account = user_load($user->uid);
+				if(isset($account->field_station_region['und'])){
+					foreach($account->field_station_region['und'] as $region){
+								$query->where[1]['conditions'][2]['value'] = $region['value'];
+					}
+				}
+			}
+			else{
+				$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
+								south_central_region,south_region,central_highlands);
+				$query->where[1]['conditions'][2]['operator'] = 'IN';
+			}
+  }
+	
+	//view: thong tin modem theo tung khu vuc dat tram
+	if($view->name == "view_modems") {
+		global $user;
+			if (!in_array('administrator', array_values($user->roles)) && !in_array('manage data', array_values($user->roles))) {
+				$account = user_load($user->uid);
+				if(isset($account->field_station_region['und'])){
+					foreach($account->field_station_region['und'] as $region){
+								$query->where[1]['conditions'][2]['value'] = $region['value'];
+					}
+				}
+			}
+			else{
+				$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
+								south_central_region,south_region,central_highlands);
+				$query->where[1]['conditions'][2]['operator'] = 'IN';
+			}
+  }
+	
+}
+
 /**
  * 18/10. 
  */
@@ -129,16 +160,26 @@ function datalogger_send_command_action(&$object, $context = array()){
  */
  
 function datalogger_menu() {
+/**
+ *Begin: 25/11. 
+ *author: hungnm0302
+ *description: ftp tranferer
+ */		
+  $items['manage/ftpserver'] = array(
+    'title' => 'FPT server',
+    'page callback' => '_datalogger_ftp_server',
+		'file' => 'datalogger.admin.inc',
+    'access callback' => TRUE,
+  );
 
 /**
  *Begin: 17/11. 
  *author: Phan Văn Tuấn
  *description: tạo menu xuất báo cáo theo năm+ngay
  */
- 
-  $items['manage/report/rainfalls/day'] = array(
+	$items['manage/report/rainfalls/day'] = array(
     'title' => 'Daily rainfall data reports',
-    'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		'type' => MENU_DEFAULT_LOCAL_TASK, 
 		'weight' => -25,
   );
@@ -150,7 +191,8 @@ function datalogger_menu() {
         '_datalogger_report_rainfall_day_form'
     ),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		'type' => MENU_NORMAL_ITEM, 
 		'weight' => -26,
 	);
@@ -163,7 +205,8 @@ function datalogger_menu() {
         '_datalogger_report_rainfall_year_form'
     ),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		'type' => MENU_LOCAL_TASK,
 		'weight' => -23,
   );
@@ -240,7 +283,8 @@ function datalogger_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_user_form'),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
     // 'access callback' => TRUE,
     'type' => MENU_NORMAL_ITEM,  
   );
@@ -251,7 +295,8 @@ function datalogger_menu() {
     // 'page callback' => 'drupal_get_form',
     // 'page arguments' => array('_user_form'),
     // 'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
     // // 'access callback' => TRUE,
     'type' => MENU_DEFAULT_LOCAL_TASK,   
     
@@ -261,7 +306,8 @@ function datalogger_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_user_group_form'),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
     'type' => MENU_LOCAL_TASK,
     'weight' => -25,
   );
@@ -271,7 +317,8 @@ function datalogger_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_user_pass_form'),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
     // 'access callback' => TRUE,
     'type' => MENU_LOCAL_TASK,
     'weight' => -24,
@@ -282,7 +329,8 @@ function datalogger_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_user_profile_form'),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
     // 'access callback' => TRUE,
     'type' => MENU_LOCAL_TASK,
     'weight' => -23,
@@ -303,21 +351,14 @@ function datalogger_menu() {
  *Begin date:11-09-12
  *tạo dữ liệu Mưa.
  */
- 
- 
- $items['test3'] = array(
-    'title' => 'Nhật ký tích hợp số liệu',
-    'page callback' => '_datalogger_test3',
-    'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
-  );
 
  /*nhat ki tich hop du lieu*/
  $items['manage/log/rainfall'] = array(
     'title' => 'Nhật ký tích hợp số liệu',
     'page callback' => '_log_rainfall_form',
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
   );
  
  $items['manage/report/rainfalls/month'] = array(
@@ -327,7 +368,8 @@ function datalogger_menu() {
         '_datalogger_report_rainfall_month_form'
     ),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		 'type' => MENU_LOCAL_TASK,
 		 'weight' => -24,
   );
@@ -337,7 +379,8 @@ function datalogger_menu() {
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_datalogger_generate_rainfalls_form'),
     'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data'),  
+    // 'access arguments' => array('manage data'),
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
   );
   
 /**
@@ -349,7 +392,7 @@ function datalogger_menu() {
     'page callback' => '_manage_data',
     'file' => 'datalogger.admin.inc',
     'access arguments' => array('manage data'),
-    'access callback' => ' _datalogger_menu_access_callback_manage_data',
+    'access callback' => '_datalogger_menu_access_callback_manage_data',
   );
   
   // $items['node/%node'] = array(
@@ -478,11 +521,12 @@ function _datalogger_menu_access_callback_command() {
 function _datalogger_menu_access_callback_manage_data() {
   //dpm($permission);
   //dpm($node);
-  // if(!user_access('administrator') && !user_access('control datalogger')){
+  // if(!user_access('control datalogger')){
       // $user_acc = true;
   // }
   // dpm( $user_acc);
-  return user_access('manage data') || $user_acc;
+  // return user_access('manage data') || $user_acc;
+  return user_access('manage data')|| user_access('khuvucbactrungbo')|| user_access('khuvuctrungtrungbo')|| user_access('khuvucnamtrungbo')|| user_access('khuvucnambo')|| user_access('khuvuctaynguyen');
 }
 
 /**
@@ -496,11 +540,43 @@ function datalogger_permission() {
       'description' => t('Perform manage data.'),
       'restrict access' => TRUE,
     ),
+		
     'control datalogger' => array(
       'title' => t('Control Datalogger'), 
       'description' => t('Perform control datalogger.'),
       'restrict access' => TRUE,
     ),
+		
+    'khuvucbactrungbo' => array(
+      'title' => t('khuvucbactrungbo'), 
+      'description' => t('Perform khuvucbactrungbo.'),
+      'restrict access' => TRUE,
+    ),
+		
+    'khuvuctrungtrungbo' => array(
+      'title' => t('khuvuctrungtrungbo'), 
+      'description' => t('Perform khuvuctrungtrungbo.'),
+      'restrict access' => TRUE,
+    ),
+		
+    'khuvucnamtrungbo' => array(
+      'title' => t('khuvucnamtrungbo'), 
+      'description' => t('Perform khuvucnamtrungbo.'),
+      'restrict access' => TRUE,
+    ),
+		
+    'khuvucnambo' => array(
+      'title' => t('khuvucnambo'), 
+      'description' => t('Perform khuvucnambo.'),
+      'restrict access' => TRUE,
+    ),
+		
+    'khuvuctaynguyen' => array(
+      'title' => t('khuvuctaynguyen'), 
+      'description' => t('Perform khuvuctaynguyen.'),
+      'restrict access' => TRUE,
+    ),
+		
   );
 }
 
@@ -530,4 +606,162 @@ function datalogger_openlayers_map_alter(&$map) {
     $map['layers']['mapquest_osm_offline']['url'][0] = '/tiles/${z}/${x}/${y}.png';     // set local URL using special hard coded format.
     $map['layers']['mapquest_osm_offline']['serverResolutions'] = array();              // empty the array
   }
+}
+
+function _datalogger_return_area($arg = null){
+	$areas = array(
+		north_central_region => t('North Central Region'),
+		mid_central_region  => t('Central Central Region'),  
+		south_central_region  => t('South Central Region'),
+		south_region => t('South Region'),
+		central_highlands => t('Central Highlands Region'),
+	);
+	if(empty($arg) || $arg == Null || $arg == ''){
+		return $areas;
+	}
+	return $areas[$arg];
+}
+
+function _datalogger_return_city($arg = null){
+	$provinces = array(
+		// ho_chi_minh => ('Ho Chi Minh'),
+		// hai_phong => ('Hai Phong'),
+		// ha_giang => ('Ha Giang'),
+		// cao_bang => ('Cao Bang'),
+		// lai_chau => ('Lai Chau'),
+		// lao_cai => ('Lao Cai'),
+		// tuyen_quang => ('Tuyen Quang'),
+		// lang_son => ('Lang Son'),
+		// bac_kan => ('Bac Kan'),
+		// thai_nguyen => ('Thai Nguyen'),
+		// yen_bai => ('Yen Bai'),
+		// son_la => ('Son La'),
+		// phu_tho => ('Phu Tho'),
+		// vinh_phuc => ('Vinh Phuc'),
+		// quang_ninh => ('Quang Ninh'),
+		// bac_giang => ('Bac Giang'),
+		// bac_ninh => ('Bac Ninh'),
+		// ha_noi => ('Ha Noi'),
+		// hai_duong => ('Hai Duong'),
+		// hung_yen => ('Hung Yen'),
+		// hoa_binh => ('Hoa Binh'),
+		// ha_nam => ('Ha Nam'),
+		// nam_dinh => ('Nam Dinh'),
+		// thai_binh => ('Thai Binh'),
+		// ninh_binh => ('Ninh Binh'),
+		// dong_nai => ('Dong Nai'),
+		// long_an => ('Long An'),
+		// bac_lieu => ('Bac Lieu'),
+		// dien_bien => ('Dien Bien'),
+		// paging0 => '------------------',				
+		// north_central_region => array(
+			thanh_hoa => ('Thanh Hóa'),
+			nghe_an => ('Nghệ An'),
+			ha_tinh => ('Hà Tĩnh'),
+		// ),
+		// paging1 => '------------------',
+		// mid_central_region => array(
+			quang_binh => ('Quảng Bình'),
+			quang_tri => ('Quảng Trị'),
+			thua_thien_hue => ('Thừa Thiên - Huế'),
+			da_nang => ('Đà Nẵng'),
+			quang_nam => ('Quảng Nam'),
+			quang_ngai => ('Quảng Ngãi'),
+		// ),
+		// paging2 => '------------------',
+		// south_central_region => array(
+			binh_dinh => ('Bình Định'),
+			phu_yen => ('Phú Yên'),
+			khanh_hoa => ('Khánh Hòa'),
+			ninh_thuan => ('Ninh Thuận'),
+			binh_thuan => ('Bình Thuận'),
+		// ),
+		// paging3 => '------------------',
+		// south_region => array(
+			binh_duong => ('Bình Dương'),
+			tay_ninh => ('Tây Ninh'),
+			tien_gian => ('Tiền Giang'),
+			tra_vinh => ('Trà Vinh'),
+			can_tho => ('Cần Thơ'),
+			soc_trang => ('Sóc Trăng'),
+			dong_thap => ('Đồng Tháp'),
+			binh_phuoc => ('Bình Phước'),
+			an_giang => ('An Giang'),
+			kien_giang => ('Kiên Giang'),
+			ca_mau => ('Cà Mau'),
+			ben_tre => ('Bến Tre'),
+			ba_ria_vung_tau => ('Bà Rịa - Vũng Tàu'),
+			vinh_long => ('Vĩnh Long'),
+			hau_giang => ('Hậu Giang'),
+		// ),
+		// paging4 => '------------------',
+		// central_highlands  => array(
+			lam_dong => ('Lâm Đồng'),
+			kom_tum => ('Kon Tum'),
+			giai_lai => ('Gia Lai'),
+			dak_lak => ('Đắk Lắk'),
+			dak_nong => ('Đắk Nông'),
+		// ),
+	);
+	if(empty($arg) || $arg == Null || $arg == ''){
+		return $provinces;
+	}
+	return $provinces[$arg];
+}
+
+function _datalogger_return_city2($arg = null){
+	$provinces = array(
+		north_central_region => array(
+			thanh_hoa => ('Thanh Hóa'),
+			nghe_an => ('Nghệ An'),
+			ha_tinh => ('Hà Tĩnh'),
+		),
+		// paging1 => '------------------',
+		mid_central_region => array(
+			quang_binh => ('Quảng Bình'),
+			quang_tri => ('Quảng Trị'),
+			thua_thien_hue => ('Thừa Thiên - Huế'),
+			da_nang => ('Đà Nẵng'),
+			quang_nam => ('Quảng Nam'),
+			quang_ngai => ('Quảng Ngãi'),
+		),
+		// paging2 => '------------------',
+		south_central_region => array(
+			binh_dinh => ('Bình Định'),
+			phu_yen => ('Phú Yên'),
+			khanh_hoa => ('Khánh Hòa'),
+			ninh_thuan => ('Ninh Thuận'),
+			binh_thuan => ('Bình Thuận'),
+		),
+		// paging3 => '------------------',
+		south_region => array(
+			binh_duong => ('Bình Dương'),
+			tay_ninh => ('Tây Ninh'),
+			tien_gian => ('Tiền Giang'),
+			tra_vinh => ('Trà Vinh'),
+			can_tho => ('Cần Thơ'),
+			soc_trang => ('Sóc Trăng'),
+			dong_thap => ('Đồng Tháp'),
+			binh_phuoc => ('Bình Phước'),
+			an_giang => ('An Giang'),
+			kien_giang => ('Kiên Giang'),
+			ca_mau => ('Cà Mau'),
+			ben_tre => ('Bến Tre'),
+			ba_ria_vung_tau => ('Bà Rịa - Vũng Tàu'),
+			vinh_long => ('Vĩnh Long'),
+			hau_giang => ('Hậu Giang'),
+		),
+		// paging4 => '------------------',
+		central_highlands  => array(
+			lam_dong => ('Lâm Đồng'),
+			kom_tum => ('Kon Tum'),
+			giai_lai => ('Gia Lai'),
+			dak_lak => ('Đắk Lắk'),
+			dak_nong => ('Đắk Nông'),
+		),
+	);
+	if(empty($arg) || $arg == Null || $arg == ''){
+		return $provinces;
+	}
+	return $provinces[$arg];
 }

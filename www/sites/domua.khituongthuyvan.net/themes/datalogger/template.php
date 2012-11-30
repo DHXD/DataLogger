@@ -196,24 +196,26 @@ function datalogger_field__taxonomy_term_reference($variables) {
 }
 
 function datalogger_preprocess_page(&$variables) {
-	$str = arg(3);
-	$provinces = _datalogger_provinces();
-	$areas = _datalogger_areas();
-	if($provinces[$str] != '' || $provinces[$str] != null )
-		// drupal_set_title(t('Danh sách trạm đo mưa tự động  ').t($provinces[$str]));
-		// $province = t("Danh sách trạm đo mưa tự động $provinces[$str]");
-		$province = t("List of automatic rainfall stations $provinces[$str]");
-		drupal_set_title($province);
-	if($areas[$str] != '' || $areas[$str] != null )
-		// drupal_set_title(t('Danh sách trạm KTTV ').t($areas[$str]));
-		$area = t("List of meteorological stations $areas[$str]");
-		drupal_set_title($area);
+	if(count(arg()) == 5 && arg(0) == 'view' && arg(1) == 'list' && arg(2) == 'station'){
+		$area = arg(3);
+		$areas = _datalogger_areas($area);
+		$province = arg(4);
+		$provinces = _datalogger_provinces($province);
+		if(!empty($area)&& $province != 'all'){
+			$province = t('List of automatic rainfall stations '.$provinces);
+			drupal_set_title($province);
+		}else{
+			if(!empty($area)&& $province == 'all'){
+				$area = t('List of meteorological stations '.$areas);
+				drupal_set_title($area);
+			}
+		}
+	}
 }
 
-function _datalogger_provinces(){
+function _datalogger_provinces($arg){
 	$list = array('ho_chi_minh'=> 'Ho Chi Minh',
 	'hai_phong'=> 'Hai Phong',
-	// 'da_nang'=> 'Da Nẵng',
 	'da_nang'=> 'Da Nang',
 	'ha_giang'=> 'Ha Giang',
 	'cao_bang'=> 'Cao Bang',
@@ -275,14 +277,14 @@ function _datalogger_provinces(){
 	'dien_bien'=> 'Dien Bien',
 	'dak_nong'=> 'Dak Nong',
 	'hau_giang'=> 'Hau Giang',);
-	return $list;
+	return $list[$arg];
 }
 
-function _datalogger_areas(){
+function _datalogger_areas($arg){
 	$list = array('north_central_region' => 'North Central Region',
 		'mid_central_region' => 'Middle Central Region',
 		'central_highlands' => 'Central Highlands Region',
 		'south_central_region' => 'South Central Region',
 		'south_region' => 'Southern Region',);
-	return $list;
+	return $list[$arg];
 }
