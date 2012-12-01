@@ -1,5 +1,5 @@
 <?php
- 
+/*
 function datalogger_ctools_plugin_api($module, $api) {
   if ($module == "openlayers") {
     switch ($api) {
@@ -15,12 +15,12 @@ function datalogger_ctools_plugin_api($module, $api) {
     }
   }
 }
-
+*/
 /**
  * Implements hook_openlayers_styles().
  */
 function datalogger_openlayers_styles(&$map) {
-	
+	/*
 	$styles = array();
 
   $style = new stdClass();
@@ -37,7 +37,9 @@ function datalogger_openlayers_styles(&$map) {
   );
   $styles[$style->name] = $style;
 
-  return $styles;
+	*/
+  return $map['styles'];
+	// dsm($map);
 }
 
  /**
@@ -50,10 +52,14 @@ function datalogger_form_alter(&$form, $form_state, $form_id){
 	global $user;
 	$account = user_load($user->uid);
 
+	// dsm($form);
 	if(!in_array('administrator', array_values($account->roles))){
 		if($form_id = 'views_exposed_form'){
-			//tinh thanh quan li
-			if($form['#id'] == 'views-exposed-form-view-command-send-station-page' || $form['#id'] == 'views-exposed-form-view-rainfall-default-page' ){
+			if($form['#id'] == 'views-exposed-form-view-command-send-station-page' || 
+				$form['#id'] == 'views-exposed-form-view-rainfall-default-page' ||
+				$form['#id'] == 'views-exposed-form-search-rainfall-page' ||
+				$form['#id'] == 'views-exposed-form-rainfall-chart-page' ||
+				$form['#id'] == 'views-exposed-form-view-station-rainfall-statistics-page' ){
 				$provinces = array();
 				$provinces['All'] = t('- Any -');
 				$provinces = array_merge($provinces, _datalogger_return_city2($account->field_station_region['und'][0]['value']));
@@ -70,7 +76,7 @@ function datalogger_form_alter(&$form, $form_state, $form_id){
 				$form['field_station_province_city_value']['#options'] = $provinces;
 				
 				//view cac lenh da thuc hien theo tung khu vuc
-				if($form['#id'] == 'views-exposed-form-view-rainfall-default-page'){
+				if($form['#id'] == 'views-exposed-form-view-rainfall-default-page' ){
 					$form['field_command_station_nid']['#options'] = $stations;
 				}
 				
@@ -78,7 +84,16 @@ function datalogger_form_alter(&$form, $form_state, $form_id){
 				if($form['#id'] == 'views-exposed-form-view-rainfall-default-page'){
 					$form['field_station_region_value']['#disabled'] = TRUE;
 					$form['field_rainfall_station_nid_1']['#options'] = $stations;
-					
+				}
+				
+				/*view: thong ke lương mua
+				 *view: tra cuu so lieu mua
+				 *view: bieu do mua
+				 */
+				if($form['#id'] == 'views-exposed-form-view-station-rainfall-statistics-page' ||
+						$form['#id'] == 'views-exposed-form-search-rainfall-page'||
+						$form['#id'] == 'views-exposed-form-rainfall-chart-page'){
+						$form['field_rainfall_station_nid']['#options'] = $stations;
 				}
 			}
 		}
@@ -137,7 +152,7 @@ function datalogger_views_query_alter(&$view, &$query) {
 	//view: hien thi cac tram do mưa theo khu vuc thuc hien lenh
 	//view: hien thi cac tram do mưa theo khu vuc tren ban do
 	//view: hien thi cac lenh da thuc hien  theo khu vuc
-	if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' || $view->name == 'rainfall_chart'||$view->name == 'search_rainfall' ) {
+	if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' || $view->name == 'rainfall_chart'||$view->name == 'search_rainfall' || $view->name == "view_modems") {
 		global $user;
 		$account = user_load($user->uid);
 		// dsm($query);
@@ -161,6 +176,7 @@ function datalogger_views_query_alter(&$view, &$query) {
   }
 	
 	//view: quan ly thong tin tram
+	
 	if($view->name == "view_list_stations_role_manage") {
 			global $user;
 			if (!in_array('administrator', array_values($user->roles)) && !in_array('manage data', array_values($user->roles))) {
@@ -179,6 +195,7 @@ function datalogger_views_query_alter(&$view, &$query) {
   }
 	
 	//view: thong tin modem theo tung khu vuc dat tram
+	/*
 	if($view->name == "view_modems") {
 		global $user;
 			if (!in_array('administrator', array_values($user->roles)) && !in_array('manage data', array_values($user->roles))) {
@@ -195,7 +212,7 @@ function datalogger_views_query_alter(&$view, &$query) {
 				$query->where[1]['conditions'][2]['operator'] = 'IN';
 			}
   }
-	
+	*/
 }
 
 /**
@@ -418,10 +435,10 @@ function datalogger_menu() {
   // ); 
   
  
-/**
- *Begin date:11-09-12
- *tạo dữ liệu Mưa.
- */
+	/**
+	 *Begin date:11-09-12
+	 *tạo dữ liệu Mưa.
+	 */
 
  /*nhat ki tich hop du lieu*/
  $items['manage/log/rainfall'] = array(
@@ -454,10 +471,10 @@ function datalogger_menu() {
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
   );
   
-/**
- *Begin date:09-09-12
- *phát triển giao diện quản lý dữ liệu
- */
+	/**
+	 *Begin date:09-09-12
+	 *phát triển giao diện quản lý dữ liệu
+	 */
   $items['manage/data'] = array(
     'title' => 'Quản lý dữ liệu',
     'page callback' => '_manage_data',
@@ -577,26 +594,14 @@ function datalogger_menu() {
 
 
 function _datalogger_menu_access_callback_node($permission, $node) {
-  //dpm($permission);
-  //dpm($node);
-
   return user_access($permission) && $node->type == 'station';
 }
 
 function _datalogger_menu_access_callback_command() {
-  //dpm($permission);
-  //dpm($node);
   return (user_access('administrator') || user_access('control datalogger'));
 }
 
 function _datalogger_menu_access_callback_manage_data() {
-  //dpm($permission);
-  //dpm($node);
-  // if(!user_access('control datalogger')){
-      // $user_acc = true;
-  // }
-  // dpm( $user_acc);
-  // return user_access('manage data') || $user_acc;
   return user_access('manage data')|| user_access('khuvucbactrungbo')|| user_access('khuvuctrungtrungbo')|| user_access('khuvucnamtrungbo')|| user_access('khuvucnambo')|| user_access('khuvuctaynguyen');
 }
 
@@ -842,7 +847,5 @@ function _datalogger_return_city2($arg = null){
 	if(empty($arg) || $arg == Null || $arg == ''){
 		return $provinces;
 	}
-	// dsm($provinces['central_highlands']);
-	// dsm($arg);
 	return $provinces[$arg];
 }
