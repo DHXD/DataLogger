@@ -59,6 +59,7 @@ function datalogger_form_alter(&$form, $form_state, $form_id){
 				$form['#id'] == 'views-exposed-form-view-rainfall-default-page' ||
 				$form['#id'] == 'views-exposed-form-search-rainfall-page' ||
 				$form['#id'] == 'views-exposed-form-rainfall-chart-page' ||
+				$form['#id'] == 'views-exposed-form-view-list-stations-page' ||
 				$form['#id'] == 'views-exposed-form-view-station-rainfall-statistics-page' ){
 				$provinces = array();
 				$provinces['All'] = t('- Any -');
@@ -152,7 +153,7 @@ function datalogger_views_query_alter(&$view, &$query) {
 	//view: hien thi cac tram do mưa theo khu vuc thuc hien lenh
 	//view: hien thi cac tram do mưa theo khu vuc tren ban do
 	//view: hien thi cac lenh da thuc hien  theo khu vuc
-	if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' || $view->name == 'rainfall_chart'||$view->name == 'search_rainfall' || $view->name == "view_modems") {
+	if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == "view_map_alarm_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' || $view->name == 'rainfall_chart'||$view->name == 'search_rainfall' || $view->name == "view_modems") {
 		global $user;
 		$account = user_load($user->uid);
 		// dsm($query);

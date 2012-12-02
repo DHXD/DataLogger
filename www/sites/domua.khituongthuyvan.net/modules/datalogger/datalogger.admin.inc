@@ -2168,7 +2168,7 @@ function _command_form($form, &$form_state) {
       '#type' => 'date_popup',
       '#title' => 'Date $ Time', 
       '#date_format' => 'd/m/Y H:i:s',  
-			//'#required' => TRUE,
+			'#required' => TRUE,
       );
       break;
     case 4 : 
