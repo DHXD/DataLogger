@@ -453,7 +453,7 @@ function _datalogger_select_area_province_station(&$form, &$form_state){
 function _datalogger_report_rainfall_year_form($form, &$form_state){
 	drupal_set_title(t('Report annual rainfall data'));
 	
-	_datalogger_select_area_province_station(&$form, &$form_state);
+	_datalogger_select_area_province_station($form, $form_state);
 	$form['month']['#access']=FALSE;
 	$form['day']['#access']=FALSE;
 	
@@ -502,7 +502,7 @@ function _datalogger_report_rainfall_year_form_submit(&$form, &$form_state) {
 function _datalogger_report_rainfall_day_form($form, &$form_state){
 	drupal_set_title(t('Reports daily rainfall data'));
 	
-	_datalogger_select_area_province_station(&$form, &$form_state);
+	_datalogger_select_area_province_station($form, $form_state);
 	$form['year']['#access']=FALSE;
 	$form['month']['#access']=FALSE;
 	
@@ -1097,6 +1097,16 @@ function _datalogger_separate_sms_command($sms, $number){
 	foreach ($datalogger_pattern as $pattern) {
 		if (substr($sms, 25, strlen($pattern)) == $pattern) {
 			$malenh = $pattern;
+		}
+	}
+	
+	//neu co ban tin canh bao luong mua
+	if($malenh == 'A:ALARM INTERVAL:'){
+		$stations = views_get_view_result('view_station_find', Null, $number);
+		if(count($stations) >= 1){
+			$station = node_load($stations[0]->nid);
+			$station->field_station_alarm['und'][0]['value'] =  'alarm_true';	
+			node_save($station);
 		}
 	}
 	
@@ -1717,7 +1727,7 @@ function _log_rainfall_form(){
 function _datalogger_report_rainfall_month_form($form, &$form_state){
 	drupal_set_title(t('Report monthly rainfall data'));
 	
-	_datalogger_select_area_province_station(&$form, &$form_state);
+	_datalogger_select_area_province_station($form, $form_state);
 	$form['day']['#access']=FALSE;
 	
   $form["submit"] = array(
