@@ -424,6 +424,7 @@ function _datalogger_select_area_province_station(&$form, &$form_state){
 	$form['day'] = array(
      '#type' => 'date_popup',
      '#date_format' => 'd/m/Y', 
+		 '#required' => TRUE,	
   );
 	
   $form['txtNameQTV'] = array(
@@ -1100,6 +1101,16 @@ function _datalogger_separate_sms_command($sms, $number){
 		}
 	}
 	
+	//neu co ban tin canh bao luong mua
+	if($malenh == 'A:ALARM INTERVAL:'){
+		$stations = views_get_view_result('view_station_find', Null, $number);
+		if(count($stations) >= 1){
+			$station = node_load($stations[0]->nid);
+			$station->field_station_alarm['und'][0]['value'] =  'alarm_true';	
+			node_save($station);
+		}
+	}
+	
 	$malenh = str_replace(' ', '_', trim($malenh));
 	
 	$result = views_get_view_result('admin_command_from_phone_code', 'default', $number, $malenh);
@@ -1287,7 +1298,7 @@ function _datalogger_insert_node_rainfall(&$arg){
 					$rainfall->field_rainfall_year_month_date[$rainfall->language][0]['value'] = $year_month_date;
 					
 					$rainfall = node_submit($rainfall);
-					node_save($rainfall);																										
+					node_save($rainfall);
 				}
 			}
 		}
@@ -2158,7 +2169,7 @@ function _command_form($form, &$form_state) {
       '#type' => 'date_popup',
       '#title' => 'Date $ Time', 
       '#date_format' => 'd/m/Y H:i:s',  
-			//'#required' => TRUE,
+			'#required' => TRUE,
       );
       break;
     case 4 : 
