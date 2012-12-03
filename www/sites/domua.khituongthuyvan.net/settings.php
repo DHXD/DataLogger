@@ -209,26 +209,31 @@ ini_set('display_errors', 1);
 	/*Database:lasi*/
 	/*
 	$databases = array (
-      'default' => 
-      array (
-        'default' => 
-        array (
-          'database' => 'datalogger',
-          'username' => 'datalogger',
-          // 'password' => '123456',
-          'password' => 'qaHfBsGv7uujby7r',
-          'host' => 'localhost',
-          'port' => '',
-          'driver' => 'mysql',
-          'prefix' => 'datalogger_',
-        ),
-      ),
-    );
-		*/
+		'default' => 
+		array (
+			'default' => 
+			array (
+				'database' => 'datalogger',
+				'username' => 'datalogger',
+				// 'password' => '123456',
+				'password' => 'qaHfBsGv7uujby7r',
+				'host' => 'localhost',
+				'port' => '',
+				'driver' => 'mysql',
+				'prefix' => 'datalogger_',
+			),
+		),
+	);
+	*/
 		
 	/*Database: 192.168.1.34*/
 	/*Database: 192.168.1.36*/
+<<<<<<< HEAD
 	
+=======
+	/*Database: 192.168.1.38*/
+	/*
+>>>>>>> ca9dcd215f4f6e653cf95f1ea0557bcd6887ec1a
 	$databases = array (
 		'default' => 
 		array (
@@ -246,9 +251,32 @@ ini_set('display_errors', 1);
 			),
 		),
 	);
+<<<<<<< HEAD
   
 	
   // */
+=======
+  */
+	
+	/*Database: localhost*/
+	// /*
+	$databases = array (
+		'default' => 
+		array (
+			'default' => 
+			array (
+				'database' => 'datalogger2',
+				'username' => 'root',
+				'password' => 'root',
+				'host' => 'localhost',
+				'port' => '',
+				'driver' => 'mysql',
+				'prefix' => 'datalogger_',
+			),
+		),
+	);
+ // */
+>>>>>>> ca9dcd215f4f6e653cf95f1ea0557bcd6887ec1a
 /**
  * Access control for update.php script.
  *
