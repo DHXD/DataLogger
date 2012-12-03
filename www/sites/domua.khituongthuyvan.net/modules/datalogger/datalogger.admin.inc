@@ -1187,7 +1187,7 @@ function _datalogger_separate_sms_command($sms, $number){
 	}
 
 	$result = views_get_view_result('admin_command_from_phone_code', 'default', $number, $malenh);
-	$nid = $result[0]->nid;
+	$nid = $result['result'][0]->nid;
 	if($nid != 0 || !empty($nid)){
 		$node_command = node_load($nid);	
 		$node_command->field_command_result["und"][0]["value"] = _datalogger_result($sms, $malenh);	
