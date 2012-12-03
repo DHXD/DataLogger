@@ -206,24 +206,37 @@ ini_set('display_errors', 1);
  */
  
 	/*Database:lasi*/
-	/*
+	// /*
 	$databases = array (
-		'default' => 
+		'default2' => 
 		array (
 			'default' => 
 			array (
-				'database' => 'datalogger',
-				'username' => 'datalogger',
-				// 'password' => '123456',
-				'password' => 'qaHfBsGv7uujby7r',
+				'database' => 'datalogger_test',
+				'username' => 'root',
+				'password' => 'root',
 				'host' => 'localhost',
 				'port' => '',
 				'driver' => 'mysql',
 				'prefix' => 'datalogger_',
 			),
 		),
+		
+		'default' => 
+		array (
+		'default' => 
+			array (
+			  'database' => 'Datalogger_SQL_Migration',
+			  'username' => 'sa',
+			  'password' => 'Btc123123123',
+			  'host' => 'WINDOWS-1RUT0H0',
+			  'port' => '',
+			  'driver' => 'sqlsrv',
+			  'prefix' => 'datalogger_',
+			),
+		),
 	);
-	*/
+	// */
 		
 	/*Database: 192.168.1.34*/
 	/*Database: 192.168.1.36*/
@@ -247,7 +260,7 @@ ini_set('display_errors', 1);
   */
 	
 	/*Database: localhost*/
-	// /*
+	/*
 	$databases = array (
 		'default' => 
 		array (
@@ -263,7 +276,7 @@ ini_set('display_errors', 1);
 			),
 		),
 	);
- // */
+ */
 /**
  * Access control for update.php script.
  *
