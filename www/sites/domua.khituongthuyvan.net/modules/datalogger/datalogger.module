@@ -661,9 +661,37 @@ function datalogger_permission() {
  * Implements hook_menu_alter().
  */
 function datalogger_menu_alter(&$items) {
-  $items['node/%node/view']['title callback'] = '_datalogger_station_title_callback';
+	// dsm($items);
+	if($items['node/%pm_arg/thong-ke']['page arguments'][0] == 'panel_tram_thong_ke_luong_mua'){
+		// dsm(arg(1));
+		// dsm($items['node/%pm_arg/thong-ke']['page arguments'][0]);
+		// dsm($items['node/%pm_arg/thong-ke']['load arguments'][2]);
+		$station = node_load(arg(1));
+		// dsm('into');
+		if($station->type != 'station'){
+			unset($items['node/%pm_arg/thong-ke']);
+			$items['node/%pm_arg/thong-ke']['access callback'] = FALSE;
+		}
+	}
+	// dsm($items);
+  // $items['node/%pm_arg/thong-ke']['title callback'] = '_datalogger_station_statitics';
+  // $items['node/%pm_arg/thong-ke']['title arguments'] = array(1); 
+	
+  // $items['node/%node/thong-ke']['access arguments'] = array(1); 
+	
+	$items['node/%node/view']['title callback'] = '_datalogger_station_title_callback';
   $items['node/%node/view']['title arguments'] = array(1);
 } 
+
+function _datalogger_station_statitics($node) {
+  if ($node->type == 'station' ) {
+		// drupal_set_title(t('Station infomation: ').$node->title);
+    // return t('Station infomation');
+  }
+  else {
+    return t('View');
+  }
+}
 
 function _datalogger_station_title_callback($node) {
   if ($node->type == 'station' ) {

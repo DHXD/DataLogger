@@ -424,6 +424,7 @@ function _datalogger_select_area_province_station(&$form, &$form_state){
 	$form['day'] = array(
      '#type' => 'date_popup',
      '#date_format' => 'd/m/Y', 
+		 '#required' => TRUE,	
   );
 	
   $form['txtNameQTV'] = array(
@@ -1297,7 +1298,7 @@ function _datalogger_insert_node_rainfall(&$arg){
 					$rainfall->field_rainfall_year_month_date[$rainfall->language][0]['value'] = $year_month_date;
 					
 					$rainfall = node_submit($rainfall);
-					node_save($rainfall);																										
+					node_save($rainfall);
 				}
 			}
 		}
