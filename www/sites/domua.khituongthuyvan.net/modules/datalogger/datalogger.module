@@ -662,6 +662,7 @@ function datalogger_permission() {
  */
 function datalogger_menu_alter(&$items) {
 	// dsm($items);
+	/*
 	if($items['node/%pm_arg/thong-ke']['page arguments'][0] == 'panel_tram_thong_ke_luong_mua'){
 		// dsm(arg(1));
 		// dsm($items['node/%pm_arg/thong-ke']['page arguments'][0]);
@@ -673,6 +674,7 @@ function datalogger_menu_alter(&$items) {
 			$items['node/%pm_arg/thong-ke']['access callback'] = FALSE;
 		}
 	}
+	*/
 	// dsm($items);
   // $items['node/%pm_arg/thong-ke']['title callback'] = '_datalogger_station_statitics';
   // $items['node/%pm_arg/thong-ke']['title arguments'] = array(1); 
