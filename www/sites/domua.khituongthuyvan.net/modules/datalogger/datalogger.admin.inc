@@ -1371,6 +1371,7 @@ function _datalogger_new_sms_form(){
 	$result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 0 , 50");
 	$headers = array(
     no => t('No.'),
+		station_name => t('Station Name'),
     receiving_date_time => t('Receiving Date Time'),
     sender_number => t('Sender Number'),
     message_content => t('Message content'),
@@ -1379,8 +1380,18 @@ function _datalogger_new_sms_form(){
  
   $rows = array();
   while($row = $result->fetchObject()){
+		$number = _datalogger_convert_number($row->SenderNumber);
+		$station = views_get_view_result('view_station_find', Null, $number );
+		if(!empty($station)){
+			$station_name = $station[0]->node_title;
+		}
+		else{
+			$station_name = null;	
+		}
     $rows[] = array (
 			$i+=1,
+			// $station[0]->node_title,
+			$station_name,
 			$row -> ReceivingDateTime,
 			$row -> SenderNumber,
 			$row -> TextDecoded,
