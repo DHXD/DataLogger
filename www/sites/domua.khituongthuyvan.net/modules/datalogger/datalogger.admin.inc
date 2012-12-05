@@ -1376,6 +1376,7 @@ function _datalogger_new_sms_form(){
     sender_number => t('Sender Number'),
     message_content => t('Message content'),
 		Modem => t('Modem'),
+    processed => t('Processed'),
   );
  
   $rows = array();
@@ -1396,6 +1397,7 @@ function _datalogger_new_sms_form(){
 			$row -> SenderNumber,
 			$row -> TextDecoded,
 			$row -> RecipientID,
+      $row -> Processed ? t('Yes') : t('No'),
 			);
 			$sms = $row -> TextDecoded;
   }
