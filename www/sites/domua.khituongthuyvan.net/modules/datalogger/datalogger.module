@@ -153,7 +153,7 @@ function datalogger_views_query_alter(&$view, &$query) {
 	//view: hien thi cac tram do mưa theo khu vuc thuc hien lenh
 	//view: hien thi cac tram do mưa theo khu vuc tren ban do
 	//view: hien thi cac lenh da thuc hien  theo khu vuc
-	if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == "view_map_alarm_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' || $view->name == 'rainfall_chart'||$view->name == 'search_rainfall' || $view->name == "view_modems") {
+	if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == "view_map_alarm_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' || $view->name == 'rainfall_chart'||$view->name == 'search_rainfall' || $view->name == "view_modems" || $view->name == "view_rainfall_default" ) {
 		global $user;
 		$account = user_load($user->uid);
 		// dsm($query);
@@ -175,7 +175,7 @@ function datalogger_views_query_alter(&$view, &$query) {
 			}
 		}
   }
-	
+	// dsm($query);
 	//view: quan ly thong tin tram
 	
 	if($view->name == "view_list_stations_role_manage") {
@@ -662,7 +662,7 @@ function datalogger_permission() {
  */
 function datalogger_menu_alter(&$items) {
 	// dsm($items);
-	/*
+	// /*
 	if($items['node/%pm_arg/thong-ke']['page arguments'][0] == 'panel_tram_thong_ke_luong_mua'){
 		// dsm(arg(1));
 		// dsm($items['node/%pm_arg/thong-ke']['page arguments'][0]);
@@ -674,7 +674,7 @@ function datalogger_menu_alter(&$items) {
 			$items['node/%pm_arg/thong-ke']['access callback'] = FALSE;
 		}
 	}
-	*/
+	// */
 	// dsm($items);
   // $items['node/%pm_arg/thong-ke']['title callback'] = '_datalogger_station_statitics';
   // $items['node/%pm_arg/thong-ke']['title arguments'] = array(1); 
