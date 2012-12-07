@@ -599,16 +599,24 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
 	for($i_nid = 1; $i_nid < count($nids); $i_nid++ ) {
     $nid = intval($nids[$i_nid]);
     
-		if($nid) {  
-			$node = node_load($nid);
-			$code = $node->field_station_code['und']['0']['value'];
-      for ($i = strlen($code); $i < 6; $i++)  $code = '0' . $code;    // add 0 to max 6 chars.
+	  if($nid) {  
+		$node = node_load($nid);
+		$code = $node->field_station_code['und']['0']['value'];
+        for ($i = strlen($code); $i < 6; $i++)  $code = '0' . $code;    // add 0 to max 6 chars.
       
+		$phone = $node->field_station_sim_number['und']['0']['value'];
+		// $modem = $node->field_station_modem['und']['0']['value'];
+		$modem = node_load($node->field_station_modem[$node->language]['0']['nid']);
+      
+<<<<<<< HEAD
 			$phone = $node->field_station_sim_number['und']['0']['value'];
 			// $modem = $node->field_station_modem['und']['0']['value'];
 			$modem = node_load($node->field_station_modem['und']['0']['nid']);
 			dsm($modem);
       switch ($select) {
+=======
+	  switch ($select) {
+>>>>>>> 80f6e0fadc7f4da8bb78ee9f666d1355b143aca8
         //Data call command
         case 1 :
           $sms = 'S' . $code . 'GET  '.DATEymdHis.'I:STATUS ';
@@ -1026,7 +1034,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
 			
       $node_command = _datalogger_insert_node_command($arg);
 
-      _datalogger_insert_outbox($phone, $message, $modem->title);	
+      _datalogger_insert_outbox($phone, $message, strtolower($modem->title));	
       // if($check != true){
         // $form_state['redirect'] = 'node/' . $node_command->nid . '/refresh';
       // }else{
@@ -1487,6 +1495,7 @@ function _datalogger_CheckSum($str){
 // }
 function _datalogger_insert_outbox($phone, $sms, $modem){
   /*cach 1:*/
+  dsm($modem);
   $sql = "INSERT INTO outbox(DestinationNumber, TextDecoded, CreatorID, SenderID) VALUES('$phone', '$sms', '', '$modem')";
   $nid = db_query($sql);
 	dsm($nid);
