@@ -560,16 +560,15 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
 	for($i_nid = 1; $i_nid < count($nids); $i_nid++ ) {
     $nid = intval($nids[$i_nid]);
     
-	  if($nid) {  
-		$node = node_load($nid);
-		$code = $node->field_station_code['und']['0']['value'];
-        for ($i = strlen($code); $i < 6; $i++)  $code = '0' . $code;    // add 0 to max 6 chars.
+		if($nid) {  
+			$node = node_load($nid);
+			$code = $node->field_station_code['und']['0']['value'];
+      for ($i = strlen($code); $i < 6; $i++)  $code = '0' . $code;    // add 0 to max 6 chars.
       
-		$phone = $node->field_station_sim_number['und']['0']['value'];
-		// $modem = $node->field_station_modem['und']['0']['value'];
-		$modem = node_load($node->field_station_modem[$node->language]['0']['nid']);
-      
-	  switch ($select) {
+			$phone = $node->field_station_sim_number['und']['0']['value'];
+			// $modem = $node->field_station_modem['und']['0']['value'];
+			$modem = node_load($node->field_station_modem['und']['0']['nid']); 
+      switch ($select) {
         //Data call command
         case 1 :
           $sms = 'S' . $code . 'GET  '.DATEymdHis.'I:STATUS ';
@@ -987,7 +986,8 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
 			
       $node_command = _datalogger_insert_node_command($arg);
 
-      _datalogger_insert_outbox($phone, $message, strtolower($modem->title));	
+	  
+      _datalogger_insert_outbox($phone, $message, $modem->title);	
       // if($check != true){
         // $form_state['redirect'] = 'node/' . $node_command->nid . '/refresh';
       // }else{
@@ -1306,12 +1306,18 @@ function _datalogger_insert_node_rainfall(&$arg){
 					$rainfall->field_rainfall_year_month[$rainfall->language][0]['value'] = $year_month;
 					$rainfall->field_rainfall_year_month_date[$rainfall->language][0]['value'] = $year_month_date;
 					
+					
 					$rainfall = node_submit($rainfall);
 					node_save($rainfall);
+					
+					
 				}
 			}
 		}
 		$station->field_station_power['und'][0]['value'] = $power/10;
+		$station->field_station_rain_nearest['und'][0]['value'] = $measuring_interval[0]/10;
+		$station->field_station_rain_24['und'][0]['value'] = $arg[4][0]/10;
+		
 		node_save($station);
 	}
 	
