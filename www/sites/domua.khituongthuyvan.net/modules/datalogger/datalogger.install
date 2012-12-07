@@ -3,6 +3,9 @@
 * Implements hook_schema().
 */
 function datalogger_schema() {
+
+	return;
+
   /*1.Table: gammu*/
   $schema['gammu'] = array(
     'description' => 'TODO: please describe this table!',
