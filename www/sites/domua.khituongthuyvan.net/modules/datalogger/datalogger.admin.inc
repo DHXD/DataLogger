@@ -518,17 +518,20 @@ function _datalogger_report_rainfall_day_form($form, &$form_state){
 }
 
 function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
+	// /*
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	
 	$nid = $form_state['values']['station'];
   $day = new DateTime($form_state['values']['day']);
+  $year = dsm($day->format('Y'));
+  $month = dsm($day->format('m'));
   $day = $day->format('Ymd');
 	$name_qtv = $form_state['values']['txtNameQTV'];
 	$name_nlb = $form_state['values']['txtNameNLB'];
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
-  
-	$rainfalls = views_get_view_result('view_export_excel','default', $nid, 'all', 'all', $day);
+	
+	$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year.$month, $day);
 	if(count($rainfalls) <= 0){
 		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
 	}
@@ -536,6 +539,42 @@ function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
 		$args = array($nid, $rainfalls, $name_qtv, $name_nlb, $name_ks, $name_pt);
 		_export_excel($args);
 	}
+	// */
+	
+	/*
+	//kiem tra luong mua theo bao cao hang ngay trong thang
+	module_load_include('inic', 'datalogger', 'excel_export.admin.excel');
+	$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year.$month, $day);
+	$month_days_nuber = cal_days_in_month(CAL_GREGORIAN, 12, 2012);
+	for($day = 1; $day <= $month_days_nuber; $day++){
+		if($day < 10){
+			$day = '0'.$day;
+		}
+		$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year.$month, $year.$month.$day);
+		for($i = 0; $i < count($rainfalls); ($i = $i + 6)){
+			$rainfalls_time_day_24[] = $rainfalls[$i];
+		}
+		$months[$i] = $rainfalls_time_day_24;
+	}
+	
+	//ham lay gio trong ngay
+	for($i = 0; $i < count($rainfalls); ($i = $i + 6)){
+		$rainfalls_time_day_24[] = $rainfalls[$i];
+	}
+	
+	// dsm($rainfalls_time);
+	
+	// if(count($rainfalls) <= 0){
+		// drupal_set_message(t('Rainfall stations in the no data to report'),'error');
+	// }
+	// else{
+		// $args = array($nid, $rainfalls, $name_qtv, $name_nlb, $name_ks, $name_pt);
+		// // $args = array($nid, $rainfalls_time_day_24, $name_qtv, $name_nlb, $name_ks, $name_pt);
+		// _export_excel($args);
+	// }
+	
+	*/
+		// _export_excel();
 }
 
 function _datalogger_send_command($nid, $select, $form, &$form_state) {
@@ -560,6 +599,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
 			$phone = $node->field_station_sim_number['und']['0']['value'];
 			// $modem = $node->field_station_modem['und']['0']['value'];
 			$modem = node_load($node->field_station_modem['und']['0']['nid']);
+			dsm($modem);
       switch ($select) {
         //Data call command
         case 1 :
@@ -1439,6 +1479,7 @@ function _datalogger_insert_outbox($phone, $sms, $modem){
   /*cach 1:*/
   $sql = "INSERT INTO outbox(DestinationNumber, TextDecoded, CreatorID, SenderID) VALUES('$phone', '$sms', '', '$modem')";
   $nid = db_query($sql);
+	dsm($nid);
 }
 
 /**s
@@ -1673,16 +1714,18 @@ function _log_rainfall_form(){
      '#type' => 'select',
      '#title' => t('Chọn trạm: '),
      '#options' => $station_name,
+		 '#attributes' => array('disabled' => 'disabled'),
   );
   
    $form['logDate'] = array(
      '#type' => 'date_popup',
-     '#title' => t('Chọn ngày: '),
+		 '#attributes' => array('disabled' => 'disabled'),
   );
   
   $form['logSubmit'] = array(
      '#type' => 'submit',
      '#value' => t('Xem nhật ký'),
+		 '#attributes' => array('disabled' => 'disabled'),
   );
   
   $headers = array(
@@ -1752,7 +1795,8 @@ function _datalogger_report_rainfall_month_form($form, &$form_state){
   return $form;
 }
 function _datalogger_report_rainfall_month_submit(&$form, &$form_state) {
-	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
+	// module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
+	module_load_include('inc', 'datalogger', 'excel_export.admin.excel');
 	
 	$nid = $form_state['values']['station'];
 	$year = $form_state['values']['year'];
@@ -1763,7 +1807,9 @@ function _datalogger_report_rainfall_month_submit(&$form, &$form_state) {
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
 	
-	$rainfalls = views_get_view_result('view_export_excel','default', $nid, 'all', $year_month, 'all');
+	$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year_month, 'all');
+	// dsm($rainfalls);
+	
 	if(count($rainfalls) <= 0){
 		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
 	}
@@ -1771,6 +1817,7 @@ function _datalogger_report_rainfall_month_submit(&$form, &$form_state) {
 		$args = array($nid, $rainfalls, $name_qtv, $name_nlb, $name_ks, $name_pt);
 		_export_excel($args);
 	}
+	
 }
 
 function _init_rainfall_node($title, $time, $rainfall, $stationCode) {

@@ -74,31 +74,36 @@ function datalogger_form_alter(&$form, $form_state, $form_id){
 					$stations[$station->nid] = $station->node_title;
 				}
 				
+				//danh sach cac tinh thuoc khu vucs
 				$form['field_station_province_city_value']['#options'] = $provinces;
 				
 				//view cac lenh da thuc hien theo tung khu vuc
-				if($form['#id'] == 'views-exposed-form-view-rainfall-default-page' ){
+				/*view: thong ke lương mua
+				 *view: tra cuu so lieu mua
+				 *view: cac lenh da thuc hien theo tung khu vuc
+				 *view: bieu do mua
+				 */
+				if($form['#id'] == 'views-exposed-form-view-station-rainfall-statistics-page' ||
+						$form['#id'] == 'views-exposed-form-search-rainfall-page' ||
+						$form['#id'] == 'views-exposed-form-view-rainfall-default-page' ||
+						$form['#id'] == 'views-exposed-form-rainfall-chart-page'){
+						$form['field_rainfall_station_nid']['#options'] = $stations;
+				}
+				/*
+				if($form['#id'] == 'views-exposed-form-view-rainfall-default-page'){
 					$form['field_command_station_nid']['#options'] = $stations;
 				}
-				
+				*/
 				//view luong mua theo tung khu vuc
 				if($form['#id'] == 'views-exposed-form-view-rainfall-default-page'){
 					$form['field_station_region_value']['#disabled'] = TRUE;
 					$form['field_rainfall_station_nid_1']['#options'] = $stations;
 				}
 				
-				/*view: thong ke lương mua
-				 *view: tra cuu so lieu mua
-				 *view: bieu do mua
-				 */
-				if($form['#id'] == 'views-exposed-form-view-station-rainfall-statistics-page' ||
-						$form['#id'] == 'views-exposed-form-search-rainfall-page'||
-						$form['#id'] == 'views-exposed-form-rainfall-chart-page'){
-						$form['field_rainfall_station_nid']['#options'] = $stations;
-				}
 			}
 		}
 	}
+	// dsm($form);
 }
  /**
  *Begin:15/11. 
@@ -443,7 +448,8 @@ function datalogger_menu() {
 
  /*nhat ki tich hop du lieu*/
  $items['manage/log/rainfall'] = array(
-    'title' => 'Nhật ký tích hợp số liệu',
+    // 'title' => 'Nhật ký tích hợp số liệu',
+    'title' => 'Integrated log data',
     'page callback' => '_log_rainfall_form',
     'file' => 'datalogger.admin.inc',
     // 'access arguments' => array('manage data'),
