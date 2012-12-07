@@ -1,8 +1,9 @@
 <?php
 
-error_reporting(E_ALL ^ E_NOTICE);
-ini_set('error_reporting', E_ALL ^ E_NOTICE);
+error_reporting(E_ALL ^ E_NOTICE ^ E_STRICT);
+ini_set('error_reporting', E_ALL ^ E_NOTICE ^ E_STRICT);
 ini_set('display_errors', 1);
+
 
 /**
  * @file
@@ -240,8 +241,12 @@ ini_set('display_errors', 1);
 		
 	/*Database: 192.168.1.34*/
 	/*Database: 192.168.1.36*/
+<<<<<<< HEAD
+	
+=======
 	/*Database: 192.168.1.38*/
 	/*
+>>>>>>> ca9dcd215f4f6e653cf95f1ea0557bcd6887ec1a
 	$databases = array (
 		'default' => 
 		array (
@@ -249,14 +254,21 @@ ini_set('display_errors', 1);
 			array (
 				'database' => 'datalogger',
 				'username' => 'datalogger',
-				'password' => '123456',
-				'host' => '192.168.1.38',
+				'password' => 'YGUhVSN3JhrJYNXN',
+				'host' => 'localhost',
+				// 'host' => 'Datalogger_ODBC',
 				'port' => '',
 				'driver' => 'mysql',
+				// 'driver' => 'odbc',
 				'prefix' => 'datalogger_',
 			),
 		),
 	);
+<<<<<<< HEAD
+  
+	
+  // */
+=======
   */
 	
 	/*Database: localhost*/
@@ -276,7 +288,12 @@ ini_set('display_errors', 1);
 			),
 		),
 	);
+<<<<<<< HEAD
  */
+=======
+ // */
+>>>>>>> ca9dcd215f4f6e653cf95f1ea0557bcd6887ec1a
+>>>>>>> 0c08d787ac59ccb237600ed71dea26d76db4f963
 /**
  * Access control for update.php script.
  *

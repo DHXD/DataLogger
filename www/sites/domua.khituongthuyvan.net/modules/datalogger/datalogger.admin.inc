@@ -447,6 +447,12 @@ function _datalogger_select_area_province_station(&$form, &$form_state){
      '#title' => t('Full name of person Appeal: '),
   );
   
+  
+  $form["notice_excel_2007"] = array(      
+      '#prefix' => '<div class="" style="margin-bottom: 15px;">',
+	  '#suffix' => '</div>', 
+	  "#markup" => t("For better rendering, downloaded file format will be Excel 2007. If you cannot read XLSX file format, please download and install Microsoft compability pack at: <a href='http://www.microsoft.com/en-us/download/details.aspx?id=3'>http://www.microsoft.com/en-us/download/details.aspx?id=3</a>."),      
+  ); 
 	
 	return $from;
 }
@@ -506,6 +512,8 @@ function _datalogger_report_rainfall_day_form($form, &$form_state){
 	_datalogger_select_area_province_station($form, $form_state);
 	$form['year']['#access']=FALSE;
 	$form['month']['#access']=FALSE;
+	
+	
 	
   $form["submit"] = array(
       "#type" => "submit",
@@ -1371,20 +1379,33 @@ function _datalogger_new_sms_form(){
 	$result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 0 , 50");
 	$headers = array(
     no => t('No.'),
+		station_name => t('Station Name'),
     receiving_date_time => t('Receiving Date Time'),
     sender_number => t('Sender Number'),
     message_content => t('Message content'),
 		Modem => t('Modem'),
+    processed => t('Processed'),
   );
  
   $rows = array();
   while($row = $result->fetchObject()){
+		$number = _datalogger_convert_number($row->SenderNumber);
+		$station = views_get_view_result('view_station_find', Null, $number );
+		if(!empty($station)){
+			$station_name = $station[0]->node_title;
+		}
+		else{
+			$station_name = null;	
+		}
     $rows[] = array (
 			$i+=1,
+			// $station[0]->node_title,
+			$station_name,
 			$row -> ReceivingDateTime,
 			$row -> SenderNumber,
 			$row -> TextDecoded,
 			$row -> RecipientID,
+      $row -> Processed ? t('Yes') : t('No'),
 			);
 			$sms = $row -> TextDecoded;
   }
