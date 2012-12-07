@@ -20,11 +20,11 @@ function _export_excel($args){
 	
   $objPHPExcel = new PHPExcel();
 
-  $objPHPExcel->getProperties()->setCreator("Maarten Balliauw")
-                 ->setLastModifiedBy("Maarten Balliauw")
-                 ->setTitle("Office 2007 XLSX Test Document")
-                 ->setSubject("Office 2007 XLSX Test Document")
-                 ->setDescription("Test document for Office 2007 XLSX, generated using PHP classes.")
+  $objPHPExcel->getProperties()->setCreator("Datalogger")
+                 ->setLastModifiedBy("Datalogger")
+                 ->setTitle("Office 2007 XLSX Document")
+                 ->setSubject("Office 2007 XLSX Document")
+                 ->setDescription("Document for Office 2007 XLSX")
                  ->setKeywords("office 2007 openxml php")
                  ->setCategory("Test result file");
   
@@ -260,7 +260,7 @@ function _export_excel($args){
   
   
   header('Content-type: application/vnd.ms-excel');
-  header('Content-Disposition: attachment; filename="BaoCao.xls"');
+  header('Content-Disposition: attachment; filename="Báo cáo dữ liệu mưa - Trạm ' . $name_station->title . ' - ' . date('m',time()) . '-' . date('Y',time()) . '.xlsx"');
   $objWriter->save('php://output');
   drupal_exit();
 }

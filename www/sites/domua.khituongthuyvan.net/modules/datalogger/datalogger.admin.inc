@@ -447,6 +447,12 @@ function _datalogger_select_area_province_station(&$form, &$form_state){
      '#title' => t('Full name of person Appeal: '),
   );
   
+  
+  $form["notice_excel_2007"] = array(      
+      '#prefix' => '<div class="" style="margin-bottom: 15px;">',
+	  '#suffix' => '</div>', 
+	  "#markup" => t("For better rendering, downloaded file format will be Excel 2007. If you cannot read XLSX file format, please download and install Microsoft compability pack at: <a href='http://www.microsoft.com/en-us/download/details.aspx?id=3'>http://www.microsoft.com/en-us/download/details.aspx?id=3</a>."),      
+  ); 
 	
 	return $from;
 }
@@ -506,6 +512,8 @@ function _datalogger_report_rainfall_day_form($form, &$form_state){
 	_datalogger_select_area_province_station($form, $form_state);
 	$form['year']['#access']=FALSE;
 	$form['month']['#access']=FALSE;
+	
+	
 	
   $form["submit"] = array(
       "#type" => "submit",
@@ -1416,6 +1424,7 @@ function _datalogger_new_sms_form(){
     sender_number => t('Sender Number'),
     message_content => t('Message content'),
 		Modem => t('Modem'),
+    processed => t('Processed'),
   );
  
   $rows = array();
@@ -1436,6 +1445,7 @@ function _datalogger_new_sms_form(){
 			$row -> SenderNumber,
 			$row -> TextDecoded,
 			$row -> RecipientID,
+      $row -> Processed ? t('Yes') : t('No'),
 			);
 			$sms = $row -> TextDecoded;
   }
