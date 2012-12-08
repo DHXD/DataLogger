@@ -1391,7 +1391,7 @@ function _datalogger_endsWith($sms, $needle)
 /*Ham xu ly cac tin nhắn gửi tới*/
 function _datalogger_new_sms_form(){
 	$output = "";
-	$result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 0 , 50");
+	$result = db_query("SELECT * FROM `inbox` ORDER BY  `inbox`.`ID` DESC LIMIT 0 , 50");
 	$headers = array(
     no => t('No.'),
 		station_name => t('Station Name'),
@@ -1412,17 +1412,34 @@ function _datalogger_new_sms_form(){
 		else{
 			$station_name = null;	
 		}
+    
+    $sms = $row -> TextDecoded;
+    $len_sms = strlen($row->TextDecoded);
+
+    // highlight
+    
+    //Xử lý tin nhắn được yêu cầu:88byte
+    if($len_sms == 88) {
+      $sms = 'aa';
+    }
+    //Xử lý bản tin đo mưa tự động:140byte
+    elseif($len_sms == 140) {
+      $sms = _datalogger_regex_rain($sms);      
+    }			
+    
+    
+    
     $rows[] = array (
 			$i+=1,
 			// $station[0]->node_title,
 			$station_name,
-			$row -> ReceivingDateTime,
+			$row -> UpdatedInDB,
 			$row -> SenderNumber,
-			$row -> TextDecoded,
+			$sms,
 			$row -> RecipientID,
       $row -> Processed ? t('Yes') : t('No'),
 			);
-			$sms = $row -> TextDecoded;
+
   }
   $output = theme_table(
     array(
@@ -1437,6 +1454,46 @@ function _datalogger_new_sms_form(){
   ).theme("pager");
  
   return $output;
+}
+
+function _datalogger_regex_rain($sms) {
+
+  //$sms = 'HS092257,121207230000,121207230000,0 0 0 130,0 0 0 130,0 0 0 130,0 0 0 130,0 0 0 130,0 0 0 130,74;';
+
+  $pattern = '/HS(\d\d\d\d\d\d),(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d),(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d),'
+    . '(\d* *\d* *\d*) *(\d\d)(\d),'
+    . '(\d* *\d* *\d*) *(\d\d)(\d),'
+    . '(\d* *\d* *\d*) *(\d\d)(\d),'
+    . '(\d* *\d* *\d*) *(\d\d)(\d),'
+    . '(\d* *\d* *\d*) *(\d\d)(\d),'
+    . '(\d* *\d* *\d*) *(\d\d)(\d),'
+    . '(..);/';
+  
+  
+  $replacement = '<span style="color:#fff">HS</span><em>${1}</em>,'
+    . '<span style="color:red">${2}</span><span style="color:green">${3}</span><span style="color:blue">${4}</span>'
+    . '<span style="background:#eee;text-decoration:underline;">'
+      . '<span style="color:red">${5}</span><span style="color:green">${6}</span><span style="color:blue">${7}</span>'
+    . '</span>'
+    . ','
+    . '<span style="color:red">${8}</span><span style="color:green">${9}</span><span style="color:blue">${10}</span>'
+    . '<span style="background:#eee;text-decoration:underline;">'
+      . '<span style="color:red">${11}</span><span style="color:green">${12}</span><span style="color:blue">${13}</span>'
+    . '</span>'
+  ;
+  $n = 13;
+  for ($i=1; $i<=6;$i++) {
+    $replacement .= 
+      ','
+    . '<span style="background:#fff"><em>'
+    . '<span style="color:blue">$' . ($n+1) . '</span> <span style="color:red">$' . ($n+2) . '</span><span style="color:#ffbbbb">$' . ($n+3) . '</span>'
+    . '</em></span>'
+    ;
+    $n+=3;
+  }
+  $replacement .= ',<span style="color:#fff">$32</span>;';
+  
+  return preg_replace($pattern, $replacement, $sms);
 }
 
 /*Check sum sms*/
