@@ -6,7 +6,7 @@ foreach($stations as $station){
 	$station_name[$station->nid] = $station->node_title;
 }
 global $timeInterval;
-$timeInterval = array('10','20','30','60','120','180');
+$timeInterval = array('10', '20', '30', '60', '120', '180', '360');
 
 global $clearTime;
 $clearTime = array('00:00','01:00','02:00','03:00','04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00');
@@ -2077,6 +2077,7 @@ function _log_rainfalls() {
 }
 
 function _command_form($form, &$form_state) {
+  global $user;
 
   $module_path = drupal_get_path('module', 'datalogger');
   
@@ -2132,6 +2133,13 @@ function _command_form($form, &$form_state) {
 		36 => t('Set the Alarm Interval and Level for rainfall alarming'),
 		37 => t('Get the Alarm Interval and Level for rainfall alarming'),
 		38 => t('Reset All'),);	
+    
+    
+  if ($user->uid != 1)  {
+    unset($options_commands[19]);   // Set Auto Power Management Enable disabled for not root
+    unset($options_commands[22]);   // Go to Sleep mode
+  }
+    
 	if(count(arg()) == 2){
 		$nid = intval(arg(1));
 		$node = node_load($nid);
