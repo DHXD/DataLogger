@@ -529,14 +529,22 @@ function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	
 	$nid = $form_state['values']['station'];
-  $day = new DateTime($form_state['values']['day']);
-  $day = $day->format('Ymd');
+	$day = new DateTime($form_state['values']['day']);
+	$day1 = new DateTime($form_state['values']['day']);
+	$year = $day1->format('Y');
+	$day2 = new DateTime($form_state['values']['day']);
+	$month = $day2->format('m');
+	if($month < 10){
+		$month = '0'.$month;
+	}
+	$day = $day->format('Ymd');
 	$name_qtv = $form_state['values']['txtNameQTV'];
 	$name_nlb = $form_state['values']['txtNameNLB'];
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
   
-	$rainfalls = views_get_view_result('view_export_excel','default', $nid, 'all', 'all', $day);
+	// $rainfalls = views_get_view_result('view_export_excel','default', $nid, 'all', 'all', $day);
+	$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year.$month, $day);
 	if(count($rainfalls) <= 0){
 		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
 	}
@@ -1781,7 +1789,7 @@ function _datalogger_report_rainfall_month_submit(&$form, &$form_state) {
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
 	
-	$rainfalls = views_get_view_result('view_export_excel','default', $nid, 'all', $year_month, 'all');
+	$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year_month, 'all');
 	if(count($rainfalls) <= 0){
 		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
 	}
