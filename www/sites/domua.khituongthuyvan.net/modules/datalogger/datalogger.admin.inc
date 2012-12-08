@@ -2127,7 +2127,10 @@ function _command_form($form, &$form_state) {
 		38 => t('Reset All'),);	
     
     
-  if ($user->uid != 1)    unset($options_commands[19]);   // Set Auto Power Management Enable disabled for not root
+  if ($user->uid != 1)  {
+    unset($options_commands[19]);   // Set Auto Power Management Enable disabled for not root
+    unset($options_commands[22]);   // Go to Sleep mode
+  }
     
 	if(count(arg()) == 2){
 		$nid = intval(arg(1));
