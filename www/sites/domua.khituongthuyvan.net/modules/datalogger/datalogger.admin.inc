@@ -447,6 +447,12 @@ function _datalogger_select_area_province_station(&$form, &$form_state){
      '#title' => t('Full name of person Appeal: '),
   );
   
+  
+  $form["notice_excel_2007"] = array(      
+      '#prefix' => '<div class="" style="margin-bottom: 15px;">',
+	  '#suffix' => '</div>', 
+	  "#markup" => t("For better rendering, downloaded file format will be Excel 2007. If you cannot read XLSX file format, please download and install Microsoft compability pack at: <a href='http://www.microsoft.com/en-us/download/details.aspx?id=3'>http://www.microsoft.com/en-us/download/details.aspx?id=3</a>."),      
+  ); 
 	
 	return $from;
 }
@@ -507,6 +513,8 @@ function _datalogger_report_rainfall_day_form($form, &$form_state){
 	$form['year']['#access']=FALSE;
 	$form['month']['#access']=FALSE;
 	
+	
+	
   $form["submit"] = array(
       "#type" => "submit",
       "#value" => t("Report"),
@@ -559,7 +567,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
       
 			$phone = $node->field_station_sim_number['und']['0']['value'];
 			// $modem = $node->field_station_modem['und']['0']['value'];
-			$modem = node_load($node->field_station_modem['und']['0']['nid']);
+			$modem = node_load($node->field_station_modem['und']['0']['nid']); 
       switch ($select) {
         //Data call command
         case 1 :
@@ -978,6 +986,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
 			
       $node_command = _datalogger_insert_node_command($arg);
 
+	  
       _datalogger_insert_outbox($phone, $message, $modem->title);	
       // if($check != true){
         // $form_state['redirect'] = 'node/' . $node_command->nid . '/refresh';
@@ -1297,12 +1306,18 @@ function _datalogger_insert_node_rainfall(&$arg){
 					$rainfall->field_rainfall_year_month[$rainfall->language][0]['value'] = $year_month;
 					$rainfall->field_rainfall_year_month_date[$rainfall->language][0]['value'] = $year_month_date;
 					
+					
 					$rainfall = node_submit($rainfall);
 					node_save($rainfall);
+					
+					
 				}
 			}
 		}
 		$station->field_station_power['und'][0]['value'] = $power/10;
+		$station->field_station_rain_nearest['und'][0]['value'] = $measuring_interval[0]/10;
+		$station->field_station_rain_24['und'][0]['value'] = $arg[4][0]/10;
+		
 		node_save($station);
 	}
 	
@@ -1439,6 +1454,7 @@ function _datalogger_CheckSum($str){
 // }
 function _datalogger_insert_outbox($phone, $sms, $modem){
   /*cach 1:*/
+  dsm($modem);
   $sql = "INSERT INTO outbox(DestinationNumber, TextDecoded, CreatorID, SenderID) VALUES('$phone', '$sms', '', '$modem')";
   $nid = db_query($sql);
 }
