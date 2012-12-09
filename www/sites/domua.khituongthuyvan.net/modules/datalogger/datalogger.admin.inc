@@ -1420,7 +1420,7 @@ function _datalogger_new_sms_form(){
     
     //Xử lý tin nhắn được yêu cầu:88byte
     if($len_sms == 88) {
-      $sms = 'aa';
+      
     }
     //Xử lý bản tin đo mưa tự động:140byte
     elseif($len_sms == 140) {
