@@ -3,6 +3,9 @@
 * Implements hook_schema().
 */
 function datalogger_schema() {
+
+	return;
+
   /*1.Table: gammu*/
   $schema['gammu'] = array(
     'description' => 'TODO: please describe this table!',
@@ -28,9 +31,10 @@ function datalogger_schema() {
       ),
       'ReceivingDateTime' => array(
         'description' => 'TODO: please describe this field!',
-        'type' => 'timestamp',
+        // 'type' => 'timestamp',
+        'type' => 'text',
         'not null' => TRUE,
-        'default' => '0000-00-00 00:00:00',
+        // 'default' => '0000-00-00 00:00:00',
       ),
       'Text' => array(
         'description' => 'TODO: please describe this field!',

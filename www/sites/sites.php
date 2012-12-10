@@ -42,5 +42,5 @@
 # $sites['devexample.com'] = 'example.com';
 # $sites['localhost.example'] = 'example.com';
 
-$sites['khuvuc01.dnsdynamic.net'] = 'domua.khituongthuyvan.net';
-$sites['khuvuc02.dnsdynamic.net'] = 'domua.khituongthuyvan.net';
+$sites['210.245.110.15'] = 'domua.khituongthuyvan.net';
+$sites['nambo.domua.khituongthuyvan.net'] = 'domua.khituongthuyvan.net';

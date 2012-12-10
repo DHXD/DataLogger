@@ -6,7 +6,7 @@ foreach($stations as $station){
 	$station_name[$station->nid] = $station->node_title;
 }
 global $timeInterval;
-$timeInterval = array('10','20','30','60','120','180');
+$timeInterval = array('10', '20', '30', '60', '120', '180', '360');
 
 global $clearTime;
 $clearTime = array('00:00','01:00','02:00','03:00','04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00');
@@ -447,6 +447,12 @@ function _datalogger_select_area_province_station(&$form, &$form_state){
      '#title' => t('Full name of person Appeal: '),
   );
   
+  
+  $form["notice_excel_2007"] = array(      
+      '#prefix' => '<div class="" style="margin-bottom: 15px;">',
+	  '#suffix' => '</div>', 
+	  "#markup" => t("For better rendering, downloaded file format will be Excel 2007. If you cannot read XLSX file format, please download and install Microsoft compability pack at: <a href='http://www.microsoft.com/en-us/download/details.aspx?id=3'>http://www.microsoft.com/en-us/download/details.aspx?id=3</a>."),      
+  ); 
 	
 	return $from;
 }
@@ -507,6 +513,8 @@ function _datalogger_report_rainfall_day_form($form, &$form_state){
 	$form['year']['#access']=FALSE;
 	$form['month']['#access']=FALSE;
 	
+	
+	
   $form["submit"] = array(
       "#type" => "submit",
       "#value" => t("Report"),
@@ -521,14 +529,22 @@ function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	
 	$nid = $form_state['values']['station'];
-  $day = new DateTime($form_state['values']['day']);
-  $day = $day->format('Ymd');
+	$day = new DateTime($form_state['values']['day']);
+	$day1 = new DateTime($form_state['values']['day']);
+	$year = $day1->format('Y');
+	$day2 = new DateTime($form_state['values']['day']);
+	$month = $day2->format('m');
+	if($month < 10){
+		$month = '0'.$month;
+	}
+	$day = $day->format('Ymd');
 	$name_qtv = $form_state['values']['txtNameQTV'];
 	$name_nlb = $form_state['values']['txtNameNLB'];
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
   
-	$rainfalls = views_get_view_result('view_export_excel','default', $nid, 'all', 'all', $day);
+	// $rainfalls = views_get_view_result('view_export_excel','default', $nid, 'all', 'all', $day);
+	$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year.$month, $day);
 	if(count($rainfalls) <= 0){
 		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
 	}
@@ -559,7 +575,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
       
 			$phone = $node->field_station_sim_number['und']['0']['value'];
 			// $modem = $node->field_station_modem['und']['0']['value'];
-			$modem = node_load($node->field_station_modem['und']['0']['nid']);
+			$modem = node_load($node->field_station_modem['und']['0']['nid']); 
       switch ($select) {
         //Data call command
         case 1 :
@@ -978,6 +994,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
 			
       $node_command = _datalogger_insert_node_command($arg);
 
+	  
       _datalogger_insert_outbox($phone, $message, $modem->title);	
       // if($check != true){
         // $form_state['redirect'] = 'node/' . $node_command->nid . '/refresh';
@@ -1297,12 +1314,18 @@ function _datalogger_insert_node_rainfall(&$arg){
 					$rainfall->field_rainfall_year_month[$rainfall->language][0]['value'] = $year_month;
 					$rainfall->field_rainfall_year_month_date[$rainfall->language][0]['value'] = $year_month_date;
 					
+					
 					$rainfall = node_submit($rainfall);
 					node_save($rainfall);
+					
+					
 				}
 			}
 		}
 		$station->field_station_power['und'][0]['value'] = $power/10;
+		$station->field_station_rain_nearest['und'][0]['value'] = $measuring_interval[0]/10;
+		$station->field_station_rain_24['und'][0]['value'] = $arg[4][0]/10;
+		
 		node_save($station);
 	}
 	
@@ -1368,25 +1391,55 @@ function _datalogger_endsWith($sms, $needle)
 /*Ham xu ly cac tin nhắn gửi tới*/
 function _datalogger_new_sms_form(){
 	$output = "";
-	$result = db_query("SELECT *FROM  `inbox` ORDER BY  `inbox`.`UpdatedInDB` DESC LIMIT 0 , 50");
+	$result = db_query("SELECT * FROM `inbox` ORDER BY  `inbox`.`ID` DESC LIMIT 0 , 50");
 	$headers = array(
     no => t('No.'),
+		station_name => t('Station Name'),
     receiving_date_time => t('Receiving Date Time'),
     sender_number => t('Sender Number'),
     message_content => t('Message content'),
 		Modem => t('Modem'),
+    processed => t('Processed'),
   );
  
   $rows = array();
   while($row = $result->fetchObject()){
+		$number = _datalogger_convert_number($row->SenderNumber);
+		$station = views_get_view_result('view_station_find', Null, $number );
+		if(!empty($station)){
+			$station_name = $station[0]->node_title;
+		}
+		else{
+			$station_name = null;	
+		}
+    
+    $sms = $row -> TextDecoded;
+    $len_sms = strlen($row->TextDecoded);
+
+    // highlight
+    
+    //Xử lý tin nhắn được yêu cầu:88byte
+    if($len_sms == 88) {
+      $sms = '<span style="background:blue;color:white;font-weight:bold">' . $sms . '</span>';
+    }
+    //Xử lý bản tin đo mưa tự động:140byte
+    elseif($len_sms == 140) {
+      $sms = _datalogger_regex_rain($sms);      
+    }			
+    
+    
+    
     $rows[] = array (
 			$i+=1,
-			$row -> ReceivingDateTime,
+			// $station[0]->node_title,
+			$station_name,
+			$row -> UpdatedInDB,
 			$row -> SenderNumber,
-			$row -> TextDecoded,
+			$sms,
 			$row -> RecipientID,
+      $row -> Processed ? t('Yes') : t('No'),
 			);
-			$sms = $row -> TextDecoded;
+
   }
   $output = theme_table(
     array(
@@ -1401,6 +1454,46 @@ function _datalogger_new_sms_form(){
   ).theme("pager");
  
   return $output;
+}
+
+function _datalogger_regex_rain($sms) {
+
+  //$sms = 'HS092257,121207230000,121207230000,0 0 0 130,0 0 0 130,0 0 0 130,0 0 0 130,0 0 0 130,0 0 0 130,74;';
+
+  $pattern = '/HS(\d\d\d\d\d\d),(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d),(\d\d)(\d\d)(\d\d)(\d\d)(\d\d)(\d\d),'
+    . '(\d* *\d* *\d*) *(\d\d)(\d),'
+    . '(\d* *\d* *\d*) *(\d\d)(\d),'
+    . '(\d* *\d* *\d*) *(\d\d)(\d),'
+    . '(\d* *\d* *\d*) *(\d\d)(\d),'
+    . '(\d* *\d* *\d*) *(\d\d)(\d),'
+    . '(\d* *\d* *\d*) *(\d\d)(\d),'
+    . '(..);/';
+  
+  
+  $replacement = '<span style="color:#fff">HS</span><em>${1}</em>,'
+    . '<span style="color:red">${2}</span><span style="color:green">${3}</span><span style="color:blue">${4}</span>'
+    . '<span style="background:#eee;text-decoration:underline;">'
+      . '<span style="color:red">${5}</span><span style="color:green">${6}</span><span style="color:blue">${7}</span>'
+    . '</span>'
+    . ','
+    . '<span style="color:red">${8}</span><span style="color:green">${9}</span><span style="color:blue">${10}</span>'
+    . '<span style="background:#eee;text-decoration:underline;">'
+      . '<span style="color:red">${11}</span><span style="color:green">${12}</span><span style="color:blue">${13}</span>'
+    . '</span>'
+  ;
+  $n = 13;
+  for ($i=1; $i<=6;$i++) {
+    $replacement .= 
+      ','
+    . '<span style="background:#fff"><em>'
+    . '<span style="color:blue">$' . ($n+1) . '</span> <span style="color:red">$' . ($n+2) . '</span><span style="color:#ffbbbb">$' . ($n+3) . '</span>'
+    . '</em></span>'
+    ;
+    $n+=3;
+  }
+  $replacement .= ',<span style="color:#fff">$32</span>;';
+  
+  return preg_replace($pattern, $replacement, $sms);
 }
 
 /*Check sum sms*/
@@ -1426,6 +1519,7 @@ function _datalogger_CheckSum($str){
 // }
 function _datalogger_insert_outbox($phone, $sms, $modem){
   /*cach 1:*/
+  dsm($modem);
   $sql = "INSERT INTO outbox(DestinationNumber, TextDecoded, CreatorID, SenderID) VALUES('$phone', '$sms', '', '$modem')";
   $nid = db_query($sql);
 }
@@ -1752,7 +1846,7 @@ function _datalogger_report_rainfall_month_submit(&$form, &$form_state) {
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
 	
-	$rainfalls = views_get_view_result('view_export_excel','default', $nid, 'all', $year_month, 'all');
+	$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year_month, 'all');
 	if(count($rainfalls) <= 0){
 		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
 	}
@@ -2040,6 +2134,7 @@ function _log_rainfalls() {
 }
 
 function _command_form($form, &$form_state) {
+  global $user;
 
   $module_path = drupal_get_path('module', 'datalogger');
   
@@ -2095,6 +2190,13 @@ function _command_form($form, &$form_state) {
 		36 => t('Set the Alarm Interval and Level for rainfall alarming'),
 		37 => t('Get the Alarm Interval and Level for rainfall alarming'),
 		38 => t('Reset All'),);	
+    
+    
+  if ($user->uid != 1)  {
+    unset($options_commands[19]);   // Set Auto Power Management Enable disabled for not root
+    unset($options_commands[22]);   // Go to Sleep mode
+  }
+    
 	if(count(arg()) == 2){
 		$nid = intval(arg(1));
 		$node = node_load($nid);
