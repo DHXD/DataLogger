@@ -206,16 +206,17 @@ ini_set('display_errors', 1);
  */
  
 	/*Database:lasi*/
-	/*
+	
 	$databases = array (
 		'default' => 
 		array (
 			'default' => 
 			array (
 				'database' => 'datalogger',
-				'username' => 'datalogger',
+				'username' => 'root',
 				// 'password' => '123456',
-				'password' => 'qaHfBsGv7uujby7r',
+				//'password' => 'qaHfBsGv7uujby7r',
+				'password' => '',
 				'host' => 'localhost',
 				'port' => '',
 				'driver' => 'mysql',
@@ -223,7 +224,7 @@ ini_set('display_errors', 1);
 			),
 		),
 	);
-	*/
+	
 		
 	/*Database: 192.168.1.34*/
 	/*Database: 192.168.1.36*/
@@ -247,7 +248,7 @@ ini_set('display_errors', 1);
   */
 	
 	/*Database: localhost*/
-	// /*
+	/*
 	$databases = array (
 		'default' => 
 		array (
@@ -263,7 +264,7 @@ ini_set('display_errors', 1);
 			),
 		),
 	);
- // */
+  */
 /**
  * Access control for update.php script.
  *
