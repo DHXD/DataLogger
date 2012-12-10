@@ -1083,17 +1083,34 @@ function _datalogger_check_inbox() {
 				_datalogger_update_process_inbox(1,$id_inbox);
       }
       //Xử lý bản tin đo mưa tự động:140byte
-      elseif($len_sms == 140){
-				// Chèn bản tin vào bảng đo mưa
-				// dsm('into 140');
-				_datalogger_separate_sms($sms,$number);
-				// Cập nhật các bản tin đã xử lý
-				_datalogger_update_process_inbox(1,$id_inbox);
+      elseif($len_sms == 140) {
+      
+        switch ($number) {
+        case '+841647492506': // Ham Cuong
+        case '+841635662128': // Mỹ Thạnh
+        case '+841653448055': // Phan Sơn
+        case '+841654635702': // Phước Hà
+
+          // Move sms to Nam Trung Bo server          
+          module_load_include('inc', 'datalogger', 'datalogger.admin.sms');
+          _datalogger_sms_post_server($row);
+          
+          _datalogger_update_process_inbox(30, $id_inbox);   // Cập nhật các bản tin đã xử lý
+          
+          break;
+          
+        default:
+          // Chèn bản tin vào bảng đo mưa
+          // dsm('into 140');
+          _datalogger_separate_sms($sms,$number);
+          // Cập nhật các bản tin đã xử lý
+          _datalogger_update_process_inbox(1, $id_inbox);
+        }
       }			
-			else _datalogger_update_process_inbox(2,$id_inbox);
+			else _datalogger_update_process_inbox(2, $id_inbox);
     }
 		else{
-			_datalogger_update_process_inbox(2,$id_inbox);
+			_datalogger_update_process_inbox(2, $id_inbox);
 		}
   }
 	//return 'Ok';

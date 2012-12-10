@@ -362,6 +362,14 @@ function datalogger_menu() {
     // 'access arguments' => array('manage data'),
     'access callback' => TRUE,
   );
+  
+  // this inserts an sms remotely from another server
+  $items['gammu/inbox/remote'] = array(    
+    'title' => 'Gammu Inbox Remotely',
+    'page callback' => '_datalogger_gammu_inbox_remote',    
+    'file' => 'datalogger.admin.sms.inc',    
+    'access callback' => TRUE,
+  );
  
 /**
  *Begin date:12-09-12
