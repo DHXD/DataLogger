@@ -357,8 +357,8 @@ function datalogger_menu() {
  */
   $items['gammu/inbox/new'] = array(
     // 'title' => 'Tin nhắn mới cập nhật',
-    'title' => 'New messages update',
-    'page callback' => 'drupal_get_form',
+    //'title' => 'New messages update',    
+    'title' => 'Check new messages',
     // 'page arguments' => array('_new_sms_form'),
     'page callback' => '_datalogger_new_sms_form',
     // 'page callback' => '_new_sms_form',
