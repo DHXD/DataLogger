@@ -10,7 +10,7 @@ function _datalogger_sms_post_server(&$row) {
   module_load_include('php', 'datalogger', 'HttpClient.class');
   
   $client = new HttpClient('namtrungbo.domua.khituongthuyvan.net:8181');
-  $client->setDebug(true);
+  //$client->setDebug(true);
   if (!$client->get('/gammu/inbox/remote/' . $row_s)) {
       die('An error occurred: '.$client->getError());
   }

@@ -1086,16 +1086,16 @@ function _datalogger_check_inbox() {
       elseif($len_sms == 140) {
       
         switch ($number) {
-        case '+841647492506': // Ham Cuong
-        case '+841635662128': // Mỹ Thạnh
-        case '+841653448055': // Phan Sơn
-        case '+841654635702': // Phước Hà
+        case '01647492506': // Ham Cuong
+        case '01635662128': // Mỹ Thạnh
+        case '01653448055': // Phan Sơn
+        case '01654635702': // Phước Hà
 
           // Move sms to Nam Trung Bo server          
           module_load_include('inc', 'datalogger', 'datalogger.admin.sms');
           _datalogger_sms_post_server($row);
           
-          _datalogger_update_process_inbox(30, $id_inbox);   // Cập nhật các bản tin đã xử lý
+          //_datalogger_update_process_inbox(30, $id_inbox);   // Cập nhật các bản tin đã xử lý
           
           break;
           
