@@ -30,7 +30,29 @@ function _datalogger_gammu_inbox_remote() {
   
   //dpm($sms);
   
+  $row = unserialize ($sms);
+  
+  if (isset($row->UpdatedInDB )) {
+    $row = (array) $row;
+    
+    unset($row['ID']);
+    
+    $keys = array_keys($row);
+    $fields = array(); $vals = array();
+    
+    foreach ($keys as $key) {
+      $fields[] = '`' . $key . '`';
+      $vals[] = "'" . str_replace("'", "''", $row[$key]) . "'";
+    }
+    
+    $sql = "INSERT INTO `inbox` (" . implode(', ', $fields) .  ") VALUES (" . implode(', ', $vals) . ")";
+    $nid = db_query($sql);
+    
+    _datalogger_check_inbox();    // check newly added inbox record
+  }
+  
   echo $sms;
+  echo $sql;
   drupal_exit();
 }
 
