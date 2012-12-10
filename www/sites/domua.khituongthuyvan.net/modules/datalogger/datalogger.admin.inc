@@ -608,15 +608,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
 		// $modem = $node->field_station_modem['und']['0']['value'];
 		$modem = node_load($node->field_station_modem[$node->language]['0']['nid']);
       
-<<<<<<< HEAD
-			$phone = $node->field_station_sim_number['und']['0']['value'];
-			// $modem = $node->field_station_modem['und']['0']['value'];
-			$modem = node_load($node->field_station_modem['und']['0']['nid']);
-			dsm($modem);
-      switch ($select) {
-=======
 	  switch ($select) {
->>>>>>> 80f6e0fadc7f4da8bb78ee9f666d1355b143aca8
         //Data call command
         case 1 :
           $sms = 'S' . $code . 'GET  '.DATEymdHis.'I:STATUS ';
@@ -1359,6 +1351,8 @@ function _datalogger_insert_node_rainfall(&$arg){
 			}
 		}
 		$station->field_station_power['und'][0]['value'] = $power/10;
+		$station->field_station_rain_nearest['und'][0]['value'] = $measuring_interval[0]/10;
+		$station->field_station_rain_24['und'][0]['value'] = $arg[4][0]/10;
 		node_save($station);
 	}
 	
