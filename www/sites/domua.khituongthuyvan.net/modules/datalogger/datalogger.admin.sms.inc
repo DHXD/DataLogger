@@ -4,11 +4,7 @@
  * Helper function to post sms to server.
  */
 function _datalogger_sms_post_server(&$row) {
-<<<<<<< HEAD
   $row-> RecipientID == 'modem9';
-=======
-
->>>>>>> 43c0dd8296fb409dc6fd5fa91a60957770916fec
   $row_s = serialize ($row);
   $row_s = urlencode($row_s);
   
