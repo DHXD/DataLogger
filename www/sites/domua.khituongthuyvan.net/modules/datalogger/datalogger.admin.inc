@@ -605,7 +605,6 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array(('Date $ Time Set'),'3', _datalogger_result($message),'');
           $arg = array(('Thiết lập thời gian'),'T:', _datalogger_result($message,'T:'),'',$nid);
-					return;
           break;
         case 4 : 
           // $title =  t('GPRS Network Time Synchronization');
@@ -1064,7 +1063,13 @@ function _datalogger_convert_number($number){
 }
 
 function _datalogger_check_inbox() {
-  $result = db_query("SELECT * FROM inbox WHERE Processed=0");
+
+  $process_remote = (arg(3) == 'remote');
+  
+  $processed = ($process_remote ? 31 : 0);
+  $processed_mark = ($process_remote ? 30 : 31);
+
+  $result = db_query("SELECT * FROM inbox WHERE Processed={$processed}");
   foreach ($result as $row) {
     // //tin nhắn từ datalogger
 		$id_inbox = $row->ID;
@@ -1093,9 +1098,13 @@ function _datalogger_check_inbox() {
 
           // Move sms to Nam Trung Bo server          
           module_load_include('inc', 'datalogger', 'datalogger.admin.sms');
-          _datalogger_sms_post_server($row);
           
-          //_datalogger_update_process_inbox(30, $id_inbox);   // Cập nhật các bản tin đã xử lý
+          if ($process_remote) {
+            if (_datalogger_sms_post_server($row)) {
+              _datalogger_update_process_inbox(30, $id_inbox);   // Cập nhật các bản tin đã xử lý
+            }
+          }
+          else _datalogger_update_process_inbox(31, $id_inbox);   // mark for cron
           
           break;
           
@@ -1112,6 +1121,7 @@ function _datalogger_check_inbox() {
 		else{
 			_datalogger_update_process_inbox(2, $id_inbox);
 		}
+    flush (); // flush the output buffer
   }
 	//return 'Ok';
   print "Ok.";
@@ -1127,6 +1137,7 @@ function _datalogger_update_process_inbox($process, $id_inbox){
  *Cập nhật giá trị trả từ Datalogger cho node command.
  **/
 function _datalogger_separate_sms_command($sms, $number){
+
 	global $datalogger_pattern;
 	$malenh = '';
 	foreach ($datalogger_pattern as $pattern) {
@@ -1148,10 +1159,12 @@ function _datalogger_separate_sms_command($sms, $number){
 	$malenh = str_replace(' ', '_', trim($malenh));
 	
 	$result = views_get_view_result('admin_command_from_phone_code', 'default', $number, $malenh);
-	$nid = $result['result'][0]->nid;
+	$nid = $result[0]->nid;
+  
+  
 	if($nid != 0 || !empty($nid)){
-		$node_command = node_load($nid);	
-		$node_command->field_command_result["und"][0]["value"] = _datalogger_result($sms, $malenh);	
+		$node_command = node_load($nid);	  
+  	$node_command->field_command_result["und"][0]["value"] = _datalogger_result($sms, $malenh);	
 		node_save($node_command);
 	}
 }
