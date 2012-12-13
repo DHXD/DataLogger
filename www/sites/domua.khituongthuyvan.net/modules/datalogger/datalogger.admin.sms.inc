@@ -4,7 +4,7 @@
  * Helper function to post sms to server.
  */
 function _datalogger_sms_post_server(&$row) {
-  $row-> RecipientID = '(modem13)';
+  $row-> RecipientID = '(modem13)';           // to remote server
   $row_s = serialize ($row);
   $row_s = urlencode($row_s);
   

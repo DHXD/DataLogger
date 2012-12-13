@@ -1079,10 +1079,10 @@ function _datalogger_convert_number($number){
 
 function _datalogger_check_inbox() {
 
-  $process_remote = (arg(3) == 'remote');
+  $cron = (arg(3) == 'remote');
   
-  $processed = ($process_remote ? 31 : 0);
-  $processed_mark = ($process_remote ? 30 : 31);
+  $processed = ($cron ? 31 : 0);
+  
 
   $result = db_query("SELECT * FROM inbox WHERE Processed={$processed}");
   foreach ($result as $row) {
@@ -1111,24 +1111,18 @@ function _datalogger_check_inbox() {
         case '01653448055': // Phan Sơn
         case '01654635702': // Phước Hà
 
-          if ($row-> RecipientID == 'modem13') {
-            // Move sms to Nam Trung Bo server          
-            module_load_include('inc', 'datalogger', 'datalogger.admin.sms');
-            _datalogger_sms_post_server($row);
+          if ($row-> RecipientID == 'modem13') {    // nambo server
             
-            //_datalogger_update_process_inbox(30, $id_inbox);   // Cập nhật các bản tin đã xử lý
-          }
-          
-
-          // Move sms to Nam Trung Bo server          
-          module_load_include('inc', 'datalogger', 'datalogger.admin.sms');
-          
-          if ($process_remote) {
-            if (_datalogger_sms_post_server($row)) {
-              _datalogger_update_process_inbox(30, $id_inbox);   // Cập nhật các bản tin đã xử lý
+            if ($cron) {
+              // Move sms to Nam Trung Bo server          
+              module_load_include('inc', 'datalogger', 'datalogger.admin.sms');
+              if (_datalogger_sms_post_server($row)) {
+                _datalogger_update_process_inbox(30, $id_inbox);   // Cập nhật các bản tin đã xử lý
+              }
             }
+            else _datalogger_update_process_inbox(31, $id_inbox);   // mark for cron
+            
           }
-          else _datalogger_update_process_inbox(31, $id_inbox);   // mark for cron
           
           break;
           
