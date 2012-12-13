@@ -1824,3 +1824,11 @@ div.admin-panel .description {
 #footer-wrapper .poll .bar .foreground {
 	background-color: #ddd;
 }
+
+/* Gia tri tra ve trong form command */
+div.field-name-field-command-result div.field-items div.field-item {
+  font-weight: bold;
+  font-size: 12pt;
+  background: blue;
+  color: white;
+}
