@@ -554,6 +554,16 @@ function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
 	}
 }
 
+function _datalogger_language_field(&$node, $field_name, $value = 'value') {
+  $all_languages = array('und', 'vi', 'en');  
+  foreach($all_languages as $lang) {
+    if (isset($node->{$field_name}[$lang]['0'][$value])) {
+      return $node->{$field_name}[$lang]['0'][$value];      
+    }
+  }
+  return '';
+}
+
 function _datalogger_send_command($nid, $select, $form, &$form_state) {
 	// $nids = arg();
 	define('DATEymdHis', date('ymdHis',time()));  
@@ -570,17 +580,11 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
     
 		if($nid) {  
 			$node = node_load($nid);
-			$code = $node->field_station_code[$node->language]['0']['value'];
+      dpm($node);
+			$code = _datalogger_language_field($node, 'field_station_code');
       for ($i = strlen($code); $i < 6; $i++)  $code = '0' . $code;    // add 0 to max 6 chars.
       
-      $all_languages = array('und', 'vi', 'en');
-      $phone = '';
-      foreach($all_languages as $lang) {
-        if (isset($node->field_station_sim_number[$lang]['0']['value'])) {
-          $phone = $node->field_station_sim_number[$lang]['0']['value'];
-          break;
-        }
-      }			
+      $phone = _datalogger_language_field($node, 'field_station_sim_number');
       
       if (!$phone) {
         drupal_set_message(t('Lỗi đọc số điện thoại trạm.'));
@@ -590,7 +594,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
       //dpm($phone);
       
 			// $modem = $node->field_station_modem['und']['0']['value'];
-			$modem = node_load($node->field_station_modem[$node->language]['0']['nid']); 
+			$modem = node_load(_datalogger_language_field($node, 'field_station_modem', 'nid')); 
       switch ($select) {
         //Data call command
         case 1 :
