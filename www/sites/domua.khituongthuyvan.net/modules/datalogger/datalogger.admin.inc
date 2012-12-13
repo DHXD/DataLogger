@@ -570,12 +570,27 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
     
 		if($nid) {  
 			$node = node_load($nid);
-			$code = $node->field_station_code['und']['0']['value'];
+			$code = $node->field_station_code[$node->language]['0']['value'];
       for ($i = strlen($code); $i < 6; $i++)  $code = '0' . $code;    // add 0 to max 6 chars.
       
-			$phone = $node->field_station_sim_number['und']['0']['value'];
+      $all_languages = array('und', 'vi', 'en');
+      $phone = '';
+      foreach($all_languages as $lang) {
+        if (isset($node->field_station_sim_number[$lang]['0']['value'])) {
+          $phone = $node->field_station_sim_number[$lang]['0']['value'];
+          break;
+        }
+      }			
+      
+      if (!$phone) {
+        drupal_set_message(t('Lỗi đọc số điện thoại trạm.'));
+      }
+      
+      //dpm($node);
+      //dpm($phone);
+      
 			// $modem = $node->field_station_modem['und']['0']['value'];
-			$modem = node_load($node->field_station_modem['und']['0']['nid']); 
+			$modem = node_load($node->field_station_modem[$node->language]['0']['nid']); 
       switch ($select) {
         //Data call command
         case 1 :
@@ -605,7 +620,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array(('Date $ Time Set'),'3', _datalogger_result($message),'');
           $arg = array(('Thiết lập thời gian'),'T:', _datalogger_result($message,'T:'),'',$nid);
-					return;
+
           break;
         case 4 : 
           // $title =  t('GPRS Network Time Synchronization');
@@ -994,7 +1009,6 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
 			
       $node_command = _datalogger_insert_node_command($arg);
 
-	  
       _datalogger_insert_outbox($phone, $message, $modem->title);	
       // if($check != true){
         // $form_state['redirect'] = 'node/' . $node_command->nid . '/refresh';
@@ -1064,7 +1078,13 @@ function _datalogger_convert_number($number){
 }
 
 function _datalogger_check_inbox() {
-  $result = db_query("SELECT * FROM inbox WHERE Processed=0");
+
+  $process_remote = (arg(3) == 'remote');
+  
+  $processed = ($process_remote ? 31 : 0);
+  $processed_mark = ($process_remote ? 30 : 31);
+
+  $result = db_query("SELECT * FROM inbox WHERE Processed={$processed}");
   foreach ($result as $row) {
     // //tin nhắn từ datalogger
 		$id_inbox = $row->ID;
@@ -1083,18 +1103,49 @@ function _datalogger_check_inbox() {
 				_datalogger_update_process_inbox(1,$id_inbox);
       }
       //Xử lý bản tin đo mưa tự động:140byte
-      elseif($len_sms == 140){
-				// Chèn bản tin vào bảng đo mưa
-				// dsm('into 140');
-				_datalogger_separate_sms($sms,$number);
-				// Cập nhật các bản tin đã xử lý
-				_datalogger_update_process_inbox(1,$id_inbox);
+      elseif($len_sms == 140) {
+      
+        switch ($number) {
+        case '01647492506': // Ham Cuong
+        case '01635662128': // Mỹ Thạnh
+        case '01653448055': // Phan Sơn
+        case '01654635702': // Phước Hà
+
+          if ($row-> RecipientID == 'modem13') {
+            // Move sms to Nam Trung Bo server          
+            module_load_include('inc', 'datalogger', 'datalogger.admin.sms');
+            _datalogger_sms_post_server($row);
+            
+            //_datalogger_update_process_inbox(30, $id_inbox);   // Cập nhật các bản tin đã xử lý
+          }
+          
+
+          // Move sms to Nam Trung Bo server          
+          module_load_include('inc', 'datalogger', 'datalogger.admin.sms');
+          
+          if ($process_remote) {
+            if (_datalogger_sms_post_server($row)) {
+              _datalogger_update_process_inbox(30, $id_inbox);   // Cập nhật các bản tin đã xử lý
+            }
+          }
+          else _datalogger_update_process_inbox(31, $id_inbox);   // mark for cron
+          
+          break;
+          
+        default:
+          // Chèn bản tin vào bảng đo mưa
+          // dsm('into 140');
+          _datalogger_separate_sms($sms,$number);
+          // Cập nhật các bản tin đã xử lý
+          _datalogger_update_process_inbox(1, $id_inbox);
+        }
       }			
-			else _datalogger_update_process_inbox(2,$id_inbox);
+			else _datalogger_update_process_inbox(2, $id_inbox);
     }
 		else{
-			_datalogger_update_process_inbox(2,$id_inbox);
+			_datalogger_update_process_inbox(2, $id_inbox);
 		}
+    flush (); // flush the output buffer
   }
 	//return 'Ok';
   print "Ok.";
@@ -1110,6 +1161,7 @@ function _datalogger_update_process_inbox($process, $id_inbox){
  *Cập nhật giá trị trả từ Datalogger cho node command.
  **/
 function _datalogger_separate_sms_command($sms, $number){
+
 	global $datalogger_pattern;
 	$malenh = '';
 	foreach ($datalogger_pattern as $pattern) {
@@ -1123,7 +1175,7 @@ function _datalogger_separate_sms_command($sms, $number){
 		$stations = views_get_view_result('view_station_find', Null, $number);
 		if(count($stations) >= 1){
 			$station = node_load($stations[0]->nid);
-			$station->field_station_alarm['und'][0]['value'] =  'alarm_true';	
+			$station->field_station_alarm[$station->language][0]['value'] =  'alarm_true';	
 			node_save($station);
 		}
 	}
@@ -1131,10 +1183,12 @@ function _datalogger_separate_sms_command($sms, $number){
 	$malenh = str_replace(' ', '_', trim($malenh));
 	
 	$result = views_get_view_result('admin_command_from_phone_code', 'default', $number, $malenh);
-	$nid = $result['result'][0]->nid;
+	$nid = $result[0]->nid;
+  
+  
 	if($nid != 0 || !empty($nid)){
-		$node_command = node_load($nid);	
-		$node_command->field_command_result["und"][0]["value"] = _datalogger_result($sms, $malenh);	
+		$node_command = node_load($nid);	  
+  	$node_command->field_command_result["und"][0]["value"] = _datalogger_result($sms, $malenh);	
 		node_save($node_command);
 	}
 }
@@ -1519,7 +1573,7 @@ function _datalogger_CheckSum($str){
 // }
 function _datalogger_insert_outbox($phone, $sms, $modem){
   /*cach 1:*/
-  dsm($modem);
+  dsm('thong tin modem gui tin '.$modem);
   $sql = "INSERT INTO outbox(DestinationNumber, TextDecoded, CreatorID, SenderID) VALUES('$phone', '$sms', '', '$modem')";
   $nid = db_query($sql);
 }
