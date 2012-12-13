@@ -570,12 +570,27 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
     
 		if($nid) {  
 			$node = node_load($nid);
-			$code = $node->field_station_code['und']['0']['value'];
+			$code = $node->field_station_code[$node->language]['0']['value'];
       for ($i = strlen($code); $i < 6; $i++)  $code = '0' . $code;    // add 0 to max 6 chars.
       
-			$phone = $node->field_station_sim_number['und']['0']['value'];
+      $all_languages = array('und', 'vi', 'en');
+      $phone = '';
+      foreach($all_languages as $lang) {
+        if (isset($node->field_station_sim_number[$lang]['0']['value'])) {
+          $phone = $node->field_station_sim_number[$lang]['0']['value'];
+          break;
+        }
+      }			
+      
+      if (!$phone) {
+        drupal_set_message(t('Lỗi đọc số điện thoại trạm.'));
+      }
+      
+      //dpm($node);
+      //dpm($phone);
+      
 			// $modem = $node->field_station_modem['und']['0']['value'];
-			$modem = node_load($node->field_station_modem['und']['0']['nid']); 
+			$modem = node_load($node->field_station_modem[$node->language]['0']['nid']); 
       switch ($select) {
         //Data call command
         case 1 :
@@ -605,6 +620,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
           // $arg = array(('Date $ Time Set'),'3', _datalogger_result($message),'');
           $arg = array(('Thiết lập thời gian'),'T:', _datalogger_result($message,'T:'),'',$nid);
+
           break;
         case 4 : 
           // $title =  t('GPRS Network Time Synchronization');
@@ -993,7 +1009,6 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
 			
       $node_command = _datalogger_insert_node_command($arg);
 
-	  
       _datalogger_insert_outbox($phone, $message, $modem->title);	
       // if($check != true){
         // $form_state['redirect'] = 'node/' . $node_command->nid . '/refresh';
@@ -1151,7 +1166,7 @@ function _datalogger_separate_sms_command($sms, $number){
 		$stations = views_get_view_result('view_station_find', Null, $number);
 		if(count($stations) >= 1){
 			$station = node_load($stations[0]->nid);
-			$station->field_station_alarm['und'][0]['value'] =  'alarm_true';	
+			$station->field_station_alarm[$station->language][0]['value'] =  'alarm_true';	
 			node_save($station);
 		}
 	}
@@ -1549,7 +1564,7 @@ function _datalogger_CheckSum($str){
 // }
 function _datalogger_insert_outbox($phone, $sms, $modem){
   /*cach 1:*/
-  dsm($modem);
+  dsm('thong tin modem gui tin '.$modem);
   $sql = "INSERT INTO outbox(DestinationNumber, TextDecoded, CreatorID, SenderID) VALUES('$phone', '$sms', '', '$modem')";
   $nid = db_query($sql);
 }
