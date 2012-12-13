@@ -1104,12 +1104,14 @@ function _datalogger_check_inbox() {
         case '01635662128': // Mỹ Thạnh
         case '01653448055': // Phan Sơn
         case '01654635702': // Phước Hà
-
-          // Move sms to Nam Trung Bo server          
-          module_load_include('inc', 'datalogger', 'datalogger.admin.sms');
-          _datalogger_sms_post_server($row);
+          if ($row-> RecipientID == 'modem13') {
+            // Move sms to Nam Trung Bo server          
+            module_load_include('inc', 'datalogger', 'datalogger.admin.sms');
+            _datalogger_sms_post_server($row);
+            
+            //_datalogger_update_process_inbox(30, $id_inbox);   // Cập nhật các bản tin đã xử lý
+          }
           
-          //_datalogger_update_process_inbox(30, $id_inbox);   // Cập nhật các bản tin đã xử lý
           
           break;
           
