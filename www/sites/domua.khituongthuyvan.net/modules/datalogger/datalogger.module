@@ -1,21 +1,11 @@
 <?php
-/*
-function datalogger_ctools_plugin_api($module, $api) {
-  if ($module == "openlayers") {
-    switch ($api) {
-      case 'openlayers_presets':
-        return array('version' => 1);
-
-      case 'openlayers_layers':
-        return array('version' => 1);
-
-      case 'openlayers_styles':
-        return array('version' => 1);
-
-    }
-  }
+function _datalogger_station_status(){
+	return array(
+		'station_active' => 'Đang Hoạt Động',
+		'station_deactive' => 'Không Hoạt Động',
+		'station_error' => 'Đang Lỗi',
+	);
 }
-*/
 /**
  * Implements hook_openlayers_styles().
  */
