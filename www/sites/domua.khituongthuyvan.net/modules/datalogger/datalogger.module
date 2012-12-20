@@ -113,6 +113,7 @@ function datalogger_form_alter(&$form, $form_state, $form_id){
  */	
  
 function datalogger_views_pre_render(&$view) {
+  global $user;
   if($view->name == "view_list_user") {
 			for($i; $i < $view->total_rows; $i++){
 				if($view->result[$i]->uid == 1){
@@ -120,12 +121,17 @@ function datalogger_views_pre_render(&$view) {
 				}
 			}
   }
-	if($view->name == "view_all_station") {
-		global $user;
+	else if($view->name == "view_all_station") {		
 		if (!in_array('administrator', array_values($user->roles)) && !in_array('control datalogger', array_values($user->roles))) {
 			unset($view->field['nid']);
 		}
-	}
+		// temporary disable the command column if not root
+		if ($user->uid != 1)	unset($view->field['nid']);		
+	}	
+	else if($view->name == "view_list_stations") {
+		// temporary disable the command column if not root
+		if ($user->uid != 1)	unset($view->field['nid']);		
+	}	  
 } 
 
 /*
