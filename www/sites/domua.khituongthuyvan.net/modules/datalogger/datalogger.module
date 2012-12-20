@@ -28,6 +28,16 @@ function datalogger_openlayers_styles(&$map) {
   $styles[$style->name] = $style;
 
 	*/
+	// drupal_add_js(drupal_get_path('module', 'datalogger') . '/refreshView.js');
+	
+	// underway = new OpenLayers.Layer.Vector("WFS", {
+            // strategies: [new OpenLayers.Strategy.BBOX(), new OpenLayers.Strategy.Refresh({interval: 4000, force: true})],
+            // protocol: new OpenLayers.Protocol.WFS({
+                // url:  "http://root.domua.khituongthuyvan.net/view/stations",
+                // featureType: "ss2011_v03",
+                // featureNS: "http://csiro.au/underway",
+                // geometryName: "position"
+            // });
   return $map['styles'];
 	// dsm($map);
 }
