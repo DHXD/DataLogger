@@ -659,7 +659,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
         //Date and Time Set
         case 3 : 
 				// dsm($form_state['values']['date_time_set']);
-          $date = _datalogger_convert_date($strFormat = 'Ymdhis', $form_state['values']['date_time_set']);
+          $date = _datalogger_convert_date($strFormat = 'YmdHis', $form_state['values']['date_time_set']);
           $sms = 'S' . $code . 'SET  '.DATEymdHis.'T:'.$date;
           $sms = _datalogger_add_space($sms, 84);
           $message = 'H'.$sms._datalogger_CheckSum($sms).';';
