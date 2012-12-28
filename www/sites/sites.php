@@ -1,5 +1,4 @@
 <?php
-
 /**
  * @file
  * Configuration file for Drupal's multi-site directory aliasing feature.
@@ -42,4 +41,5 @@
 $sites['192.168.100.100'] = 'domua.khituongthuyvan.net';
 $sites['117.6.129.235'] = 'domua.khituongthuyvan.net';
 $sites['bactrungbo.dnsdynamic.net'] = 'domua.khituongthuyvan.net';
+# $sites['192.168.100.100'] = 'domua.khituongthuyvan.net';
 # $sites['localhost.example'] = 'example.com';

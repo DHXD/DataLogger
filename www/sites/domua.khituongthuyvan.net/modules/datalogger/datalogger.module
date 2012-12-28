@@ -28,6 +28,16 @@ function datalogger_openlayers_styles(&$map) {
   $styles[$style->name] = $style;
 
 	*/
+	// drupal_add_js(drupal_get_path('module', 'datalogger') . '/refreshView.js');
+	
+	// underway = new OpenLayers.Layer.Vector("WFS", {
+            // strategies: [new OpenLayers.Strategy.BBOX(), new OpenLayers.Strategy.Refresh({interval: 4000, force: true})],
+            // protocol: new OpenLayers.Protocol.WFS({
+                // url:  "http://root.domua.khituongthuyvan.net/view/stations",
+                // featureType: "ss2011_v03",
+                // featureNS: "http://csiro.au/underway",
+                // geometryName: "position"
+            // });
   return $map['styles'];
 	// dsm($map);
 }
@@ -154,7 +164,7 @@ function datalogger_views_query_alter(&$view, &$query) {
 	//view: hien thi cac tram do mưa theo khu vuc thuc hien lenh
 	//view: hien thi cac tram do mưa theo khu vuc tren ban do
 	//view: hien thi cac lenh da thuc hien  theo khu vuc
-	if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == "view_map_alarm_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' || $view->name == 'rainfall_chart'||$view->name == 'search_rainfall' || $view->name == "view_modems" || $view->name == "view_rainfall_default" || $view->name == 'view_map_alarm_stations') {
+	if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == "view_map_alarm_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' || $view->name == 'rainfall_chart'||$view->name == 'search_rainfall' || $view->name == "view_modems" ||$view->name == "view_rainfall_default"	||$view->name == "view_map_station_deactive"||$view->name == "view_map_alarm_stations_rainfall") {
 		global $user;
 		$account = user_load($user->uid);
 		// dsm($query);
