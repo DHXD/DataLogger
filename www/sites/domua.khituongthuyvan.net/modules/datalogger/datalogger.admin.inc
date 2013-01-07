@@ -108,6 +108,73 @@ $datalogger_pattern = array(
  *author:hungnm0302
  *Lay ten cac tram do mua theo role khu vuc
  */
+/*Ham xu ly hien thi cac lenh chua duoc thuc hien*/
+function _datalogger_check_error_send_command_form(){
+	$output = "";
+	$result = db_query("SELECT * FROM `sentitems` WHERE Status= 'SendingError' ORDER BY  `sentitems`.`ID` DESC LIMIT 0 , 100");
+	// $result = db_query("SELECT * FROM `sentitems` WHERE Status=2 ORDER BY  `sentitems`.`ID` DESC LIMIT 0 , 50");
+	$headers = array(
+    no => t('No.'),
+		station_name => t('Station Name'),
+    sending_date_time => t('Sending Date Time'),
+    sender_number => t('Destination Number'),
+    message_content => t('Text Decoded'),
+		id => ID,
+		Modem => t('Sender ID'),
+    status => t('Status'),
+		send_again => t('Send again'),
+  );
+ 
+  $rows = array();
+  while($row = $result->fetchObject()){
+		$number = $row->DestinationNumber;
+		$station = views_get_view_result('view_station_find', Null, $number );
+		if(!empty($station)){
+			$station_name = $station[0]->node_title;
+			$nid = $station[0]->nid;
+			$cid = $row -> ID;
+		}
+		else{
+			$station_name = null;	
+		}
+    
+    $sms = $row -> TextDecoded;
+    $len_sms = strlen($row->TextDecoded);
+		
+    $rows[] = array (
+			$i+=1,
+			// $station[0]->node_title,
+			$station_name,
+			$row -> SendingDateTime,
+			$row -> DestinationNumber,
+			$row -> TextDecoded,
+			$cid,
+			$row -> SenderID,
+      $row -> Status ? t('Sending Error') : t('Sending Ok'),
+			'<a href=http://admin.domua.khituongthuyvan.net/command/'.$nid.'/editsentcommand/'.$cid.'>'.t('Send again').'</a>',
+			);
+
+  }
+  $output = theme_table(
+    array(
+      "header" => $headers,
+      "rows" => $rows,
+      "attributes" => array(),
+      "sticky" => true, // Table header will be sticky
+      "caption" => t('Date').': '.date('d/m/Y',time()),
+      "colgroups" => array(),
+      "empty" => t("Table has no row!") // The message to be displayed if table is empty
+    )
+  ).theme("pager");
+ 
+  return $output;
+}
+ 
+ /**
+ *Begin: 25/11. 
+ *author:hungnm0302
+ *Lay ten cac tram do mua theo role khu vuc
+ */
 function _datalogger_ftp_server(){
 	try {
 		/*
@@ -1248,6 +1315,7 @@ function _datalogger_string_to_date($str){
 }
 function _datalogger_string_to_unix_date($str){
 	// $year = substr($str,0,2);
+	//130106240000 -> 130107000000
 	$year = date('Y', time());
 	$month = substr($str, 2, 2);
 	$day = substr($str, 4, 2);
@@ -1941,9 +2009,8 @@ function _datalogger_report_rainfall_month_form($form, &$form_state){
   return $form;
 }
 function _datalogger_report_rainfall_month_submit(&$form, &$form_state) {
-	// module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
-	module_load_include('inc', 'datalogger', 'excel_export.admin.excel');
-	
+	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
+	// module_load_include('inc', 'datalogger', 'excel_export.admin.excel');
 	$nid = $form_state['values']['station'];
 	$year = $form_state['values']['year'];
 	$month = $form_state['values']['month'];
@@ -2304,7 +2371,14 @@ function _command_form($form, &$form_state) {
     unset($options_commands[19]);   // Set Auto Power Management Enable disabled for not root
     unset($options_commands[22]);   // Go to Sleep mode
   }
-    
+
+	//cập nhật trạng thái lênh chưa được gửi về dạng đã được gửi để thực hiện gửi lệnh mới.
+	if(count(arg()) == 4){
+		if(arg(2) == 'editsentcommand'){
+			db_query("UPDATE `sentitems` SET Status = 'SendingOKNoReport' WHERE ID=:id",array(':id' => arg(3)));
+		}		
+	}
+	
 	if(count(arg()) == 2){
 		$nid = intval(arg(1));
 		$node = node_load($nid);

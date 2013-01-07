@@ -168,6 +168,7 @@ function datalogger_views_query_alter(&$view, &$query) {
 		global $user;
 		$account = user_load($user->uid);
 		// dsm($query);
+		// dsm($view);
 		if(in_array('administrator', array_values($user->roles))){
 			$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
 							south_central_region,south_region,central_highlands);
@@ -261,6 +262,24 @@ function datalogger_send_command_action(&$object, $context = array()){
  
 function datalogger_menu() {
 /**
+ *Begin: 25/11. 
+ *author: hungnm0302
+ *description: ftp tranferer
+ */	
+$items['gammu/sentitems/error'] = array(
+    // 'title' => 'Tin nhắn mới cập nhật',
+    //'title' => 'New messages update',    
+    'title' => 'List of commands being sent error',
+    // 'page arguments' => array('_new_sms_form'),
+    'page callback' => '_datalogger_check_error_send_command_form',
+    // 'page callback' => '_new_sms_form',
+
+    'file' => 'datalogger.admin.inc',
+    // 'access arguments' => array('manage data'),
+    'access callback' => TRUE,
+  );
+	
+ /**
  *Begin: 25/11. 
  *author: hungnm0302
  *description: ftp tranferer
