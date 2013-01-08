@@ -10,36 +10,7 @@ function _datalogger_station_status(){
  * Implements hook_openlayers_styles().
  */
 function datalogger_openlayers_styles(&$map) {
-	/*
-	$styles = array();
-
-  $style = new stdClass();
-  $style->api_version = 1;
-  $style->name = 'test_style';
-  $style->title = t('Default style');
-  $style->description = t('Basic default style.');
-  $style->data = array(
-    'pointRadius' => '5', 
-    'fillColor' => '#FFCC66', 
-    'strokeColor' => '#FF9933', 
-    'strokeWidth' => '7', 
-    'fillOpacity' => '3.5',
-  );
-  $styles[$style->name] = $style;
-
-	*/
-	// drupal_add_js(drupal_get_path('module', 'datalogger') . '/refreshView.js');
-	
-	// underway = new OpenLayers.Layer.Vector("WFS", {
-            // strategies: [new OpenLayers.Strategy.BBOX(), new OpenLayers.Strategy.Refresh({interval: 4000, force: true})],
-            // protocol: new OpenLayers.Protocol.WFS({
-                // url:  "http://root.domua.khituongthuyvan.net/view/stations",
-                // featureType: "ss2011_v03",
-                // featureNS: "http://csiro.au/underway",
-                // geometryName: "position"
-            // });
   return $map['styles'];
-	// dsm($map);
 }
 
  /**
@@ -139,7 +110,7 @@ function datalogger_views_pre_render(&$view) {
  *Author:hungnm0302
  *Description: thay đổi query hiển thị trạm theo từng khu vực trên user
  */
-function datalogger_views_query_alter(&$view, &$query) {
+ function datalogger_views_query_alter(&$view, &$query) {
   if($view->name == 'view_list_user' ) {
 		global $user;
 		$account = user_load($user->uid);
@@ -272,11 +243,11 @@ $items['gammu/sentitems/error'] = array(
     'title' => 'List of commands being sent error',
     // 'page arguments' => array('_new_sms_form'),
     'page callback' => '_datalogger_check_error_send_command_form',
-    // 'page callback' => '_new_sms_form',
-
     'file' => 'datalogger.admin.inc',
     // 'access arguments' => array('manage data'),
     'access callback' => TRUE,
+		'page arguments' => array(1),
+		'type' => MENU_CALLBACK,
   );
 	
  /**

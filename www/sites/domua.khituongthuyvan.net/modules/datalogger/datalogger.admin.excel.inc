@@ -1,5 +1,5 @@
 <?php
-error_reporting(E_ALL);
+	error_reporting(E_ALL);
 require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel.php';
 
 function _export_excel($args){

@@ -11,6 +11,9 @@ $timeInterval = array('10', '20', '30', '60', '120', '180', '360');
 global $clearTime;
 $clearTime = array('00:00','01:00','02:00','03:00','04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00');
 
+global $clearTime3;
+$clearTime3 = array(h0 => '00:00:00',h1 => '01:00:00',h2 => '02:00:00', h3 => '03:00:00',h4 => '04:00:00',h5 => '05:00:00',h6 => '06:00:00',h7 => '07:00:00', h8 => '08:00:00', h9 => '09:00:00', h10 => '10:00:00', h11 => '11:00:00', h12 => '12:00:00', h13 => '13:00:00', h14 => '14:00:00', h15 => '15:00:00', h16 => '16:00:00', h17 => '17:00:00', h18 => '18:00:00', h19 => '19:00:00', h20 => '20:00:00',h21 => '21:00:00',h22 =>'22:00:00', h23 => '23:00:00');
+
 global $clearTime2;
 $clearTime2 = array('0000','0100','0200','0300','0400','0500','0600','0700','0800','0900','1000','1100','1200','1300','1400','1500','1600','1700','1800','1900','2000','2100','2200','2300');
 
@@ -110,9 +113,7 @@ $datalogger_pattern = array(
  */
 /*Ham xu ly hien thi cac lenh chua duoc thuc hien*/
 function _datalogger_check_error_send_command_form(){
-	$output = "";
-	$result = db_query("SELECT * FROM `sentitems` WHERE Status= 'SendingError' ORDER BY  `sentitems`.`ID` DESC LIMIT 0 , 100");
-	// $result = db_query("SELECT * FROM `sentitems` WHERE Status=2 ORDER BY  `sentitems`.`ID` DESC LIMIT 0 , 50");
+	$page = arg(3);
 	$headers = array(
     no => t('No.'),
 		station_name => t('Station Name'),
@@ -124,8 +125,17 @@ function _datalogger_check_error_send_command_form(){
     status => t('Status'),
 		send_again => t('Send again'),
   );
- 
-  $rows = array();
+  $num_per_page = 1;
+  $offset=$num_per_page*$page;
+	$total = db_query("SELECT count(*) total FROM `sentitems` WHERE Status= 'SendingError'");
+	$number_rows = $total->fetch()->total;
+	$last = $number_rows/$num_per_page;
+	if(!is_int($last)){
+		$last = (int)$last+1;
+	}
+	
+  $result = db_query("SELECT * FROM `sentitems` WHERE Status= 'SendingError' LIMIT ". $offset.",".$num_per_page."");
+	$rows = array();
   while($row = $result->fetchObject()){
 		$number = $row->DestinationNumber;
 		$station = views_get_view_result('view_station_find', Null, $number );
@@ -142,8 +152,7 @@ function _datalogger_check_error_send_command_form(){
     $len_sms = strlen($row->TextDecoded);
 		
     $rows[] = array (
-			$i+=1,
-			// $station[0]->node_title,
+			$offset+=1,
 			$station_name,
 			$row -> SendingDateTime,
 			$row -> DestinationNumber,
@@ -152,10 +161,13 @@ function _datalogger_check_error_send_command_form(){
 			$row -> SenderID,
       $row -> Status ? t('Sending Error') : t('Sending Ok'),
 			'<a href=http://admin.domua.khituongthuyvan.net/command/'.$nid.'/editsentcommand/'.$cid.'>'.t('Send again').'</a>',
-			);
-
+		);
   }
-  $output = theme_table(
+  $retval=theme('table', array(
+                'header' => $header,
+                'rows' => $rows
+                 ));
+	$output = theme_table(
     array(
       "header" => $headers,
       "rows" => $rows,
@@ -166,7 +178,18 @@ function _datalogger_check_error_send_command_form(){
       "empty" => t("Table has no row!") // The message to be displayed if table is empty
     )
   ).theme("pager");
- 
+  $prevpage = $page-1;
+  $nextpage = $page+1;
+  if($page > 0){
+    $output = $output . l(t("<< first"),"gammu/sentitems/error");
+    $output = $output . l(t("< previous"),"gammu/sentitems/error/".$prevpage). "  ";
+  }
+	if($number_rows > $num_per_page){
+		if($nextpage < $last){
+			$output = $output . l(t("next >"),"gammu/sentitems/error/".$nextpage);
+			$output = $output . l(t("last >>"),"gammu/sentitems/error/".($last-1));
+		}
+	}
   return $output;
 }
  
@@ -598,8 +621,8 @@ function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
 	
 	$nid = $form_state['values']['station'];
   $day = new DateTime($form_state['values']['day']);
-  $year = dsm($day->format('Y'));
-  $month = dsm($day->format('m'));
+  $year = $day->format('Y');
+  $month = $day->format('m');
   $day = $day->format('Ymd');
 	$day = new DateTime($form_state['values']['day']);
 	$day1 = new DateTime($form_state['values']['day']);
@@ -1190,12 +1213,10 @@ function _datalogger_convert_number($number){
 }
 
 function _datalogger_check_inbox() {
-
   $cron = (arg(3) == 'remote');
   
   $processed = ($cron ? 31 : 0);
   
-
   $result = db_query("SELECT * FROM inbox WHERE Processed={$processed}");
   foreach ($result as $row) {
     // //tin nhắn từ datalogger
@@ -1253,9 +1274,9 @@ function _datalogger_check_inbox() {
 		}
     flush (); // flush the output buffer
   }
-	//return 'Ok';
-  print "Ok.";
-  drupal_exit();
+	return 'Ok';
+  // print "Ok.";
+  // drupal_exit();
 }
 
 function _datalogger_update_process_inbox($process, $id_inbox){
@@ -1416,6 +1437,7 @@ function _datalogger_insert_node_command($arg){
 
 
 function _datalogger_insert_node_rainfall(&$arg){
+	global $clearTime3;
 	$timestam = $arg[0];
 	$nid = $arg[1];
 	$station = node_load($nid);
@@ -1425,18 +1447,17 @@ function _datalogger_insert_node_rainfall(&$arg){
 		$measuring_interval = $arg[3];//3
 		$accumulate;//4
 		$battery = $arg[5];//5
-		
 		for($i = 5; $i >= 0; $i--){		
 			$is_data_valid = $is_data_valids[$i];
 			$time = $time_unix - 60*10*$i;
 			$send_time = date('dmYHis',$time);
+			$hour_time = date('H:i:s',$time);
 			$year = date('Y',$time);
 			$year_month = date('Ym',$time);
 			$year_month_date = date('Ymd',$time);
 			if($is_data_valid == 0){
 				$power = $battery[$i];
 				$rainfalls = views_get_view_result('view_find_rainfall_station', NULL, $nid, $send_time);
-				
 				//xoa tat ca cac node neu trung du lieu
 				if(count($rainfalls) > 0){
 					foreach($rainfalls as $rainfall_old){
@@ -1449,6 +1470,7 @@ function _datalogger_insert_node_rainfall(&$arg){
 						// node_delete($rainfall_old->nid);
 					}
 				}
+
 				else{
 					//tao node moi
 					$rainfall = new stdClass();
@@ -1475,9 +1497,16 @@ function _datalogger_insert_node_rainfall(&$arg){
 					$rainfall->field_rainfall_year_month[$rainfall->language][0]['value'] = $year_month;
 					$rainfall->field_rainfall_year_month_date[$rainfall->language][0]['value'] = $year_month_date;
 					
+					//chỉ trèn giá trị vào trường này khi thời gian là: 01:00:00, 02:00:00,...23:00:00h
+					for($i = 0; $i < 24; $i++){
+						if($clearTime3['h'.$i] == $hour_time){
+							$rainfall->field_rainfall_hour_time[$rainfall->language][0]['value'] = $hour_time;
+						}
+					}
+					
 					$rainfall = node_submit($rainfall);
 					node_save($rainfall);
-					
+					dsm($rainfall);
 				}
 			}
 		}
@@ -2010,6 +2039,8 @@ function _datalogger_report_rainfall_month_form($form, &$form_state){
 }
 function _datalogger_report_rainfall_month_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
+	module_load_include('inc', 'datalogger', 'datalogger.admin.excel.month');
+	/*
 	// module_load_include('inc', 'datalogger', 'excel_export.admin.excel');
 	$nid = $form_state['values']['station'];
 	$year = $form_state['values']['year'];
@@ -2028,7 +2059,8 @@ function _datalogger_report_rainfall_month_submit(&$form, &$form_state) {
 		$args = array($nid, $rainfalls, $name_qtv, $name_nlb, $name_ks, $name_pt);
 		_export_excel($args);
 	}
-	
+	*/
+	_datalogger_export_rainfall_month_excel();
 }
 
 function _init_rainfall_node($title, $time, $rainfall, $stationCode) {
