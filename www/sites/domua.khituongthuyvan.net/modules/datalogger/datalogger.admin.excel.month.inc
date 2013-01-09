@@ -48,22 +48,24 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $year_month){
 	// /*
 	//chen du lieu vao bao cao
 	for($day = 1; $day < $month_days_nuber*2; $day++){
-		if($day%2 == 0){
+		if(($day%2) == 0){
 			if(($day/2) < 10){
 				$day_time = '0'.($day/2);
+			}
+			else{
+				$day_time = $day/2;
 			}
 			$rainfalls = views_get_view_result('view_rainfall_hour_time','default', $nid, $year, $year_month, $year_month.$day_time);
 			for($j =0; $j < 24; $j++){
 				if(count($rainfalls) == 24){
-					$rainfall_total = (int)substr($rainfalls_month[$i]->field_field_rainfall_total[0]['rendered']['#markup']);
+					$rainfall_total = $rainfalls[$i]->field_field_rainfall_total[0]['rendered']['#markup'];
 					$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).($day+6),$rainfall_total);
 				}
 				else{
-					// $rainfall_total2 = (int)substr($rainfalls_month[$i]->field_field_rainfall_total[0]['rendered']['#markup']);
 					for($k = 0; $k < count($rainfalls); $k++){
-						$hour_time = (int)substr($rainfalls_month[$k]->field_field_rainfall_hour_time[0]['rendered']['#markup']);
+						$hour_time = (int)substr($rainfalls[$k]->field_field_rainfall_hour_time[0]['rendered']['#markup'],0,2);
 						if($j == $hour_time){
-							$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).($day+6),(int)substr($rainfalls_month[$k]->field_field_rainfall_total[0]['rendered']['#markup']));
+							$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).($day+4),$rainfalls[$k]->field_field_rainfall_total[0]['rendered']['#markup']);
 						}
 					}
 				}
@@ -74,13 +76,11 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $year_month){
 	
 	$objPHPExcel->getActiveSheet()->setCellValue('AA2', 'Tổng số');
 	$objPHPExcel->getActiveSheet()->setCellValue('AA3', 'mm');
-	$objPHPExcel->getActiveSheet()->setCellValue('AA3', 'mddddd');
 	$objPHPExcel->getActiveSheet()->setCellValue('AA4', 'phút');
 	$objPHPExcel->getActiveSheet()->setCellValue('AA5', '25');
 	
 	
 	for($i =0; $i < $month_days_nuber*2; $i++){
-		
 		if($i%2 == 0){
 			$objPHPExcel->getActiveSheet()->setCellValue('AA'.($i+6), '=SUM(C'.($i+6).':Z'.($i+6).')');
 		}
@@ -98,10 +98,10 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $year_month){
 	for($j =0; $j < 24; $j++){
 		for($i =0; $i < $month_days_nuber*2; $i++){
 			if($i%2 == 0){
-				$mm += (int)$objPHPExcel->getActiveSheet()->getCell(chr(67+$j).($i+6))->getFormattedValue();
+				$mm += $objPHPExcel->getActiveSheet()->getCell(chr(67+$j).($i+6))->getFormattedValue();
 			}
 			else{
-				$minute += (int)$objPHPExcel->getActiveSheet()->getCell(chr(67+$j).($i+6))->getFormattedValue();
+				$minute += $objPHPExcel->getActiveSheet()->getCell(chr(67+$j).($i+6))->getFormattedValue();
 			}
 		}
 		$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).(($month_days_nuber+3)*2), $mm);
