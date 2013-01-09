@@ -2028,23 +2028,32 @@ function _datalogger_report_rainfall_month_form($form, &$form_state){
 	_datalogger_select_area_province_station($form, $form_state);
 	$form['day']['#access']=FALSE;
 	
-  $form["submit"] = array(
+  $form["submit1"] = array(
       "#type" => "submit",
       "#value" => t("Report"),
       "#submit" => array(
           "_datalogger_report_rainfall_month_submit"
       ),
   ); 
+	
+	$form["submit2"] = array(
+      "#type" => "submit",
+      "#value" => t("Report the day of the month"),
+      "#submit" => array(
+          "_datalogger_report_rainfall_month2_submit"
+      ),
+  ); 
+	
   return $form;
 }
 function _datalogger_report_rainfall_month_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
-	module_load_include('inc', 'datalogger', 'datalogger.admin.excel.month');
-	/*
-	// module_load_include('inc', 'datalogger', 'excel_export.admin.excel');
 	$nid = $form_state['values']['station'];
 	$year = $form_state['values']['year'];
 	$month = $form_state['values']['month'];
+	if($month < 10){
+		$month = '0'.$month;
+	}
 	$year_month = $year.$month;
 	$name_qtv = $form_state['values']['txtNameQTV'];
 	$name_nlb = $form_state['values']['txtNameNLB'];
@@ -2059,8 +2068,43 @@ function _datalogger_report_rainfall_month_submit(&$form, &$form_state) {
 		$args = array($nid, $rainfalls, $name_qtv, $name_nlb, $name_ks, $name_pt);
 		_export_excel($args);
 	}
+}
+
+function _datalogger_report_rainfall_month2_submit(&$form, &$form_state) {
+	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
+	module_load_include('inc', 'datalogger', 'datalogger.admin.excel.month');
+	$nid = $form_state['values']['station'];
+	$year = $form_state['values']['year'];
+	$month = $form_state['values']['month'];
+	if($month < 10){
+		$month = '0'.$month;
+	}
+	$year_month = $year.$month;
+	$name_qtv = $form_state['values']['txtNameQTV'];
+	$name_nlb = $form_state['values']['txtNameNLB'];
+	$name_ks = $form_state['values']['txtNameKS'];
+	$name_pt = $form_state['values']['txtNamePT'];
+	
+	$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year_month, 'all');
+	$rainfalls_month = views_get_view_result('view_rainfall_hour_time','default', $nid, $year, $year_month,all);
+	/*
+	$rainfalls_month = views_get_view_result('view_rainfall_hour_time','default', '2965', '2013','201301','20130108');
+	dsm($rainfalls_month);
+	foreach($rainfalls_month as $rainfall){
+			$obj = node_load($rainfall->nid);
+			dsm((int)substr($obj->field_rainfall_hour_time[$obj->language][0]['value'],0,2));
+	}
+	
 	*/
-	_datalogger_export_rainfall_month_excel();
+	// /*
+	if(count($rainfalls_month) <= 0 && count($rainfalls) <= 0){
+		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
+	}
+	else{
+		// $args = array($nid, $rainfalls, $name_qtv, $name_nlb, $name_ks, $name_pt);
+		// _export_excel($args);
+		_datalogger_export_rainfall_month_excel($nid, $year, $year_month);
+	}
 }
 
 function _init_rainfall_node($title, $time, $rainfall, $stationCode) {
