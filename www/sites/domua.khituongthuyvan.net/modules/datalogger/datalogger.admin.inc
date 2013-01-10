@@ -1590,6 +1590,7 @@ function _datalogger_endsWith($sms, $needle)
 
 /*Ham xu ly cac tin nhắn gửi tới*/
 function _datalogger_new_sms_form(){
+	/*
 	$output = "";
 	$result = db_query("SELECT * FROM `inbox` ORDER BY  `inbox`.`ID` DESC LIMIT 0 , 50");
 	$headers = array(
@@ -1653,6 +1654,95 @@ function _datalogger_new_sms_form(){
     )
   ).theme("pager");
  
+  return $output;
+	*/
+	
+	$page = arg(3);
+	$headers = array(
+    no => t('No.'),
+		station_name => t('Station Name'),
+    receiving_date_time => t('Receiving Date Time'),
+    sender_number => t('Sender Number'),
+    message_content => t('Message content'),
+		Modem => t('Modem'),
+    processed => t('Processed'),
+  );
+  $num_per_page = 5;
+  $offset=$num_per_page*$page;
+	$total = db_query("SELECT COUNT(*) total FROM `inbox` ORDER BY  `inbox`.`ID` DESC LIMIT 0,500");
+	$number_rows = $total->fetch()->total;
+	$last = $number_rows/$num_per_page;
+	if(!is_int($last)){
+		$last = (int)$last+1;
+	}
+	
+  $result = db_query("SELECT * FROM `inbox` ORDER BY  `inbox`.`ID` DESC LIMIT ". $offset.",".$num_per_page."");
+	$rows = array();
+  while($row = $result->fetchObject()){
+		$number = _datalogger_convert_number($row->SenderNumber);
+		$station = views_get_view_result('view_station_find', Null, $number );
+		if(!empty($station)){
+			$station_name = $station[0]->node_title;
+		}
+		else{
+			$station_name = null;	
+		}
+    
+    $sms = $row -> TextDecoded;
+    $len_sms = strlen($row->TextDecoded);
+
+    // highlight
+    
+    //Xử lý tin nhắn được yêu cầu:88byte
+    if($len_sms == 88) {
+      $sms = '<span style="background:blue;color:white;font-weight:bold">' . $sms . '</span>';
+    }
+    //Xử lý bản tin đo mưa tự động:140byte
+    elseif($len_sms == 140) {
+      $sms = _datalogger_regex_rain($sms);      
+    }			
+    
+    $rows[] = array (
+			$offset+=1,
+			// $station[0]->node_title,
+			$station_name,
+			$row -> UpdatedInDB,
+			$row -> SenderNumber,
+			$sms,
+			$row -> RecipientID,
+      $row -> Processed ? t('Yes') : t('No'),
+			);
+
+  }
+	
+  $retval = theme('table', array(
+                'header' => $headers,
+                'rows' => $rows
+                 ));
+	$output = theme_table(
+    array(
+      "header" => $headers,
+      "rows" => $rows,
+      "attributes" => array(),
+      "sticky" => true, // Table header will be sticky
+      "caption" => t('Date').': '.date('d/m/Y',time()),
+      "colgroups" => array(),
+      "empty" => t("Table has no row!") // The message to be displayed if table is empty
+    )
+  ).theme("pager");
+	
+  $prevpage = $page - 1;
+  $nextpage = $page + 1;
+  if($page > 0){
+    $output = $output . l(t("<< first"),"gammu/inbox/new");
+    $output = $output . l(t("< previous"),"gammu/inbox/new/".$prevpage). "  ";
+  }
+	if($number_rows > $num_per_page){
+		if($nextpage < $last){
+			$output = $output . l(t("next >"),"gammu/inbox/new/".$nextpage);
+			$output = $output . l(t("last >>"),"gammu/inbox/new/".($last - 1));
+		}
+	}
   return $output;
 }
 
