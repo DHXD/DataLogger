@@ -595,6 +595,10 @@ h1#site-name {
 	margin-top: 10px;
   width: 180px;  
 }
+.field-item p{
+	margin-top: 10px;
+  width: 680px;  
+}
 
 h1#page-title {
 	font-size: 2em;

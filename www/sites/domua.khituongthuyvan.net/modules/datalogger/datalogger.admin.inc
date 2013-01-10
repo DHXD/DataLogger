@@ -125,7 +125,7 @@ function _datalogger_check_error_send_command_form(){
     status => t('Status'),
 		send_again => t('Send again'),
   );
-  $num_per_page = 1;
+  $num_per_page = 50;
   $offset=$num_per_page*$page;
 	$total = db_query("SELECT count(*) total FROM `sentitems` WHERE Status= 'SendingError'");
 	$number_rows = $total->fetch()->total;
