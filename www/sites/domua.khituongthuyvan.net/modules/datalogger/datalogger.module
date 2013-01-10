@@ -213,6 +213,7 @@ function datalogger_send_command_action(&$object, $context = array()){
  */
  
 function datalogger_menu() {
+
 /**
  *Begin: 25/11. 
  *author: hungnm0302
@@ -343,6 +344,8 @@ $items['gammu/sentitems/error'] = array(
     'file' => 'datalogger.admin.inc',
     // 'access arguments' => array('manage data'),
     'access callback' => TRUE,
+		'page arguments' => array(1),
+		'type' => MENU_CALLBACK,
   );
   
   // this inserts an sms remotely from another server
@@ -488,8 +491,9 @@ $items['gammu/sentitems/error'] = array(
     // 'type' => MENU_NORMAL_ITEM,
   // );
   
-  /*$items['node/%node/statistics'] = array(
-    'title' => 'Thống kê',
+  /* 
+	$items['node/%node/statistics'] = array(
+    'title' => 'Thống kê lượng mưa',
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_manage_statistics_form', 1),
     'file' => 'datalogger.admin.inc',
@@ -499,7 +503,6 @@ $items['gammu/sentitems/error'] = array(
     'type' => MENU_LOCAL_TASK,
     'weight' => -25,
   );
-   
   $items['node/%node/chart'] = array(
     'title' => 'Biểu đồ',
     'page callback' => 'drupal_get_form',
@@ -648,43 +651,6 @@ function datalogger_permission() {
   );
 }
 
-/**
- * Implements hook_menu_alter().
- */
-function datalogger_menu_alter(&$items) {
-	// dsm($items);
-	// /*
-	if($items['node/%pm_arg/thong-ke']['page arguments'][0] == 'panel_tram_thong_ke_luong_mua'){
-		// dsm(arg(1));
-		// dsm($items['node/%pm_arg/thong-ke']['page arguments'][0]);
-		// dsm($items['node/%pm_arg/thong-ke']['load arguments'][2]);
-		$station = node_load(arg(1));
-		// dsm('into');
-		if($station->type != 'station'){
-			unset($items['node/%pm_arg/thong-ke']);
-			$items['node/%pm_arg/thong-ke']['access callback'] = FALSE;
-		}
-	}
-	// */
-	// dsm($items);
-  // $items['node/%pm_arg/thong-ke']['title callback'] = '_datalogger_station_statitics';
-  // $items['node/%pm_arg/thong-ke']['title arguments'] = array(1); 
-	
-  // $items['node/%node/thong-ke']['access arguments'] = array(1); 
-	
-	$items['node/%node/view']['title callback'] = '_datalogger_station_title_callback';
-  $items['node/%node/view']['title arguments'] = array(1);
-} 
-
-function _datalogger_station_statitics($node) {
-  if ($node->type == 'station' ) {
-		// drupal_set_title(t('Station infomation: ').$node->title);
-    // return t('Station infomation');
-  }
-  else {
-    return t('View');
-  }
-}
 
 function _datalogger_station_title_callback($node) {
   if ($node->type == 'station' ) {
