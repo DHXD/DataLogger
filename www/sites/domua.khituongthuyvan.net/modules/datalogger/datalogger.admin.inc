@@ -1667,7 +1667,7 @@ function _datalogger_new_sms_form(){
 		Modem => t('Modem'),
     processed => t('Processed'),
   );
-  $num_per_page = 5;
+  $num_per_page = 50;
   $offset=$num_per_page*$page;
 	$total = db_query("SELECT COUNT(*) total FROM `inbox` ORDER BY  `inbox`.`ID` DESC LIMIT 0,500");
 	$number_rows = $total->fetch()->total;

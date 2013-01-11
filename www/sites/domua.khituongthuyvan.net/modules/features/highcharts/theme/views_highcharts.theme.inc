@@ -85,7 +85,7 @@ function template_preprocess_views_highcharts(&$vars) {
 	
 
   //print_r($options);
-	$highcharts_config->tooltip->useHTML = true;
+	{ $highcharts_config->tooltip->useHTML = true; }
   drupal_add_js(array("views_highcharts" => array($chart_id => $highcharts_config)), "setting");
   $vars['chart_id'] = $chart_id;
 
