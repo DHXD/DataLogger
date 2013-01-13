@@ -106,6 +106,13 @@ $datalogger_pattern = array(
 		// 37 => t('Get the Alarm Interval and Level for rainfall alarming'),
 		// 38 => t('Reset All'),);	
 
+		
+/**
+ *Begin: 25/11. 
+ *author:hungnm0302
+ *Lay ten cac tram do mua theo role khu vuc
+ */
+/*thong ke luong mua theo gio*/
 /**
  *Begin: 25/11. 
  *author:hungnm0302
@@ -421,6 +428,7 @@ function _datalogger_select_area_province_station(&$form, &$form_state){
 	$form['selectReport'] = array(
     '#type' => 'select',
     '#title' => t('Select the type of report: '),
+		// '#weight' => 1,
     '#options' => array(
       'bk1' => t('Reported rainfall data in report form BKT-14'),
      ),
@@ -438,6 +446,7 @@ function _datalogger_select_area_province_station(&$form, &$form_state){
     '#title' => t('Chọn khu vực: '),
     '#options' => $regions,
 		'#default_value' => $value_select_area,
+		// '#weight' => 2,
 		'#ajax' => array(
       'event'=>'change',
       'callback' =>'_datalogger_ajax_dropdown_area',
@@ -458,6 +467,7 @@ function _datalogger_select_area_province_station(&$form, &$form_state){
 		'#title' => t('Chọn Tỉnh/ Thành phố: '),
 		'#options' => _datalogger_return_city2($value_select_area),
 		'#default_value' => $value_select_province,
+		// '#weight' => 3,
 		'#ajax' => array(
       'event'=>'change',
       'callback' =>'_datalogger_ajax_dropdown_province',
@@ -466,24 +476,21 @@ function _datalogger_select_area_province_station(&$form, &$form_state){
       'effect' => 'fade',
     ),
 	); 
-	// dsm(key(_datalogger_return_city2($value_select_area)));
 	$form['selectStation'] = array(
-	// $form['selectProvince']['province']['selectStation'] = array(
 	 '#prefix' => '<div id="province-wrapper">',
 	 '#suffix' => '</div>',
 	);
-	// dsm($value_select_province);
+	
 	$stations = views_get_view_result('view_station_filter_parameter', Null, 	$value_select_area, $value_select_province, 'all');
 	foreach($stations as $station){
 		$station_name[$station->nid] = $station->node_title;
 	}
 	
 	$form['selectStation']['station'] = array(
-	// $form['selectProvince']['province']['selectStation']['station'] = array(
-	// $form['province']['selectStation']['station'] = array(
 		 '#type' => 'select',
 		 '#title' => t('Select station: '),
 		 '#options' => $station_name,
+		 // '#weight' => 4,
 		 '#default_value' => isset($form_state['values']['station']) ? $form_state['values']['station']: key($station_name),
 	);
 	
@@ -503,47 +510,80 @@ function _datalogger_select_area_province_station(&$form, &$form_state){
 		 '#title' => t('Year'),
 		 '#options' => $years,
 		 '#default_value' => key($years),
+		 // '#weight' => 5,
 	);
 	
 	$form['month'] = array(
      '#type' => 'select',
      '#title' => t('Month'),
      '#options' => $months,
+		 // '#weight' => 6,
   );
 	
 	$form['day'] = array(
      '#type' => 'date_popup',
      '#date_format' => 'd/m/Y', 
 		 '#required' => TRUE,	
+		 // '#weight' => 7,
   );
+	
+	
 	
   $form['txtNameQTV'] = array(
      '#type' => 'textfield',
      '#title' => t('Full name of the person observation: '),
+		 // '#weight' => 8,
   );  
   
   $form['txtNameNLB'] = array(
      '#type' => 'textfield',
      '#title' => t('Full name of the person creating the table: '),
+		 // '#weight' => 9,
   );    
   
   $form['txtNameKS'] = array(
      '#type' => 'textfield',
      '#title' => t('Full name of the person control: '),
+		 // '#weight' => 10,
+		 // '#weight' => 10,
   );    
   
   $form['txtNamePT'] = array(
      '#type' => 'textfield',
      '#title' => t('Full name of person Appeal: '),
+		 // '#weight' => 11,
+		 // '#weight' => 11,
   );
-  
   
   $form["notice_excel_2007"] = array(      
       '#prefix' => '<div class="" style="margin-bottom: 15px;">',
 	  '#suffix' => '</div>', 
-	  "#markup" => t("For better rendering, downloaded file format will be Excel 2007. If you cannot read XLSX file format, please download and install Microsoft compability pack at: <a href='http://www.microsoft.com/en-us/download/details.aspx?id=3'>http://www.microsoft.com/en-us/download/details.aspx?id=3</a>."),      
+	  "#markup" => t("For better rendering, downloaded file format will be Excel 2007. If you cannot read XLSX file format, please download and install Microsoft compability pack at: <a href='http://www.microsoft.com/en-us/download/details.aspx?id=3'>http://www.microsoft.com/en-us/download/details.aspx?id=3</a>."),    
+		// '#weight' => 12,
+		// '#weight' => 12,
   ); 
+  
+	//++++++++++++phan moi them
+	/*
+	$form['from_day'] = array(
+     '#type' => 'date_popup',
+     '#date_format' => 'd/m/Y H:i:s', 
+		 '#required' => TRUE,	
+		 '#weight' => 13,
+  );
 	
+	$form['to_day'] = array(
+     '#type' => 'date_popup',
+     '#date_format' => 'd/m/Y H:i:s', 
+		 '#required' => TRUE,	
+		 '#weight' => 14,
+  );
+	$form['form_view_result'] = array(    
+		// '#markup' => drupal_render(node_view(node_load($nid))),    
+		'#markup' => (views_embed_view('view_station_rainfall_statistics', 'page')), 
+		'#weight' => 15,
+	);
+	*/
 	return $from;
 }
 
@@ -2133,7 +2173,6 @@ function _datalogger_report_rainfall_month_form($form, &$form_state){
           "_datalogger_report_rainfall_month2_submit"
       ),
   ); 
-	
   return $form;
 }
 function _datalogger_report_rainfall_month_submit(&$form, &$form_state) {

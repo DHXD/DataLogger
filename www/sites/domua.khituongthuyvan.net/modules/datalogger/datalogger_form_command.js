@@ -35,33 +35,14 @@
   
   
   (function ($) {
-  
-      
       Drupal.behaviors.datalogger = {
         attach: function (context, settings) {
           /*$('fieldset#edit-submit-command-fieldset--8', context).change(function () {
-          
               alert('Handler for .change() called.');
-              
           });*/
-          
-          
-          
           setTimeout('datalogger_auto_refresh()', 3500);
-          
         }
-        
-        
-        
       };
-      
-      
-      
-      
-      
-      
-      
-
-    }(jQuery));
+	}(jQuery));
     
     
