@@ -1,4 +1,37 @@
 <?php
+/**
+ *Author:hungnm0302
+ *Description: Xuat du lieu ra file excel
+ */
+function _datalogger_submit_report($form, &$form_state){
+	$province = $form_state['values']['field_station_province_city_value'];
+	$station_nids = dsm($form_state['values']['field_rainfall_station_nid']);
+	$min_time = $form_state['values']['field_rainfall_send_time_value']['min'];
+	$max_time = $form_state['values']['field_rainfall_send_time_value']['max'];
+	$view_name = $form_state['view']->name;
+	$view = views_get_view($view_name);
+	if (is_object($view)) {
+    $view->init_display();
+    $view->pre_execute();
+    $view->execute();
+    $view_resul = $view->result;
+  }
+	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
+	if(count($view_resul) <= 0){
+		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
+	}
+	else{
+		if(count(station_nids) == 1 ){
+			$nid = $station_nids;
+		}
+		else{
+			$nid = null;
+		}
+		$args = array($nid, $view_resul, null, null, null, null);
+		_export_excel($args);
+	}
+}
+
 function _datalogger_station_status(){
 	return array(
 		'station_active' => 'Đang Hoạt Động',
@@ -7,7 +40,9 @@ function _datalogger_station_status(){
 	);
 }
 /**
- * Implements hook_openlayers_styles().
+ *Implements hook_openlayers_styles().
+ *Author:hungnm0302
+ *Description: thiet lap style cho ban do
  */
 function datalogger_openlayers_styles(&$map) {
   return $map['styles'];
@@ -19,11 +54,9 @@ function datalogger_openlayers_styles(&$map) {
  *Author:hungnm0302
  *Description: thay doi ket qua hien thi tren form cua view
  */	
-function datalogger_form_alter(&$form, $form_state, $form_id){
+function datalogger_form_alter(&$form, &$form_state, &$form_id){
 	global $user;
 	$account = user_load($user->uid);
-	dsm($account);
-	dsm($form);
 	if(!in_array('administrator', array_values($account->roles))){
 		if($form_id = 'views_exposed_form'){
 			if($form['#id'] == 'views-exposed-form-view-command-send-station-page' || 
@@ -33,21 +66,56 @@ function datalogger_form_alter(&$form, $form_state, $form_id){
 				$form['#id'] == 'views-exposed-form-view-list-stations-page' ||
 				$form['#id'] == 'views-exposed-form-view-rainfall-chart-hour-page' ||
 				$form['#id'] == 'views-exposed-form-view-station-rainfall-statistics-page' ){
+					//danh sach tinh / thanh pho
 					$provinces = array();
 					$provinces['All'] = t('- Any -');
 					$provinces = array_merge($provinces, _datalogger_return_city2($account->field_station_region['und'][0]['value']));
-					dsm($account->field_station_region['und'][0]['value']);
-					//tram do mưa
-					$region_station = $account->field_station_region['und'][0]['value'];
-					$stations_list = views_get_view_result('view_all_station', null, $region_station , 'all');
-					$stations = array();
-					$stations['All'] = t('- Any -');
-					foreach($stations_list as $station){
-						$stations[$station->nid] = $station->node_title;
+					$form['field_station_province_city_value']['#options'] = $provinces;
+					
+					//them moi nut xuat bao cao
+					$form["submit_report"] = array(
+						"#type" => "submit",
+						"#value" => t("Report"),
+						'#weight' => 110,
+						'#submit' => array('_datalogger_submit_report'),
+					);
+					
+					/*
+					khong hien thi button xuat bao cao voi form: 
+					Bieu do mua theo gio
+					Bieu do mua theo phut
+					*/
+					if($form['#id'] == 'views-exposed-form-rainfall-chart-page' ||
+						$form['#id'] == 'views-exposed-form-view-rainfall-chart-hour-page'){
+						$form["submit_report"]['#access'] = false;
 					}
 					
-					//danh sach cac tinh thuoc khu vucs
-					$form['field_station_province_city_value']['#options'] = $provinces;
+					//thiet lap dinh dang ngay/gio cho truong thoi gian
+					$form['field_rainfall_send_time_value']['min']['#date_format'] = 'd/m/Y H:i';
+					$form['field_rainfall_send_time_value']['max']['#date_format'] = 'd/m/Y H:i';
+					
+					$region_station = $account->field_station_region['und'][0]['value'];
+					for($i = 0; $i < count (array_keys($provinces)); $i++){
+						$province = array_keys($provinces)[$i];
+						if($province == 'All'){
+							$stations_list = views_get_view_result('view_station_filter_parameter', Null,	$region_station, 'all', 'all');
+						}
+						else{
+							$stations_list = views_get_view_result('view_station_filter_parameter', Null,	$region_station, $province, 'all');
+						}
+						$stations = array();
+						// $stations['All'] = t('- Any -');
+						foreach($stations_list as $station){
+							$stations['key-' . $station->nid] = $station->node_title;
+							$stations_view[$station->nid] = $station->node_title;
+							
+						}
+						$station_follow_provinces[$province] = $stations;
+					}
+					
+					
+					drupal_add_js(drupal_get_path('module', 'datalogger').'/list_station_follow_province.js');
+					drupal_add_js(array('datalogger' => array('list_station_province' => $station_follow_provinces)),'setting');
 					
 					//view cac lenh da thuc hien theo tung khu vuc
 					/*view: thong ke lương mua
@@ -61,23 +129,18 @@ function datalogger_form_alter(&$form, $form_state, $form_id){
 							$form['#id'] == 'views-exposed-form-view-rainfall-default-page' ||
 							$form['#id'] == 'views-exposed-form-view-rainfall-chart-hour-page' ||
 							$form['#id'] == 'views-exposed-form-rainfall-chart-page'){
-							
-								$form['field_rainfall_station_nid']['#options'] = $stations;
+								
+								$form['field_rainfall_station_nid']['#options'] = $stations_view;
 					}
-					/*
-					if($form['#id'] == 'views-exposed-form-view-rainfall-default-page'){
-						$form['field_command_station_nid']['#options'] = $stations;
-					}
-					*/
-					//view luong mua theo tung khu vuc
+					
+					//hien thi luong mua theo tung khu vuc
 					if($form['#id'] == 'views-exposed-form-view-rainfall-default-page'){
 						$form['field_station_region_value']['#disabled'] = TRUE;
-						$form['field_rainfall_station_nid_1']['#options'] = $stations;
+						$form['field_rainfall_station_nid_1']['#options'] = $stations_view;
 					}
 			}
 		}
 	}
-	// dsm($form);
 }
  /**
  *Begin:15/11. 
@@ -99,11 +162,9 @@ function datalogger_views_pre_render(&$view) {
 		if (!in_array('administrator', array_values($user->roles)) && !in_array('control datalogger', array_values($user->roles))) {
 			unset($view->field['nid']);
 		}
-		// temporary disable the command column if not root
 		if ($user->uid != 1)	unset($view->field['nid']);		
 	}	
 	else if($view->name == "view_list_stations") {
-		// temporary disable the command column if not root
 		if ($user->uid != 1)	unset($view->field['nid']);		
 	}	  
 } 
@@ -150,13 +211,10 @@ function datalogger_views_pre_render(&$view) {
 			$query->where[1]['conditions'][2]['operator'] = 'IN';
 		}
 		elseif(isset($account->field_station_region['und'])){
-				// dsm($account->field_station_region['und']);
 			foreach($account->field_station_region['und'] as $region){
 				$regions[] = $region['value'];
 			}
-				// dsm($regions);
 			if(count($regions) > 1){
-				// dsm('111');
 				$query->where[1]['conditions'][2]['value'] = $regions;
 				$query->where[1]['conditions'][2]['operator'] = 'IN';
 			}
@@ -165,7 +223,6 @@ function datalogger_views_pre_render(&$view) {
 			}
 		}
   }
-	// dsm($query);
 	//view: quan ly thong tin tram
 	
 	if($view->name == "view_list_stations_role_manage") {
@@ -190,9 +247,6 @@ function datalogger_views_pre_render(&$view) {
 /**
  * 18/10. 
  */
-//module_load_include('inc', 'datalogger','datalogger.admin');
-///drupal_add_js('tiles/OSM_LocalTileProxy.js', array('scope' => 'footer'));
-
 function datalogger_action_info() {
 	GLOBAL $options_commands;
   return array(
@@ -227,13 +281,9 @@ function datalogger_menu() {
  *description: ftp tranferer
  */	
 $items['gammu/sentitems/error'] = array(
-    // 'title' => 'Tin nhắn mới cập nhật',
-    //'title' => 'New messages update',    
     'title' => 'List of commands being sent error',
-    // 'page arguments' => array('_new_sms_form'),
     'page callback' => '_datalogger_check_error_send_command_form',
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
     'access callback' => TRUE,
 		'page arguments' => array(1),
 		'type' => MENU_CALLBACK,
@@ -270,7 +320,6 @@ $items['gammu/sentitems/error'] = array(
         '_datalogger_report_rainfall_day_form'
     ),
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		'type' => MENU_NORMAL_ITEM, 
 		'weight' => -26,
@@ -284,7 +333,6 @@ $items['gammu/sentitems/error'] = array(
         '_datalogger_report_rainfall_year_form'
     ),
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		'type' => MENU_LOCAL_TASK,
 		'weight' => -23,
@@ -296,18 +344,15 @@ $items['gammu/sentitems/error'] = array(
  *Tạo menu gọi lại menu command
  */
   $items['sendallcommand'] = array(
-    // 'title' => 'Lấy giá trị lệnh trả về',
     'page callback' => '_datalogger_send_command',
     'file' => 'datalogger.admin.inc',
     'access arguments' => array('control datalogger'),
-    // 'access callback' => TRUE,
   );	
 	
 /**
 *Begin date:10-10-12
 *Tạo menu gọi lại menu command
 */
-  
   $items['datalogger/command/refresh/ajax'] = array (
     'title' => 'Command',
     'page callback' => 'datalogger_command_refresh_ajax',
@@ -324,7 +369,6 @@ $items['gammu/sentitems/error'] = array(
     'title' => 'Kiểm tra inbox',
     'page callback' => '_datalogger_check_inbox',
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
     'access callback' => TRUE,
   );
 	
@@ -332,7 +376,6 @@ $items['gammu/sentitems/error'] = array(
     'title' => 'Kiem tra cac truong tren view',
     'page callback' => 'test_view',
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
     'access callback' => TRUE,
   );
   
@@ -341,21 +384,14 @@ $items['gammu/sentitems/error'] = array(
  *tạo dữ liệu Mưa.
  */
   $items['gammu/inbox/new'] = array(
-    // 'title' => 'Tin nhắn mới cập nhật',
-    //'title' => 'New messages update',    
     'title' => 'Check new messages',
-    // 'page arguments' => array('_new_sms_form'),
     'page callback' => '_datalogger_new_sms_form',
-    // 'page callback' => '_new_sms_form',
-
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
     'access callback' => TRUE,
 		'page arguments' => array(1),
 		'type' => MENU_CALLBACK,
   );
   
-  // this inserts an sms remotely from another server
   $items['gammu/inbox/remote'] = array(    
     'title' => 'Gammu Inbox Remotely',
     'page callback' => '_datalogger_gammu_inbox_remote',    
@@ -372,21 +408,13 @@ $items['gammu/sentitems/error'] = array(
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_user_form'),
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
-    // 'access callback' => TRUE,
     'type' => MENU_NORMAL_ITEM,  
   );
   
   $items['manage/user/user'] = array(
     'title' => 'Quản lý quyền hạn',
-    // 'title' => 'User',
-    // 'page callback' => 'drupal_get_form',
-    // 'page arguments' => array('_user_form'),
-    // 'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
-    // // 'access callback' => TRUE,
     'type' => MENU_DEFAULT_LOCAL_TASK,   
     
   );
@@ -395,7 +423,6 @@ $items['gammu/sentitems/error'] = array(
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_user_group_form'),
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
     'type' => MENU_LOCAL_TASK,
     'weight' => -25,
@@ -406,9 +433,7 @@ $items['gammu/sentitems/error'] = array(
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_user_pass_form'),
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
-    // 'access callback' => TRUE,
     'type' => MENU_LOCAL_TASK,
     'weight' => -24,
   );
@@ -418,36 +443,21 @@ $items['gammu/sentitems/error'] = array(
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_user_profile_form'),
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
-    // 'access callback' => TRUE,
     'type' => MENU_LOCAL_TASK,
     'weight' => -23,
   ); 
-  // $items['manage/user/add'] = array(
-    // 'title' => 'Tạo người dùng',
-    // 'page callback' => 'drupal_get_form',
-    // 'page arguments' => array('_user_add_form'),
-    // 'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
-    // // 'access callback' => TRUE,
-    // 'type' => MENU_LOCAL_TASK,
-    // 'weight' => -22,
-  // ); 
-  
  
-	/**
-	 *Begin date:11-09-12
-	 *tạo dữ liệu Mưa.
-	 */
+/**
+ *Begin date:11-09-12
+ *tạo dữ liệu Mưa.
+ */
 
  /*nhat ki tich hop du lieu*/
  $items['manage/log/rainfall'] = array(
-    // 'title' => 'Nhật ký tích hợp số liệu',
     'title' => 'Integrated log data',
     'page callback' => '_log_rainfall_form',
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
   );
  
@@ -458,7 +468,6 @@ $items['gammu/sentitems/error'] = array(
         '_datalogger_report_rainfall_month_form'
     ),
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		 'type' => MENU_LOCAL_TASK,
 		 'weight' => -24,
@@ -469,14 +478,13 @@ $items['gammu/sentitems/error'] = array(
     'page callback' => 'drupal_get_form',
     'page arguments' => array('_datalogger_generate_rainfalls_form'),
     'file' => 'datalogger.admin.inc',
-    // 'access arguments' => array('manage data'),
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
   );
   
-	/**
-	 *Begin date:09-09-12
-	 *phát triển giao diện quản lý dữ liệu
-	 */
+/**
+ *Begin date:09-09-12
+ *phát triển giao diện quản lý dữ liệu
+ */
   $items['manage/data'] = array(
     'title' => 'Quản lý dữ liệu',
     'page callback' => '_manage_data',
@@ -485,57 +493,35 @@ $items['gammu/sentitems/error'] = array(
     'access callback' => '_datalogger_menu_access_callback_manage_data',
   );
   
-  // $items['node/%node'] = array(
-    // 'title' => 'Thông tin trạm đo Mưa',
-    // 'title callback' => '_set_title_node',
-    // 'title arguments' => array(1),
-    // 'page callback' => 'drupal_get_form',
-    // 'page arguments' => array('_manage_statistics_form',1),
-    // // 'access callback' => TRUE,
-    // 'access arguments' => array('manage data'),
-    // 'description' => 'Thông tin tram',
-    // 'file' => 'datalogger.admin.inc',
-    // 'type' => MENU_NORMAL_ITEM,
-  // );
-  
-  /* 
-	$items['node/%node/statistics'] = array(
+	$items['form/view'] = array(
+    'title' => 'Thống kê lượng mưa',
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
+		'type' => MENU_DEFAULT_LOCAL_TASK, 
+		'weight' => -25,
+  );
+	
+	$items['form/view/statistics'] = array(
     'title' => 'Thống kê lượng mưa',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_manage_statistics_form', 1),
+    'page arguments' => array('_datalogger_form_view_statistics_form', 1),
     'file' => 'datalogger.admin.inc',
     'access arguments' => array('manage data', 1),
-    'access callback' => '_datalogger_menu_access_callback_node',
-    'description' => 'Thống kê lượng Mưa',
-    'type' => MENU_LOCAL_TASK,
+    'access callback' => '_datalogger_menu_access_callback_manage_data',
+    'description' => 'Thống kê lượng Mưa theo giờ',
+    'type' => MENU_NORMAL_ITEM,
     'weight' => -25,
   );
-  $items['node/%node/chart'] = array(
-    'title' => 'Biểu đồ',
+  $items['form/view/chart'] = array(
+    'title' => 'Biểu đồ lượng mưa theo giờ',
     'page callback' => 'drupal_get_form',
-    'page arguments' => array('_manage_chart_form',1),
+    'page arguments' => array('_datalogger_form_view_chart_form',1),
     'file' => 'datalogger.admin.inc',
     'access arguments' => array('manage data', 1),
-    'access callback' => '_datalogger_menu_access_callback_node',
-    // 'access callback' => TRUE,
+    'access callback' => '_datalogger_menu_access_callback_manage_data',
     'description' => 'Biểu đồ lượng Mưa',
     'type' => MENU_LOCAL_TASK,
     'weight' => -24,
   );
-   
-  $items['node/%node/rainfall'] = array(
-    'title' => 'Chi tiết lượng Mưa',
-    'page callback' => 'drupal_get_form',
-    'page arguments' => array('_manage_rainfall_form',1),
-    'file' => 'datalogger.admin.inc',
-    'access arguments' => array('manage data', 1),
-    'access callback' => '_datalogger_menu_access_callback_node',
-    'description' => 'Chi tiết lượng Mưa',
-    'type' => MENU_LOCAL_TASK,
-    'weight' => -23,
-  );*/
-  
-  
   
 /**
  *Begin date:old
@@ -554,11 +540,8 @@ $items['gammu/sentitems/error'] = array(
         '_command_form'
     ),
     'file' => 'datalogger.admin.inc',
-    // 'access callback' => TRUE
     'access callback' => '_datalogger_menu_access_callback_command',
-    //'access arguments' => array('administrator', 'control datalogger'),    
   );
-  
   
   $items['logs'] = array(
       'title' => t('Logs'),
@@ -593,7 +576,6 @@ $items['gammu/sentitems/error'] = array(
  
   return $items;
 }
-
 
 function _datalogger_menu_access_callback_node($permission, $node) {
   return user_access($permission) && $node->type == 'station';
@@ -694,89 +676,6 @@ function _datalogger_return_area($arg = null){
 }
 
 function _datalogger_return_city($arg = null){
-	/*
-	$provinces = array(
-		// ho_chi_minh => ('Ho Chi Minh'),
-		// hai_phong => ('Hai Phong'),
-		// ha_giang => ('Ha Giang'),
-		// cao_bang => ('Cao Bang'),
-		// lai_chau => ('Lai Chau'),
-		// lao_cai => ('Lao Cai'),
-		// tuyen_quang => ('Tuyen Quang'),
-		// lang_son => ('Lang Son'),
-		// bac_kan => ('Bac Kan'),
-		// thai_nguyen => ('Thai Nguyen'),
-		// yen_bai => ('Yen Bai'),
-		// son_la => ('Son La'),
-		// phu_tho => ('Phu Tho'),
-		// vinh_phuc => ('Vinh Phuc'),
-		// quang_ninh => ('Quang Ninh'),
-		// bac_giang => ('Bac Giang'),
-		// bac_ninh => ('Bac Ninh'),
-		// ha_noi => ('Ha Noi'),
-		// hai_duong => ('Hai Duong'),
-		// hung_yen => ('Hung Yen'),
-		// hoa_binh => ('Hoa Binh'),
-		// ha_nam => ('Ha Nam'),
-		// nam_dinh => ('Nam Dinh'),
-		// thai_binh => ('Thai Binh'),
-		// ninh_binh => ('Ninh Binh'),
-		// dong_nai => ('Dong Nai'),
-		// long_an => ('Long An'),
-		// bac_lieu => ('Bac Lieu'),
-		// dien_bien => ('Dien Bien'),
-		// paging0 => '------------------',				
-		// north_central_region => array(
-			thanh_hoa => ('Thanh Hóa'),
-			nghe_an => ('Nghệ An'),
-			ha_tinh => ('Hà Tĩnh'),
-		// ),
-		// paging1 => '------------------',
-		// mid_central_region => array(
-			quang_binh => ('Quảng Bình'),
-			quang_tri => ('Quảng Trị'),
-			thua_thien_hue => ('Thừa Thiên - Huế'),
-			da_nang => ('Đà Nẵng'),
-			quang_nam => ('Quảng Nam'),
-			quang_ngai => ('Quảng Ngãi'),
-		// ),
-		// paging2 => '------------------',
-		// south_central_region => array(
-			binh_dinh => ('Bình Định'),
-			phu_yen => ('Phú Yên'),
-			khanh_hoa => ('Khánh Hòa'),
-			ninh_thuan => ('Ninh Thuận'),
-			binh_thuan => ('Bình Thuận'),
-		// ),
-		// paging3 => '------------------',
-		// south_region => array(
-			binh_duong => ('Bình Dương'),
-			tay_ninh => ('Tây Ninh'),
-			tien_gian => ('Tiền Giang'),
-			tra_vinh => ('Trà Vinh'),
-			can_tho => ('Cần Thơ'),
-			soc_trang => ('Sóc Trăng'),
-			dong_thap => ('Đồng Tháp'),
-			binh_phuoc => ('Bình Phước'),
-			an_giang => ('An Giang'),
-			kien_giang => ('Kiên Giang'),
-			ca_mau => ('Cà Mau'),
-			ben_tre => ('Bến Tre'),
-			ba_ria_vung_tau => ('Bà Rịa - Vũng Tàu'),
-			vinh_long => ('Vĩnh Long'),
-			hau_giang => ('Hậu Giang'),
-		// ),
-		// paging4 => '------------------',
-		// central_highlands  => array(
-			lam_dong => ('Lâm Đồng'),
-			kom_tum => ('Kon Tum'),
-			giai_lai => ('Gia Lai'),
-			dak_lak => ('Đắk Lắk'),
-			dak_nong => ('Đắk Nông'),
-		// ),
-	);
-	*/
-	// */
 	$areas = _datalogger_return_city2(null);
 	$provinces = array();
 	foreach($areas as $area){
