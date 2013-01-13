@@ -226,20 +226,20 @@ function datalogger_views_pre_render(&$view) {
 	//view: quan ly thong tin tram
 	
 	if($view->name == "view_list_stations_role_manage") {
-			global $user;
-			if (!in_array('administrator', array_values($user->roles)) && !in_array('manage data', array_values($user->roles))) {
-				$account = user_load($user->uid);
-				if(isset($account->field_station_region['und'])){
-					foreach($account->field_station_region['und'] as $region){
-								$query->where[1]['conditions'][2]['value'] = $region['value'];
-					}
+		global $user;
+		if (!in_array('administrator', array_values($user->roles))) {
+			$account = user_load($user->uid);
+			if(isset($account->field_station_region['und'])){
+				foreach($account->field_station_region['und'] as $region){
+							$query->where[1]['conditions'][2]['value'] = $region['value'];
 				}
 			}
-			else{
-				$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
-								south_central_region,south_region,central_highlands);
-				$query->where[1]['conditions'][2]['operator'] = 'IN';
-			}
+		}
+		else{
+			$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
+							south_central_region,south_region,central_highlands);
+			$query->where[1]['conditions'][2]['operator'] = 'IN';
+		}
   }
 	
 }
