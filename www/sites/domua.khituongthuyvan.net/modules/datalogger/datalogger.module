@@ -22,8 +22,8 @@ function datalogger_openlayers_styles(&$map) {
 function datalogger_form_alter(&$form, $form_state, $form_id){
 	global $user;
 	$account = user_load($user->uid);
-	dsm($account);
-	dsm($form);
+	// dsm($account);
+	// dsm($form);
 	if(!in_array('administrator', array_values($account->roles))){
 		if($form_id = 'views_exposed_form'){
 			if($form['#id'] == 'views-exposed-form-view-command-send-station-page' || 
@@ -36,7 +36,7 @@ function datalogger_form_alter(&$form, $form_state, $form_id){
 					$provinces = array();
 					$provinces['All'] = t('- Any -');
 					$provinces = array_merge($provinces, _datalogger_return_city2($account->field_station_region['und'][0]['value']));
-					dsm($account->field_station_region['und'][0]['value']);
+					// dsm($account->field_station_region['und'][0]['value']);
 					//tram do mưa
 					$region_station = $account->field_station_region['und'][0]['value'];
 					$stations_list = views_get_view_result('view_all_station', null, $region_station , 'all');
@@ -48,6 +48,8 @@ function datalogger_form_alter(&$form, $form_state, $form_id){
 					
 					//danh sach cac tinh thuoc khu vucs
 					$form['field_station_province_city_value']['#options'] = $provinces;
+					$form['field_rainfall_send_time_value']['min']['#date_format'] = 'd/m/Y H';
+					$form['field_rainfall_send_time_value']['max']['#date_format'] = 'd/m/Y H';
 					
 					//view cac lenh da thuc hien theo tung khu vuc
 					/*view: thong ke lương mua
@@ -138,11 +140,7 @@ function datalogger_views_pre_render(&$view) {
 	//view: hien thi cac tram do mưa theo khu vuc thuc hien lenh
 	//view: hien thi cac tram do mưa theo khu vuc tren ban do
 	//view: hien thi cac lenh da thuc hien  theo khu vuc
-<<<<<<< HEAD
 	if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == "view_map_alarm_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' || $view->name == 'rainfall_chart'||$view->name == 'search_rainfall' || $view->name == "view_modems" ||$view->name == "view_rainfall_default"	||$view->name == "view_map_station_deactive"||$view->name == "view_map_alarm_stations_rainfall" || $view->name == 'view_rainfall_chart_hour') {
-=======
-	if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == "view_map_alarm_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' || $view->name == 'rainfall_chart'||$view->name == 'search_rainfall' || $view->name == "view_modems" ||$view->name == "view_rainfall_default"	||$view->name == "view_map_station_deactive"||$view->name == "view_map_alarm_stations_rainfall" ||$view->name == "view_rainfall_chart_hour"	) {
->>>>>>> 824a8e35864e1d28d0b466d6c46d006212d86da2
 		global $user;
 		$account = user_load($user->uid);
 		// dsm($query);
