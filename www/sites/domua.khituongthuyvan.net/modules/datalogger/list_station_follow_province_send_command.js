@@ -4,10 +4,10 @@
     $('#edit-field-station-province-city-value').change( function () {
 			var filter = $(this).val();
 			// /*
-			var index = $('#edit-field-rainfall-station-nid').val();
-			console.log(index);
-			$('#edit-field-rainfall-station-nid').empty();
-			var tram = $('#edit-field-rainfall-station-nid');
+			var index2 = $('#edit-field-command-station-nid').val();
+			console.log(index2);
+			$('#edit-field-command-station-nid').empty();
+			var tram = $('#edit-field-command-station-nid');
 			if(tram.prop) {
 				var options = tram.prop('options');
 			}
@@ -18,7 +18,7 @@
 				var nid = key.substr(4);
 				options[options.length] = new Option(text, nid);
 			});		
-			$('#edit-field-rainfall-station-nid').val(index);
+			$('#edit-field-command-station-nid').val(index2);
 			// */
 		}).change();
   });

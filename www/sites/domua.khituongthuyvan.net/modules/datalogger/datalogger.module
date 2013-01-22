@@ -5,18 +5,23 @@
  */
 function _datalogger_submit_report($form, &$form_state){
 	$province = $form_state['values']['field_station_province_city_value'];
-	$station_nids = dsm($form_state['values']['field_rainfall_station_nid']);
+	$station_nids = $form_state['values']['field_rainfall_station_nid'];
 	$min_time = $form_state['values']['field_rainfall_send_time_value']['min'];
 	$max_time = $form_state['values']['field_rainfall_send_time_value']['max'];
 	$view_name = $form_state['view']->name;
 	$view = views_get_view($view_name);
 	if (is_object($view)) {
     $view->init_display();
+		// $view->set_display(); // like 'block_1'    
     $view->pre_execute();
     $view->execute();
+		// $view->render();  
     $view_resul = $view->result;
   }
-	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
+	// module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
+	
+	module_load_include('inc', 'datalogger', 'datalogger.admin.statistics.excel');
+	
 	if(count($view_resul) <= 0){
 		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
 	}
@@ -27,7 +32,10 @@ function _datalogger_submit_report($form, &$form_state){
 		else{
 			$nid = null;
 		}
-		$args = array($nid, $view_resul, null, null, null, null);
+		// $args = array($nid, $view_resul, null, null, null, null);
+		
+		$args = array($nid, $view_resul);
+		
 		_export_excel($args);
 	}
 }
@@ -66,6 +74,7 @@ function datalogger_form_alter(&$form, &$form_state, &$form_id){
 				$form['#id'] == 'views-exposed-form-rainfall-chart-page' ||
 				$form['#id'] == 'views-exposed-form-view-list-stations-page' ||
 				$form['#id'] == 'views-exposed-form-view-rainfall-chart-hour-page' ||
+				$form['#id'] == 'views-exposed-form-view-command-send-station-page' ||
 				$form['#id'] == 'views-exposed-form-view-station-rainfall-statistics-page' ){
 					//danh sach tinh / thanh pho
 					$provinces = array();
@@ -86,7 +95,9 @@ function datalogger_form_alter(&$form, &$form_state, &$form_id){
 					Bieu do mua theo gio
 					Bieu do mua theo phut
 					*/
-					if($form['#id'] == 'views-exposed-form-view-list-stations-page'){
+					if($form['#id'] == 'views-exposed-form-view-list-stations-page' || 
+						$form['#id'] == 'views-exposed-form-view-command-send-station-page' 
+					){
 						$form["submit_report"]['#access'] = false;
 					}
 					
@@ -114,9 +125,10 @@ function datalogger_form_alter(&$form, &$form_state, &$form_id){
 					}
 					
 					
-					drupal_add_js(drupal_get_path('module', 'datalogger').'/list_station_follow_province.js');
+					// drupal_add_js(drupal_get_path('module', 'datalogger').'/list_station_follow_province.js');
+					// drupal_add_js(array('datalogger' => array('list_station_province' => $station_follow_provinces)),'setting');
+					//thiet lap gia tri tham so cho file javascript
 					drupal_add_js(array('datalogger' => array('list_station_province' => $station_follow_provinces)),'setting');
-					
 					//view cac lenh da thuc hien theo tung khu vuc
 					/*view: thong ke lương mua
 					 *view: tra cuu so lieu mua
@@ -124,15 +136,19 @@ function datalogger_form_alter(&$form, &$form_state, &$form_id){
 					 *view: bieu do mua theo gio
 					 *view: bieu do mua theo phut
 					 */
-					if($form['#id'] == 'views-exposed-form-view-station-rainfall-statistics-page' ||
-							$form['#id'] == 'views-exposed-form-search-rainfall-page' ||
+					if($form['#id'] == 'views-exposed-form-view-station-rainfall-statistics-page' ||//thong ke luong mua
+							$form['#id'] == 'views-exposed-form-search-rainfall-page' ||//tra cuu luong mua
 							$form['#id'] == 'views-exposed-form-view-rainfall-default-page' ||
-							$form['#id'] == 'views-exposed-form-view-rainfall-chart-hour-page' ||
-							$form['#id'] == 'views-exposed-form-rainfall-chart-page'){
-								
+							$form['#id'] == 'views-exposed-form-view-rainfall-chart-hour-page' ||//bieu do theo gio
+							$form['#id'] == 'views-exposed-form-rainfall-chart-page'){//bieu do theo op
+								drupal_add_js(drupal_get_path('module', 'datalogger').'/list_station_follow_province.js');
 								$form['field_rainfall_station_nid']['#options'] = $stations_view;
 					}
 					
+					if($form['#id'] == 'views-exposed-form-view-command-send-station-page'){
+						$form['field_command_station_nid']['#options'] = $stations_view;
+						drupal_add_js(drupal_get_path('module', 'datalogger').'/list_station_follow_province_send_command.js');
+					}
 					//hien thi luong mua theo tung khu vuc
 					if($form['#id'] == 'views-exposed-form-view-rainfall-default-page'){
 						$form['field_station_region_value']['#disabled'] = TRUE;
@@ -202,10 +218,7 @@ function datalogger_views_pre_render(&$view) {
 	if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == "view_map_alarm_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' || $view->name == 'rainfall_chart'||$view->name == 'search_rainfall' || $view->name == "view_modems" ||$view->name == "view_rainfall_default"	||$view->name == "view_map_station_deactive"||$view->name == "view_map_alarm_stations_rainfall" ||$view->name == "view_rainfall_chart_hour"	) {
 		global $user;
 		$account = user_load($user->uid);
-		// dsm($query);
-		// dsm($view);
 		if(in_array('administrator', array_values($user->roles))){
-			
 			$query->where[1]['conditions'][2]['value'] = array(north_central_region,mid_central_region,
 							south_central_region,south_region,central_highlands);
 			$query->where[1]['conditions'][2]['operator'] = 'IN';
@@ -222,6 +235,20 @@ function datalogger_views_pre_render(&$view) {
 				$query->where[1]['conditions'][2]['value'] = $regions;
 			}
 		}
+		
+		// /*
+		if(count($query->where[1]['conditions'][3]['value']) == 2){
+			// $sql = 'DATE_FORMAT(FROM_UNIXTIME(field_data_field_rainfall_send_time.field_rainfall_send_time_value), \'%Y-%m-%d %H:%i\') >= :field_data_field_rainfall_send_time_field_rainfall_send_time_value AND DATE_FORMAT(FROM_UNIXTIME(field_data_field_rainfall_send_time.field_rainfall_send_time_value), \'%Y-%m-%d %H:%i\') <= :field_data_field_rainfall_send_time_field_rainfall_send_time_value1';
+			$sql = 'DATE_FORMAT(FROM_UNIXTIME(field_data_field_rainfall_send_time.field_rainfall_send_time_value), \'%d\/%m\/%Y %H:%i\') >= :field_data_field_rainfall_send_time_field_rainfall_send_time_value AND DATE_FORMAT(FROM_UNIXTIME(field_data_field_rainfall_send_time.field_rainfall_send_time_value), \'%d\/%m\/%Y %H:%i\') <= :field_data_field_rainfall_send_time_field_rainfall_send_time_value1';
+			
+			$query->where[1]['conditions'][3]['field'] = $sql;
+			$time_min = $query->where[1]['conditions'][3]['value'][':field_data_field_rainfall_send_time_field_rainfall_send_time_value'];
+			$time_max = $query->where[1]['conditions'][3]['value'][':field_data_field_rainfall_send_time_field_rainfall_send_time_value1'];
+			
+			$query->where[1]['conditions'][3]['value'][':field_data_field_rainfall_send_time_field_rainfall_send_time_value'] = date('d/m/Y H:i',strtotime($time_min));
+			$query->where[1]['conditions'][3]['value'][':field_data_field_rainfall_send_time_field_rainfall_send_time_value1'] = date('d/m/Y H:i',strtotime($time_max));
+		}
+		// */
   }
 	//view: quan ly thong tin tram
 	
@@ -323,6 +350,18 @@ $items['gammu/sentitems/error'] = array(
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		'type' => MENU_NORMAL_ITEM, 
 		'weight' => -26,
+	);
+	
+	$items['manage/report/rainfalls/all/station'] = array(
+    'title' => 'Statistics of rainfall during the day',
+		'page callback' => 'drupal_get_form',
+    'page arguments' => array(
+        '_datalogger_report_rainfall_all_station_in_day_form'
+    ),
+    'file' => 'datalogger.admin.inc',
+		'access callback' => '_datalogger_menu_access_callback_manage_data',
+		'type' => MENU_LOCAL_TASK, 
+		'weight' => -25,
 	);
 	
   
