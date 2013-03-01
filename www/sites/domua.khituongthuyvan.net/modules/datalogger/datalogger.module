@@ -107,7 +107,8 @@ function datalogger_form_alter(&$form, &$form_state, &$form_id){
 					
 					$region_station = $account->field_station_region['und'][0]['value'];
 					for($i = 0; $i < count (array_keys($provinces)); $i++){
-						$province = array_keys($provinces)[$i];
+						// tam thoi coment
+						//$province = array_keys($provinces)[$i];  
 						if($province == 'All'){
 							$stations_list = views_get_view_result('view_station_filter_parameter', Null,	$region_station, 'all', 'all');
 						}

@@ -211,8 +211,17 @@ function datalogger_preprocess_page(&$variables) {
 			}
 		}
 	}
+	
+	if (drupal_is_front_page()) {
+  
+    global $khuvuc;
+    
+    require 'khuvuc.php';
+					
+		drupal_set_title(t('LIST OF DATALOGGER STATIONS OF @area', array('@area' => $khuvuc)));
+  }
 }
-
+   
 function _datalogger_provinces($arg){
 	$list = array('ho_chi_minh'=> 'Ho Chi Minh',
 	'hai_phong'=> 'Hai Phong',
