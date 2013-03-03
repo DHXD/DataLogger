@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * @file
@@ -115,12 +115,14 @@
        <?php if ($site_slogan): ?>
           <div id="site-slogan"<?php if ($hide_site_slogan) { print ' class="element-invisible"'; } ?>>
             <?php print t($site_slogan);?><br>
-			 <?php print t('��I KH� TU?NG THU? VAN KHU V?C') ?>
+
 			 <?php
-				$file = "D:\Du an\DataLogger\www\khuvuc.txt";
-				$line = file_get_contents($file);
-				echo $line;
-	         ?>
+				
+        global $khuvuc;   
+        require 'khuvuc.php';
+        echo(t('ĐÀI KHÍ TƯỢNG THUỶ VĂN - @area', array('@area' => $khuvuc)));
+	      ?>
+
           </div>
         <?php endif; ?>
 	 
@@ -151,8 +153,9 @@
     <?php //dpm($secondary_menu); 
       $secondary_menu['menu-2']['title'] = t('Welcome !username ! ', array('!username ' => $user->name));//.t('My account');
 
+
 	 unset ($secondary_menu['menu-2']['href']);
-	
+
       if ($secondary_menu): ?>
       <div id="secondary-menu" class="navigation">
         <?php 	
@@ -202,9 +205,15 @@
       <a id="main-content"></a>
       <?php print render($title_prefix); ?>
       <?php if ($title): ?>
-        <h1 class="title" id="page-title">
-          <?php print $title; ?>
-        </h1>
+	  
+	  <div class="title <?php if (drupal_is_front_page()) print 'title_center'?>" id="page-title" >
+	  <?php
+			  print $title; 
+			
+		?>
+		 
+       </div>
+	   
       <?php endif; ?>
       <?php print render($title_suffix); ?>
       <?php if ($tabs): ?>

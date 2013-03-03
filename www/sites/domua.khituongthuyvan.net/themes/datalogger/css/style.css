@@ -705,7 +705,7 @@ h1#page-title {
 }
 
 ul.links {
-	color: #68696b;
+	color: #ffffff;
 	font-size: 0.821em;
 }
 
@@ -1835,4 +1835,12 @@ div.field-name-field-command-result div.field-items div.field-item {
   font-size: 12pt;
   background: blue;
   color: white;
+}
+
+.title_center{
+
+	color:#000;
+	font-size:18px;
+	text-align:center;
+  font-weight: bold;
 }
