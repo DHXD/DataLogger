@@ -276,6 +276,90 @@ function datalogger_views_pre_render(&$view) {
 /**
  * 18/10. 
  */
+function datalogger_block_info() {
+  // This example comes from node.module.
+  $blocks['tree'] = array(
+    'info' => t('Trạm'),
+   // 'cache' => DRUPAL_NO_CACHE,
+  );
+
+  return $blocks;
+}
+
+function datalogger_block_view($delta = '') {
+  switch($delta){
+    case 'tree':
+      $block['subject'] = t('Trạm');
+      if(user_access('access content')){
+       //Retrieve and process data here.
+       
+        $module_path = drupal_get_path('module', 'datalogger');
+        
+        
+        drupal_add_js($module_path . '/treeview/_lib/jquery.js');
+        drupal_add_js($module_path . '/treeview/_lib/jquery.cookie.js');
+        drupal_add_js($module_path . '/treeview/_lib/jquery.hotkeys.js');
+        drupal_add_js($module_path . '/treeview/jquery.jstree.js');
+       // drupal_add_css($module_path . '/treeview/_docs/syntax/!style.css');
+       // drupal_add_css($module_path . '/treeview/_docs/!style.css');
+        
+        drupal_add_js('
+        
+        jQuery(document).ready(function($) {
+        
+        $("#demo1")
+          // call `.jstree` with the options object
+          .jstree({
+            // the `plugins` array allows you to configure the active plugins on this instance
+            "plugins" : ["themes","html_data","ui","crrm","hotkeys"],
+            // each plugin you have included can have its own config object
+            "core" : { "initially_open" : [ "phtml_1" ] }
+            // it makes sense to configure a plugin only if overriding the defaults
+          })
+          // EVENTS
+          // each instance triggers its own events - to process those listen on the container
+          // all events are in the `.jstree` namespace
+          // so listen for `function_name`.`jstree` - you can function names from the docs
+          .bind("loaded.jstree", function (event, data) {
+            // you get two params - event & data - check the core docs for a detailed description
+          });
+        
+        });', 'inline');
+       
+        $block['content'] = <<< EOF
+        <div id="demo1" class="demo" style="height:100px;">
+          <ul>
+          <li id="phtml_1">
+            <a href="#">Root node 1</a>
+            <ul>
+              <li id="phtml_2">
+                <a href="#">Child node 1</a>
+              </li>
+              <li id="phtml_3">
+                <a href="#">Child node 2</a>
+              </li>
+            </ul>
+          </li>
+          <li id="phtml_4">
+            <a href="#">Root node 2</a>
+            <ul>
+              <li id="phtml_5">
+                <a href="#">Child node 3</a>
+              </li>
+              <li id="phtml_6">
+                <a href="#">Child node 4</a>
+              </li>
+            </ul>
+          </li>
+        </ul>
+        </div>
+          
+        
+EOF;
+        return $block;
+   } 
+  }
+}
 function datalogger_action_info() {
 	GLOBAL $options_commands;
   return array(
