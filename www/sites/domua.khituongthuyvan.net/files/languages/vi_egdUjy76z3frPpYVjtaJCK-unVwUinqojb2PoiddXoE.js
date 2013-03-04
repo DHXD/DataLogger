@@ -1,1 +1,0 @@
-Drupal.locale = { 'strings': {"":{"Configure":"C\u1ea5u h\u00ecnh","Edit":"S\u1eeda","Please wait...":"Vui l\u00f2ng \u0111\u1ee3i...","Disabled":"T\u1eaft","Enabled":"B\u1eadt","Preview":"Xem tr\u01b0\u1edbc","Add":"Th\u00eam"}} };

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /**
  * @file
@@ -112,11 +112,21 @@
           <?php endif; ?>
         <?php endif; ?>
 
-        <?php if ($site_slogan): ?>
+       <?php if ($site_slogan): ?>
           <div id="site-slogan"<?php if ($hide_site_slogan) { print ' class="element-invisible"'; } ?>>
-            <?php print t($site_slogan); ?>
+            <?php print t($site_slogan);?><br>
+
+			 <?php
+				
+        global $khuvuc;   
+        require 'khuvuc.php';
+        echo(t('ĐÀI KHÍ TƯỢNG THUỶ VĂN - @area', array('@area' => $khuvuc)));
+	      ?>
+
           </div>
         <?php endif; ?>
+	 
+  
 
       </div> <!-- /#name-and-slogan -->
     <?php endif; ?>
@@ -141,21 +151,24 @@
     <?php endif; ?>
 
     <?php //dpm($secondary_menu); 
-      $secondary_menu['menu-2']['title'] = t('Welcome !username ! ', array('!username ' => $user->name)) . t('My account');
-      
+      $secondary_menu['menu-2']['title'] = t('Welcome !username ! ', array('!username ' => $user->name));//.t('My account');
+
+	 unset ($secondary_menu['menu-2']['href']);
+
       if ($secondary_menu): ?>
       <div id="secondary-menu" class="navigation">
-        <?php print theme('links__system_secondary_menu', array(
+        <?php 	
+			print theme('links__system_secondary_menu', array(
           'links' => $secondary_menu,
           'attributes' => array(
             'id' => 'secondary-menu-links',
-            'class' => array('links', 'inline', 'clearfix'),
+            'class' => array('links','inline', 'clearfix'),
           ),
           'heading' => array(
             'text' => t('Secondary menu'),
             'level' => 'h2',
             'class' => array('element-invisible'),
-          ),
+          )
         )); ?>
       </div> <!-- /#secondary-menu -->
     <?php endif; ?>
@@ -191,9 +204,15 @@
       <a id="main-content"></a>
       <?php print render($title_prefix); ?>
       <?php if ($title): ?>
-        <h1 class="title" id="page-title">
-          <?php print $title; ?>
-        </h1>
+	  
+	  <div class="title <?php if (drupal_is_front_page()) print 'title_center'?>" id="page-title" >
+	  <?php
+			  print $title; 
+			
+		?>
+		 
+       </div>
+	   
       <?php endif; ?>
       <?php print render($title_suffix); ?>
       <?php if ($tabs): ?>
@@ -208,6 +227,7 @@
         </ul>
       <?php endif; ?>
       <?php print render($page['content']); ?>
+	  
       <?php print $feed_icons; ?>
 
     </div></div> <!-- /.section, /#content -->
