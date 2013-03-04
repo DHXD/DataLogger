@@ -153,7 +153,6 @@
     <?php //dpm($secondary_menu); 
       $secondary_menu['menu-2']['title'] = t('Welcome !username ! ', array('!username ' => $user->name));//.t('My account');
 
-
 	 unset ($secondary_menu['menu-2']['href']);
 
       if ($secondary_menu): ?>
