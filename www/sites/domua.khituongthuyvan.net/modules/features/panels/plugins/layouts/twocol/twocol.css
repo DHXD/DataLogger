@@ -5,7 +5,7 @@
 
 .panel-2col .panel-col-first { 
   float: left; 
-  width: 50%; 
+  width: 250px; 
 }
 * html .panel-2col .panel-col-first {
   width: 49.9%;
@@ -17,7 +17,7 @@
 
 .panel-2col .panel-col-last { 
   float: left; 
-  width: 50%; 
+  width: 650px; 
 }
 * html .panel-2col .panel-col-last {
   width: 49.9%;
