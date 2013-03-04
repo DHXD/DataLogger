@@ -65,7 +65,6 @@ function datalogger_openlayers_styles(&$map) {
 function datalogger_form_alter(&$form, &$form_state, &$form_id){
 	global $user;
 	$account = user_load($user->uid);
-	// dsm($form);
 	if(!in_array('administrator', array_values($account->roles))){
 		if($form_id = 'views_exposed_form'){
 			if($form['#id'] == 'views-exposed-form-view-command-send-station-page' || 
@@ -95,9 +94,11 @@ function datalogger_form_alter(&$form, &$form_state, &$form_id){
 					Bieu do mua theo gio
 					Bieu do mua theo phut
 					*/
+
 					if($form['#id'] == 'views-exposed-form-view-list-stations-page' || 
 						$form['#id'] == 'views-exposed-form-view-command-send-station-page' 
 					){
+
 						$form["submit_report"]['#access'] = false;
 					}
 					

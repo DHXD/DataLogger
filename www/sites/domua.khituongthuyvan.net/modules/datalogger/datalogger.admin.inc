@@ -1237,6 +1237,7 @@ function _datalogger_check_inbox() {
       elseif($len_sms == 140) {
       
         switch ($number) {
+		/*
         case '01647492506': // Ham Cuong
         case '01635662128': // Mỹ Thạnh
        // case '01653448055': // Phan Sơn
@@ -1256,7 +1257,7 @@ function _datalogger_check_inbox() {
           }
           
           break;
-          
+         */ 
         default:
           // Chèn bản tin vào bảng đo mưa
           // dsm('into 140');
