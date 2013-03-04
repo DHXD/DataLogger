@@ -1844,3 +1844,8 @@ div.field-name-field-command-result div.field-items div.field-item {
 	text-align:center;
   font-weight: bold;
 }
+
+
+body.page-manager-user .panel-col-first {
+width: 150px;
+}
