@@ -318,6 +318,7 @@ $items['gammu/sentitems/error'] = array(
 		'type' => MENU_CALLBACK,
   );
 	
+
  /**
  *Begin: 25/11. 
  *author: hungnm0302
