@@ -2618,7 +2618,8 @@ function _command_form($form, &$form_state) {
 		$node = node_load($nid);
 		drupal_set_title(t('Rainfall stations: ').t($node->title));
 	}
-  $default = !empty($form_state['values']['command_selects']) ? $form_state['values']['command_selects'] : 1;
+  $default = arg(2) ? arg(2) :
+    (!empty($form_state['values']['command_selects']) ? $form_state['values']['command_selects'] : 1);
   $title = $options_commands[$default];
   $form['command_selects'] = array(
     "#type" => "select",
