@@ -287,6 +287,27 @@ function datalogger_block_info() {
   return $blocks;
 }
 
+function tree($batdau, $ketthuc)
+{
+  $result = "";
+  $number = 1;
+  $result .= '<div id="demo1" class="demo" style="height: 100px;width:200px; overflow-x:hidden ; overflow-y: scroll; padding-bottom:10px;"><ul><li id="phtml_1"><ul>';
+  //$number++;
+  for ($i = $batdau; $i <= $ketthuc; $i = date ( 'Y-m-d' , strtotime('+1 day', strtotime($i)) ))
+  {
+    //$batdau = strtotime ( '-1 day' , strtotime ( $batdau ) ) ;
+    //$a = date ( 'Y-m-j' , $i );
+    $result .= '<li id="phtml_' . $number++ . '"><a href="#">' . $i . '</a><ul>';
+    for($j=0;$j<24;$j++)
+    {
+      $result .= "<li id='phtml_" . $number++ . "'><a href='#'>" . $j . '</a></li>';
+    }
+    $result .= '</ul></li>';
+  }
+  $result .= '</ul></div>';
+  return $result;
+}
+
 function datalogger_block_view($delta = '') {
   switch($delta){
     case 'tree':
@@ -326,37 +347,14 @@ function datalogger_block_view($delta = '') {
           });
         
         });', 'inline');
+		
+	    //dpm($_REQUEST);
+		$begin = $_REQUEST['field_rainfall_send_time_value'] ['min'] ['date'];
+		$end = $_REQUEST['field_rainfall_send_time_value'] ['max'] ['date'];
+		/*dpm('$begin');
+		dpm('$begin');*/
        
-        $block['content'] = <<< EOF
-        <div id="demo1" class="demo" style="height:100px;">
-          <ul>
-          <li id="phtml_1">
-            <a href="#">Root node 1</a>
-            <ul>
-              <li id="phtml_2">
-                <a href="#">Child node 1</a>
-              </li>
-              <li id="phtml_3">
-                <a href="#">Child node 2</a>
-              </li>
-            </ul>
-          </li>
-          <li id="phtml_4">
-            <a href="#">Root node 2</a>
-            <ul>
-              <li id="phtml_5">
-                <a href="#">Child node 3</a>
-              </li>
-              <li id="phtml_6">
-                <a href="#">Child node 4</a>
-              </li>
-            </ul>
-          </li>
-        </ul>
-        </div>
-          
-        
-EOF;
+        $block['content'] = tree($begin,$end);;
         return $block;
    } 
   }

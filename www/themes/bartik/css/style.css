@@ -462,7 +462,7 @@ h1#site-name {
 #main-menu-links {
   font-size: 0.929em;
   margin: 0;
-  padding: 0 15px;
+  padding: 0 10px;
 }
 #main-menu-links li {
   float: left; /* LTR */
@@ -477,7 +477,7 @@ h1#site-name {
   float: left; /* LTR */
   height: 2.4em;
   line-height: 2.4em;
-  padding: 0 0.8em;
+  padding: 0 0.5em;
   text-decoration: none;
   text-shadow: 0 1px #eee;
   -khtml-border-radius-topleft: 8px;

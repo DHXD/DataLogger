@@ -1437,7 +1437,7 @@
 			theme : "default", 
 			url : false,
 			dots : true,
-			icons : true
+			icons : false
 		},
 		_fn : {
 			set_theme : function (theme_name, theme_url) {
