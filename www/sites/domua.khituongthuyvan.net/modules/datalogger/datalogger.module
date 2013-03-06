@@ -1,4 +1,8 @@
 <?php
+
+global $khuvuc;   
+        require 'khuvuc.php';
+        
 /**
  *Author:hungnm0302
  *Description: Xuat du lieu ra file excel

@@ -2,6 +2,7 @@
 
   global $khuvuc;
 
-  $khuvuc = 'KHU VỰC NAM TRUNG BỘ';
+  //$khuvuc = array('north_central_region','KHU VỰC BẮC TRUNG BỘ');
+  $khuvuc = array('mid_central_region','KHU VỰC QUANG BINH');
 
 
