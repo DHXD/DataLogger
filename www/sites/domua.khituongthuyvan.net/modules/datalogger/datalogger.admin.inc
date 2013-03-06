@@ -437,7 +437,8 @@ function _datalogger_select_area_province_station(&$form, &$form_state){
 	global $user;
 	$account = user_load($user->uid,true);
 	foreach($account->field_station_region['und'] as $region){
-		$regions[$region['value']] = _datalogger_return_area($region['value']);
+		if ($form_state['lock-region'] && $region['value'] == $form_state['values']['selectArea'] || !$form_state['lock-region']) 
+      $regions[$region['value']] = _datalogger_return_area($region['value']);
 	}
 	
 	$value_select_area = isset($form_state['values']['selectArea']) ? $form_state['values']['selectArea'] : key($regions);
@@ -2600,7 +2601,26 @@ function _command_form($form, &$form_state) {
 		37 => t('Get the Alarm Interval and Level for rainfall alarming'),
 		38 => t('Reset All'),);	
     
+  if (arg(1) == '0') {
+    global $khuvuc;
+    $form_state['lock-region'] = true;
+    $form_state['values']['selectArea'] = $khuvuc[0];
     
+    _datalogger_select_area_province_station($form, $form_state);
+    
+    
+    unset ($form['txtNameQTV']);//['#access']=FALSE;
+    unset ($form['txtNameNLB']);//['#access']=FALSE;
+    unset ($form['txtNameKS']);//['#access']=FALSE;
+    unset ($form['txtNamePT']);//['#access']=FALSE;
+    unset ($form['selectReport']);//['#access']=FALSE;  
+    unset ($form['notice_excel_2007']);
+    unset ($form['day']);
+    unset ($form['month']);
+    unset ($form['year']); 
+  }
+  //dpm($form);
+  
   if ($user->uid != 1)  {
     unset($options_commands[19]);   // Set Auto Power Management Enable disabled for not root
     unset($options_commands[22]);   // Go to Sleep mode
@@ -2618,7 +2638,8 @@ function _command_form($form, &$form_state) {
 		$node = node_load($nid);
 		drupal_set_title(t('Rainfall stations: ').t($node->title));
 	}
-  $default = !empty($form_state['values']['command_selects']) ? $form_state['values']['command_selects'] : 1;
+  $default = arg(2) ? arg(2) :
+    (!empty($form_state['values']['command_selects']) ? $form_state['values']['command_selects'] : 1);
   $title = $options_commands[$default];
   $form['command_selects'] = array(
     "#type" => "select",
@@ -3246,6 +3267,13 @@ function _datalogger_add_space($sms, $length){
 function _send_command_submit($form, &$form_state) {
 
   $nid = intval(arg(1)) ? intval(arg(1)) : $form_state['values']['nid'];
+  
+  if($nid == 0 && $form_state['values']['station']) $nid = $form_state['values']['station'];
+  
+  //dpm($form_state);
+  
+  //dpm($nid);
+  
   $form['nid'] = array(
     '#type' => 'hidden', 
     '#value' => $nid,

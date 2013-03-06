@@ -118,9 +118,8 @@
 
 			 <?php
 				
-        global $khuvuc;   
-        require 'khuvuc.php';
-        echo(t('ĐÀI KHÍ TƯỢNG THUỶ VĂN - @area', array('@area' => $khuvuc)));
+        global $khuvuc;
+        echo(t('ĐÀI KHÍ TƯỢNG THUỶ VĂN - @area', array('@area' => $khuvuc[1])));
 	      ?>
 
           </div>
