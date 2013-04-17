@@ -735,7 +735,7 @@ function _command_validate($form, &$form_state) {
 
 function _send_command_submit($form, &$form_state) {
 
-  dpm($form_state);
+  //dpm($form_state);
 
   $nid = intval(arg(1)) ? intval(arg(1)) : $form_state['values']['nid'];
   

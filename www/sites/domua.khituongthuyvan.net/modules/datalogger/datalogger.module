@@ -151,14 +151,14 @@ function _datalogger_alter_add_js_stations(&$provinces) {
   
   $region_station = $khuvuc[0];
   
-  dpm($region_station);
-  dpm($khuvuc);
-  dpm($provinces);
+  //dpm($region_station);
+  //dpm($khuvuc);
+  //dpm($provinces);
   
   for($i = 0; $i < count (array_keys($provinces)); $i++){
 
     $province = array_keys($provinces)[$i];
-    dpm($province);
+    //dpm($province);
     
     if($province == 'All'){
       $stations_list = views_get_view_result('view_station_filter_parameter', Null,	$region_station, 'all', 'all');
@@ -166,7 +166,7 @@ function _datalogger_alter_add_js_stations(&$provinces) {
     else{
       $stations_list = views_get_view_result('view_station_filter_parameter', Null,	$region_station, $province, 'all');
     }
-    dpm($stations_list);
+    //dpm($stations_list);
     
     $stations = array();
     // $stations['All'] = t('- Any -');
@@ -178,7 +178,7 @@ function _datalogger_alter_add_js_stations(&$provinces) {
     $station_follow_provinces[$province] = $stations;
   }
   
-  dpm($station_follow_provinces);
+  //dpm($station_follow_provinces);
   
   // drupal_add_js(drupal_get_path('module', 'datalogger').'/list_station_follow_province.js');
   // drupal_add_js(array('datalogger' => array('list_station_province' => $station_follow_provinces)),'setting');
