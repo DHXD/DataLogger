@@ -42,7 +42,9 @@ function _export_excel($args){
     {
       $objPHPExcel->createSheet();
     }
-    // for( ; $row < $page*$limit_row; $row++){
+ 
+
+  // for( ; $row < $page*$limit_row; $row++){
 		// $objPHPExcel->createSheet();
 		//sheet luôn bắt đầy từ 0
     $objPHPExcel->setActiveSheetIndex($page);

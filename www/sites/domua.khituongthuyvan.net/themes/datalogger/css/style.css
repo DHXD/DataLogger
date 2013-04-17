@@ -484,9 +484,9 @@ h1#site-name {
 }
 
 #main-menu-links {
-	font-size: 0.929em;
+	font-size: 12px;
 	margin: 0;
-	padding: 0 15px;
+	padding: 0 10px;
 }
 
 #main-menu-links li {
@@ -499,7 +499,6 @@ h1#site-name {
 #main-menu-links a {
 	color: #333;
 	background: #ccc;
-	background: rgba(255, 255, 255, 0.7);
 	float: left; /* LTR */
 	height: 2.4em;
 	line-height: 2.4em;
@@ -1362,7 +1361,9 @@ input.form-text,textarea.form-textarea,select.form-select {
 select.form-select {
 	width:260px;
 }
-
+select.form-select {
+	width:150px;
+}
 #edit-field-station-regions-value-wrapper,
 #edit-field-station-code-value-wrapper,
 #edit-field-rainfall-type-statistics-value-wrapper,
@@ -1468,6 +1469,7 @@ input.form-button-disabled,input.form-button-disabled:hover,input.form-button-di
 /* Animated throbber */
 html.js input.form-autocomplete {
 	background-position: 100% 4px; /* LTR */
+	width: 150px;
 }
 
 html.js input.throbbing {
@@ -1848,4 +1850,54 @@ div.field-name-field-command-result div.field-items div.field-item {
 
 body.page-manager-user .panel-col-first {
 width: 250px;
+}
+.classname {
+	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	box-shadow:inset 0px 1px 0px 0px #ffffff;
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ededed), color-stop(1, #a69aa6) );
+	background:-moz-linear-gradient( center top, #ededed 5%, #a69aa6 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#a69aa6');
+	background-color:#ededed;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	border:1px solid #3d343d;
+	display:inline-block;
+	color:#615561;
+	font-family:arial;
+	font-size:13px;
+	font-weight:bold;
+	padding:4px 4px;
+	text-decoration:none;
+	text-shadow:1px 1px 0px #ffffff;
+}.classname:hover {
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #a69aa6), color-stop(1, #ededed) );
+	background:-moz-linear-gradient( center top, #a69aa6 5%, #ededed 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#a69aa6', endColorstr='#ededed');
+	background-color:#a69aa6;
+}.classname:active {
+	position:relative;
+	top:1px;
+}
+
+.sf-menu.sf-style-default a {
+	padding: 0.75em 12px  !important;
+}
+
+div#header {
+	margin-bottom: 48px;
+}
+
+div#header.with-secondary-menu div.section div.section div#name-and-slogan.element-invisible{
+	width: 700px;
+	height: 150px;
+}
+div#header.with-secondary-menu div.section div.section ul#superfish-1{
+	margin-top: 8px;
+	width: 960px;
+}
+
+div#header.with-secondary-menu div.section div.section div.region div#block-locale-language.block div.content {
+	margin-top: 34px;
 }

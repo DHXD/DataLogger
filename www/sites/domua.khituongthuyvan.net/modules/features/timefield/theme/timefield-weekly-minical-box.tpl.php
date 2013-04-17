@@ -9,9 +9,11 @@
 
 ?>
 <div class="<?php print $classes; ?>">
-  <div class="timefield-minical-label">
-    <strong><?php print $label; ?></strong>
-  </div>
+  <?php if ($label): ?>
+    <div class="timefield-minical-label">
+        <strong><?php print $label; ?></strong>
+    </div>
+  <?php endif; ?>
   <div class="timefield-minical-times">
     <?php print $time; ?>
   </div>

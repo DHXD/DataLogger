@@ -4,6 +4,27 @@
 global $user;
 global $site_name;
 
+$module_path = drupal_get_path('module', 'datalogger');
+drupal_add_js($module_path . '/swfobject/swfobject.js');
+drupal_add_js( <<< CODE
+  var flashvars = {
+    khuvuc: 2
+  };
+  var params = {
+    menu: "false",
+    wmode: "transparent"
+  };
+  var attributes = {
+    id: "myDynamicContent",
+    name: "myDynamicContent",
+    style:"z-index: -1000; margin: 0 auto;"
+  };
+
+  swfobject.embedSWF("/sites/domua.khituongthuyvan.net/files/scripts/swfobject/bannerFlash.swf", "bannerFlash", "960", "180", "9.0.0","/sites/domua.khituongthuyvan.net/files/scripts/swfobject/expressInstall.swf", flashvars, params, attributes);
+
+CODE
+ ,'inline');
+
 if (in_array('administrator', array_values($user->roles)) || in_array('control datalogger', array_values($user->roles))) {
   // variable_set('site_name', t('Phần mềm điều khiển trạm đo mưa tự động'));
   variable_set('site_name', t('Software control automatic rain gauge stations'));
@@ -218,7 +239,16 @@ function datalogger_preprocess_page(&$variables) {
     
     require 'khuvuc.php';
 					
-		drupal_set_title(t('LIST OF DATALOGGER STATIONS OF @area', array('@area' => $khuvuc)));
+		//drupal_set_title(t('LIST OF DATALOGGER STATIONS OF @area', array('@area' => $khuvuc)));
+  }
+  
+  $block = module_invoke('superfish', 'block_view', '1');
+  if ($block['content']) {
+      $output = "<div class=\"links clearfix\">\n";
+      $output .= "<div class=\"element-invisible\">".$block['content']."</div>\n";
+      $output .= "</div>\n";
+      $variables['menu1'] = $block['content'];
+      
   }
 }
    
@@ -297,3 +327,5 @@ function _datalogger_areas($arg){
 		'south_region' => 'Southern Region',);
 	return $list[$arg];
 }
+
+  

@@ -292,14 +292,13 @@ function datalogger_block_info() {
     'info' => t('Trạm'),
    // 'cache' => DRUPAL_NO_CACHE,
   );
+  $blocks['xuat'] = array(
+    'info' => t(''),
+   
+  );
 
   return $blocks;
 }
-function tree($batdau, $ketthuc)
-{
-  $result = "";
-  $number = 1;
-  $result .= '<div id="demo1" class="demo" style="height: 100px;width:200px; overflow-x:hidden ; overflow-y: scroll; padding-bottom:10px;"><ul><li id="phtml_1"><ul>';
 
 function test3($batdau, $ketthuc)
 {
@@ -361,11 +360,19 @@ function datalogger_block_view($delta = '') {
         });', 'inline');
         //dpm($_REQUEST);
         $begin = $_REQUEST['field_rainfall_send_time_value']['min']['date'];
-	    $end = $_REQUEST['field_rainfall_send_time_value']['max']['date'];
+	      $end = $_REQUEST['field_rainfall_send_time_value']['max']['date'];
       
-        $block['content'] = test3($begin,$end);;
+        $block['content'] = test3($begin,$end);  
         return $block;
    } 
+    break;
+    case 'xuat':
+      $block['subject'] = t('');
+      if(user_access('access content')){
+         $block['content'] = '<a href="/xuat_excel/manage/users_log" class="classname">Xuất Excel</a>&nbsp<a href="/view/in/nhatkisudung" class="classname">In nhật ký</a> ';
+         return $block;
+      }
+    break; 
   }
 }
 function datalogger_action_info() {
@@ -520,6 +527,24 @@ $items['gammu/sentitems/error'] = array(
   $items['gammu/inbox/new'] = array(
     'title' => 'Check new messages',
     'page callback' => '_datalogger_new_sms_form',
+    'file' => 'datalogger.admin.inc',
+    'access callback' => TRUE,
+		'page arguments' => array(1),
+		'type' => MENU_CALLBACK,
+  );
+  
+  $items['gammu/sentitems/new'] = array(
+    'title' => 'Check sentitems messages',
+    'page callback' => '_datalogger_new_sentitems_form',
+    'file' => 'datalogger.admin.inc',
+    'access callback' => TRUE,
+		'page arguments' => array(1),
+		'type' => MENU_CALLBACK,
+  );
+  
+  $items['gammu/outbox/new'] = array(
+    'title' => 'Check outbox messages',
+    'page callback' => '_datalogger_new_outbox_form',
     'file' => 'datalogger.admin.inc',
     'access callback' => TRUE,
 		'page arguments' => array(1),
@@ -707,6 +732,21 @@ $items['gammu/sentitems/error'] = array(
       'file' => 'datalogger.admin.excel.inc',
       'access callback' => TRUE
   );
+  
+  $items['huongdan/quantri'] = array(
+    'title' => 'Documentation for administrators and regional stations',
+    'page callback' => '_datalogger_huongdan_quantri',
+    'file' => 'datalogger.pages.inc',
+    'access arguments' => array('control datalogger'),
+    'access callback' => TRUE,
+  );
+  
+  $items['huongdan/cactinh'] = array(
+    'title' => 'Documentation for the province',
+    'page callback' => '_datalogger_huongdan_cactinh',
+    'file' => 'datalogger.pages.inc',
+    'access callback' => TRUE,
+  );
  
   return $items;
 }
@@ -877,3 +917,134 @@ function _datalogger_return_city2($arg = null){
 	}
 	return $provinces[$arg];
 }
+
+
+
+
+function _datalogger_them_tinh(){
+
+  $khuvuc = _datalogger_return_city2();
+  
+  foreach ($khuvuc as $k => $cactinh) {
+    foreach ($cactinh as $matinh => $tentinh) {
+    
+      $node = new stdClass();
+      $node->title = $tentinh;
+      $node->type = "province";
+      $node->created = time();
+      $node->changed = $node->created;
+      $node->status = 1; // Published?
+      $node->promote = 0; // Display on front page?
+      $node->sticky = 0; // Display top of page?
+      $node->format = 1; // Filtered HTML?
+      $node->uid = 1; // Content owner uid (author)?
+      $node->language = "und";
+
+     
+      
+      $node->field_tinh_ma_tinh['und'][0]['value'] = $matinh;
+      $node->field_tinh_khu_vuc['und'][0]['value'] = $k;
+     
+      node_object_prepare($node);
+
+      $node = node_submit($node);
+      node_save($node);
+
+    }
+    
+  }
+
+}
+
+$khuvuc_id = array('north_central_region' =>21250,
+					'mid_central_region' =>21251,
+					'south_central_region' =>21252,
+					'south_region' =>21253,
+					'central_highlands' =>21254);
+
+function count_tram_tinh($tentinh){
+	  $views = _datalogger_views_get_view_result('quan_ly_tinh', 'block_1', array($tentinh), FALSE, TRUE);
+	  $sotram = $views->total_rows;
+    
+}  
+          
+function count_tinh_khu_vuc($tenkhuvuc){
+	  $views = _datalogger_views_get_view_result('quanly/khuvuc', 'block_1', array($tenkhuvuc), FALSE, TRUE);
+	  $sotinh = $views->total_rows;
+   
+}          
+/*	
+function datalogger_node_insert($node) {
+
+	if ($node->type == 'province') {
+  
+	  $tenkhuvuc = $node->field_tinh_khu_vuc['und'][0]['value'];
+	  $views = _datalogger_views_get_view_result('khuvuc', 'block_1', array($tenkhuvuc), FALSE, TRUE);
+	  $sotinh = $views->total_rows;
+    
+    $node = node_load($khuvuc_id[$tenkhuvuc]);
+    //node_object_prepare($node);
+    $node->field_khuvuc_sotinh['und'][0]['value'] = $sotinh;
+    $node = node_submit($node);   
+    node_save($node);
+    dpm($sotinh);
+    
+	} 
+  
+  /*station
+  if ($node->type == 'station') {
+  
+	  $tentinh = $node->field_tinh_khu_vuc['und'][0]['value'];
+	  $views = _datalogger_views_get_view_result('ql_tram', 'block_1', array($tentinh), FALSE, TRUE);
+	  $sotinh = $views->total_rows;
+    
+    $node = node_load($tentinh);
+    //node_object_prepare($node);
+    $node->field_khuvuc_sotinh['und'][0]['value'] = $sotinh;
+    $node = node_submit($node);
+    dpm('b');
+    
+    node_save($node);
+    dpm('c');
+    dpm($sotinh);
+    
+	}
+}*/
+
+function _datalogger_views_get_view_result($viewname, $display_id = NULL, $args = NULL, $content_only = false, $data_only = false) {
+  $view = views_get_view($viewname);
+  if(is_object($view)) {
+    if(is_array($args)) {
+      $view->set_arguments($args);
+	 //dpm($args);
+    }
+
+    if(is_string($display_id)) {
+      $view->set_display($display_id);
+    } else {
+      $view->init_display();
+    }
+    $view->pre_execute();
+    $view->execute();
+    
+
+    if($data_only)
+      return $view;
+    $count = $view->total_rows;
+
+    if($content_only)
+      return $view->preview();
+    else
+      return array(
+          'count' => $count,
+          'content' => $view->preview()
+      );
+  } else {
+    return t('View %viewname not found.', array(
+        '%viewname' => $viewname
+    ));
+  }
+  
+  $view = views_get_current_view();
+}
+

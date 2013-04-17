@@ -3,6 +3,7 @@ error_reporting(E_ALL);
 require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel.php';
 
 function _export_excel($args){
+ 
 	$nid = $args[0];
 	$rainfalls = $args[1];
 	
@@ -21,6 +22,7 @@ function _export_excel($args){
   $total_page = (int)$rowcount/$limit_row; //mot ngay co 152 rows
   $j = 0;
 	$row = 0;
+  
   for($page = 0; $page < $total_page; $page++)
   {
 		if($page != 0)
@@ -37,7 +39,7 @@ function _export_excel($args){
     $objPHPExcel->getActiveSheet()->setCellValue('B5', '(mm)');
     $objPHPExcel->getActiveSheet()->setCellValue('C3', 'Lượng tích lũy');
     $objPHPExcel->getActiveSheet()->setCellValue('C5', '(mm)');
-    
+   
 		//gom cac cell lai voi nhau
     $objPHPExcel->getActiveSheet()->mergeCells('B1:C1');
     $objPHPExcel->getActiveSheet()->mergeCells('A2:C2');
@@ -79,7 +81,8 @@ function _export_excel($args){
 
     $cell = $objPHPExcel->getActiveSheet();
     $i = 7;
-    for(; $row < $limit_row * ($page + 1); $row++)
+    
+   /* for(; $row < $limit_row * ($page + 1); $row++)
     {
 			if($row > $rowcount){
 				break;
@@ -91,8 +94,8 @@ function _export_excel($args){
       $cell->setCellValue('B'.$i,$interval);//luong mưa 10'
       $cell->setCellValue('C'.$i,$total);//luong mua mot dot quan trac
       $i++;  
-    }
-		
+    }*/
+       // drupal_exit(); 		
 		//ten tram do mua
     if($nid != null){
 			$name_station = node_load($nid);
@@ -107,7 +110,8 @@ function _export_excel($args){
     
     $objPHPExcel->getActiveSheet()->setTitle('Trang '.($page+1));
   }
-  
+  //drupal_exit();
+  //return "abd";
   $objPHPExcel->setActiveSheetIndex(0);
   require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel/IOFactory.php';
   $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
@@ -115,5 +119,5 @@ function _export_excel($args){
   header('Content-type: application/vnd.ms-excel');
   header('Content-Disposition: attachment; filename="Báo cáo dữ liệu mưa - Trạm ' . $name_station->title . ' - ' . date('m',time()) . '-' . date('Y',time()) . '.xlsx"');
   $objWriter->save('php://output');
-  drupal_exit();
+  drupal_exit(); 
 }

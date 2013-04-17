@@ -51,7 +51,7 @@ class TimefieldPluginStyleMinical extends views_plugin_style {
       $form['data_source'] = array(
         '#type' => 'select',
         '#title' => t('Data Source'),
-        '#description' => t('Which whence the weekly summary data?'),
+        '#description' => t('What field provides the weekly summary (timefield) data?'),
         '#options' => $data_source_options,
         '#default_value' => $this->options['data_source'] ? $this->options['data_source'] : '',
       );
@@ -59,6 +59,7 @@ class TimefieldPluginStyleMinical extends views_plugin_style {
       $form['box_source'] = array(
         '#type' => 'select',
         '#title' => t('Fill in Text'),
+        '#description' => t('What field provides the content for the mini-calendar table cell?'),
         '#options' => $box_source_options,
         '#default_value' => $this->options['box_source'] ? $this->options['box_source'] : '',
       );

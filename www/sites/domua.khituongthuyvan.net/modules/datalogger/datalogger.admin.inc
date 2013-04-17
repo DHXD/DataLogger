@@ -665,7 +665,7 @@ function _datalogger_report_rainfall_day_form($form, &$form_state){
 	$form['txtNameKS']['#access']=FALSE;
 	$form['txtNamePT']['#access']=FALSE;
 	$form['selectReport']['#access']=FALSE;
-	
+	//dpm('asd');
   $form["submit"] = array(
       "#type" => "submit",
       "#value" => t("Report"),
@@ -716,7 +716,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
     
 		if($nid) {  
 			$node = node_load($nid);
-      dpm($node);
+      
 			$code = _datalogger_language_field($node, 'field_station_code');
       for ($i = strlen($code); $i < 6; $i++)  $code = '0' . $code;    // add 0 to max 6 chars.
       
@@ -1684,8 +1684,93 @@ function _datalogger_new_sms_form(){
 		$last = (int)$last+1;
 	}
 	
-  $result = db_query("SELECT * FROM `inbox` ORDER BY  `inbox`.`ID` DESC LIMIT ". $offset.",".$num_per_page."");
-	$rows = array();
+  //$result = db_query("SELECT * FROM `inbox` ORDER BY  `inbox`.`ID` DESC LIMIT ". $offset.",".$num_per_page."");
+	
+  /*$query = "SELECT * FROM `inbox` ORDER BY  `inbox`.`ID` DESC";
+  $result = pager_query(db_rewrite_sql($query));*/
+  
+  
+  
+  //bat dau them vao
+  
+   $output = '';
+ 
+  // Table header
+  $header = array(
+    array('data' => 'Title', 'field' => 'title'),
+    array('data' => 'Type', 'field' => 'type'),
+  );
+ 
+  // Setting the sort conditions
+  if(isset($_GET['sort']) && isset($_GET['order'])) {
+    // Sort it Ascending or Descending?
+    if($_GET['sort'] == 'asc')
+      $sort = 'ASC';
+    else
+      $sort = 'DESC';
+ 
+    // Which column will be sorted
+    switch($_GET['order']) {
+      case 'Title':
+        $order = 'title';
+        break;
+      case 'Type':
+        $order = 'type';
+        break;
+      default:
+        $order = 'title';
+    }
+  }
+  else {
+    $sort = 'ASC';
+    $order = 'title';
+  }
+ 
+ 
+  $other_database = array(
+      'database' => 'datalogger',
+      'username' => 'root', // assuming this is necessary
+      'password' => 'root', // assuming this is necessary
+      'host' => 'localhost', // assumes localhost
+      'driver' => 'mysql', // replace with your database driver
+      'prefix' => '',
+  );
+  // replace 'YourDatabaseKey' with something that's unique to your module
+  Database::addConnectionInfo('YourDatabaseKey', 'default', $other_database);
+  db_set_active('YourDatabaseKey');
+
+  // execute queries here
+  
+  // Query object
+  $query = db_select("inbox", "i");
+   
+  // Adding fields
+  $query->fields('i', array('UpdatedInDB', 'SenderNumber', 'RecipientID', 'Processed'));
+ 
+  // Set order by
+  ///$query->orderBy($order, $sort);
+ 
+  // Pagination
+  ///$query = $query->extend('TableSort')->extend('PagerDefault')->limit(2);
+  $query = $query->extend('PagerDefault')->limit(50);
+ 
+  // Executing query
+  $result = $query->execute();
+   
+  db_set_active(); // without the paramater means set back to the default for the site
+  
+  // Looping for filling the table rows 
+  /*while($data = $result->fetchObject()) {
+    // Adding the rows
+    $rows[] = array($data->title, $data->type);
+  }*/
+ 
+
+  //ket thuc viec them 
+  
+  
+  
+  $rows = array();
   while($row = $result->fetchObject()){
 		$number = _datalogger_convert_number($row->SenderNumber);
 		$station = views_get_view_result('view_station_find', Null, $number );
@@ -1723,10 +1808,14 @@ function _datalogger_new_sms_form(){
 
   }
 	
-  $retval = theme('table', array(
+  /*$retval = theme('table', array(
                 'header' => $headers,
                 'rows' => $rows
-                 ));
+                 ));*/
+                 
+     
+  
+     
 	$output = theme_table(
     array(
       "header" => $headers,
@@ -1738,6 +1827,7 @@ function _datalogger_new_sms_form(){
       "empty" => t("Table has no row!") // The message to be displayed if table is empty
     )
   ).theme("pager");
+  //).theme('pager', array('quantity' => $total));
 	
   $prevpage = $page - 1;
   $nextpage = $page + 1;
@@ -1753,6 +1843,214 @@ function _datalogger_new_sms_form(){
 	}
   return $output;
 }
+
+function _datalogger_new_outbox_form (){
+$page = arg(3);
+	$headers = array(
+    no => t('No.'),
+		station_name => t('Station Name'),
+    sending_date_time => t('Sending Date Time'),
+    delivery_date_time => t('Delivery Date Time'),
+    sending_time_out => t('Sending Time out'),
+    destination_number => t('Destination Number'),
+    message_content => t('Message content'),
+		Modem => t('Modem'),
+  );
+  $num_per_page = 50;
+  $offset=$num_per_page*$page;
+	$total = db_query("SELECT COUNT(*) total FROM `outbox` ORDER BY  `outbox`.`ID` DESC LIMIT 0,500");
+	$number_rows = $total->fetch()->total;
+	$last = $number_rows/$num_per_page;
+	if(!is_int($last)){
+		$last = (int)$last+1;
+	}
+	
+  $result = db_query("SELECT * FROM `outbox` ORDER BY  `outbox`.`ID` DESC LIMIT ". $offset.",".$num_per_page."");
+	
+  /*$query = "SELECT * FROM `sentitems` ORDER BY  `sentitems`.`ID` DESC";
+  $result = pager_query(db_rewrite_sql($query));*/
+  
+  
+  $rows = array();
+  while($row = $result->fetchObject()){
+		$number = _datalogger_convert_number($row->SenderNumber);
+		$station = views_get_view_result('view_station_find', Null, $number );
+		if(!empty($station)){
+			$station_name = $station[0]->node_title;
+		}
+		else{
+			$station_name = null;	
+		}
+    
+    $sms = $row -> TextDecoded;
+    $len_sms = strlen($row->TextDecoded);
+
+    // highlight
+    
+    //X? lý tin nh?n du?c yêu c?u:88byte
+    if($len_sms == 88) {
+      $sms = '<span style="background:blue;color:white;font-weight:bold">' . $sms . '</span>';
+    }
+    //X? lý b?n tin do mua t? d?ng:140byte
+    elseif($len_sms == 140) {
+      $sms = _datalogger_regex_rain($sms);      
+    }			
+    
+    $rows[] = array (
+			$offset+=1,
+			// $station[0]->node_title,
+			$station_name,
+			$row -> UpdatedInDB,
+      $row -> SendingDateTime,
+      $row -> SendingTimeout,
+			$row -> DestinationNumber,
+			$sms,
+			$row -> RecipientID,
+			);
+
+  }
+	
+  /*$retval = theme('table', array(
+                'header' => $headers,
+                'rows' => $rows
+                 ));*/
+                 
+     
+  
+     
+	$output = theme_table(
+    array(
+      "header" => $headers,
+      "rows" => $rows,
+      "attributes" => array(),
+      "sticky" => true, // Table header will be sticky
+      "caption" => t('Date').': '.date('d/m/Y',time()),
+      "colgroups" => array(),
+      "empty" => t("Table has no row!") // The message to be displayed if table is empty
+    )
+  ).theme("pager");
+  //).theme('pager', array('quantity' => $total));
+	
+  $prevpage = $page - 1;
+  $nextpage = $page + 1;
+  if($page > 0){
+    $output = $output . l(t("<< first"),"gammu/outbox/new");
+    $output = $output . l(t("< previous"),"gammu/outbox/new/".$prevpage). "  ";
+  }
+	if($number_rows > $num_per_page){
+		if($nextpage < $last){
+			$output = $output . l(t("next >"),"gammu/outbox/new/".$nextpage);
+			$output = $output . l(t("last >>"),"gammu/outbox/new/".($last - 1));
+		}
+	}
+  return $output;
+}
+
+
+function _datalogger_new_sentitems_form(){
+
+	$page = arg(3);
+	$headers = array(
+    no => t('No.'),
+		station_name => t('Station Name'),
+    receiving_date_time => t('Sending Date Time'),
+    delivery_date_time =>t('Delivery Date Time'),
+    destination_number => t('Destination Number'),
+    message_content => t('Message content'),
+		Modem => t('Modem'),
+    status => t('Status'),
+  );
+  $num_per_page = 50;
+  $offset=$num_per_page*$page;
+	$total = db_query("SELECT COUNT(*) total FROM `sentitems` ORDER BY  `sentitems`.`ID` DESC LIMIT 0,500");
+	$number_rows = $total->fetch()->total;
+	$last = $number_rows/$num_per_page;
+	if(!is_int($last)){
+		$last = (int)$last+1;
+	}
+	
+  $result = db_query("SELECT * FROM `sentitems` ORDER BY  `sentitems`.`ID` DESC LIMIT ". $offset.",".$num_per_page."");
+	
+  /*$query = "SELECT * FROM `sentitems` ORDER BY  `sentitems`.`ID` DESC";
+  $result = pager_query(db_rewrite_sql($query));*/
+  
+  
+  $rows = array();
+  while($row = $result->fetchObject()){
+		$number = _datalogger_convert_number($row->SenderNumber);
+		$station = views_get_view_result('view_station_find', Null, $number );
+		if(!empty($station)){
+			$station_name = $station[0]->node_title;
+		}
+		else{
+			$station_name = null;	
+		}
+    
+    $sms = $row -> TextDecoded;
+    $len_sms = strlen($row->TextDecoded);
+
+    // highlight
+    
+    //X? lý tin nh?n du?c yêu c?u:88byte
+    if($len_sms == 88) {
+      $sms = '<span style="background:blue;color:white;font-weight:bold">' . $sms . '</span>';
+    }
+    //X? lý b?n tin do mua t? d?ng:140byte
+    elseif($len_sms == 140) {
+      $sms = _datalogger_regex_rain($sms);      
+    }			
+    
+    $rows[] = array (
+			$offset+=1,
+			// $station[0]->node_title,
+			$station_name,
+			$row -> UpdatedInDB,
+      $row -> SendingDateTime,
+      $rorw -> DeliveryDateTime,
+			$row -> DestinationNumber,
+			$sms,
+			$row -> RecipientID,
+      $row -> Status,
+			);
+
+  }
+	
+  /*$retval = theme('table', array(
+                'header' => $headers,
+                'rows' => $rows
+                 ));*/
+                 
+     
+  
+     
+	$output = theme_table(
+    array(
+      "header" => $headers,
+      "rows" => $rows,
+      "attributes" => array(),
+      "sticky" => true, // Table header will be sticky
+      "caption" => t('Date').': '.date('d/m/Y',time()),
+      "colgroups" => array(),
+      "empty" => t("Table has no row!") // The message to be displayed if table is empty
+    )
+  ).theme("pager");
+  //).theme('pager', array('quantity' => $total));
+	
+  $prevpage = $page - 1;
+  $nextpage = $page + 1;
+  if($page > 0){
+    $output = $output . l(t("<< first"),"gammu/sentintems/new");
+    $output = $output . l(t("< previous"),"gammu/sentintems/new/".$prevpage). "  ";
+  }
+	if($number_rows > $num_per_page){
+		if($nextpage < $last){
+			$output = $output . l(t("next >"),"gammu/sentintems/new/".$nextpage);
+			$output = $output . l(t("last >>"),"gammu/sentintems/new/".($last - 1));
+		}
+	}
+  return $output;
+}
+
 
 function _datalogger_regex_rain($sms) {
 
@@ -3355,3 +3653,4 @@ function digipro_views_get_view_result($viewname, $display_id = NULL, $args = NU
     ));
   }
 }
+
