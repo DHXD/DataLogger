@@ -93,11 +93,12 @@ function _command_form($form, &$form_state) {
 	if(count(arg()) == 2){
 		$nid = intval(arg(1));
 		$node = node_load($nid);
-		drupal_set_title(t('Rainfall stations: ').t($node->title));
+		drupal_set_title(t('Rainfall stations: '). ($node->title));
 	}
   $default = arg(2) ? arg(2) :
     (!empty($form_state['values']['command_selects']) ? $form_state['values']['command_selects'] : 1);
   $title = $options_commands[$default];
+  
   
   $form['command_selects'] = array(
     "#type" => "select",
@@ -133,7 +134,8 @@ function _command_form($form, &$form_state) {
     '#suffix' => '</div>',
     '#type' => 'fieldset',
   );
-	
+  
+  
 	
   switch ($default) {
     //Data call command
@@ -1294,4 +1296,9 @@ function _datalogger_insert_outbox($phone, $sms, $modem){
 
 function _datalogger_check_empty($arg1, $arg2){
   return form_set_error($arg1,t('Trường <b>').t($arg2).t('</b> không được để trống'));
+}
+
+/* for ahah */
+function _command_callback($form, &$form_state) {
+  return $form['command_fieldset'];
 }

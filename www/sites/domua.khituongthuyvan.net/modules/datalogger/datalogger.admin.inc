@@ -2066,10 +2066,6 @@ function _log_rainfalls() {
 
 }
 
-function _command_callback($form, &$form_state) {
-  return $form['command_fieldset'];
-}
-
 
 
 function _view_translate_station() {
