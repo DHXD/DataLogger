@@ -1,7 +1,7 @@
 <?php
 
 global $khuvuc;   
-        require 'khuvuc.php';
+require 'khuvuc.php';
         
 /**
  *Author:hungnm0302
@@ -68,8 +68,8 @@ function datalogger_openlayers_styles(&$map) {
  */	
 function datalogger_form_alter(&$form, &$form_state, &$form_id){
 	global $user;
-	$account = user_load($user->uid);
-	if(!in_array('administrator', array_values($account->roles))){
+	
+	if(!in_array('administrator', array_values($user->roles))){
 		if($form_id = 'views_exposed_form'){
 			if($form['#id'] == 'views-exposed-form-view-command-send-station-page' || 
 				$form['#id'] == 'views-exposed-form-view-rainfall-default-page' ||
@@ -82,7 +82,7 @@ function datalogger_form_alter(&$form, &$form_state, &$form_id){
 					//danh sach tinh / thanh pho
 					$provinces = array();
 					$provinces['All'] = t('- Any -');
-					$provinces = array_merge($provinces, _datalogger_return_city2($account->field_station_region['und'][0]['value']));
+					$provinces = array_merge($provinces, _datalogger_return_city2($user->field_station_region['und'][0]['value']));
 					$form['field_station_province_city_value']['#options'] = $provinces;
 					
 					//them moi nut xuat bao cao
@@ -110,32 +110,8 @@ function datalogger_form_alter(&$form, &$form_state, &$form_id){
 					$form['field_rainfall_send_time_value']['min']['#date_format'] = 'd/m/Y H:i';
 					$form['field_rainfall_send_time_value']['max']['#date_format'] = 'd/m/Y H:i';
 					
-					$region_station = $account->field_station_region['und'][0]['value'];
-					for($i = 0; $i < count (array_keys($provinces)); $i++){
-
-						//$province = array_keys($provinces)[$i];
-
-						if($province == 'All'){
-							$stations_list = views_get_view_result('view_station_filter_parameter', Null,	$region_station, 'all', 'all');
-						}
-						else{
-							$stations_list = views_get_view_result('view_station_filter_parameter', Null,	$region_station, $province, 'all');
-						}
-						$stations = array();
-						// $stations['All'] = t('- Any -');
-						foreach($stations_list as $station){
-							$stations['key-' . $station->nid] = $station->node_title;
-							$stations_view[$station->nid] = $station->node_title;
-							
-						}
-						$station_follow_provinces[$province] = $stations;
-					}
-					
-					
-					// drupal_add_js(drupal_get_path('module', 'datalogger').'/list_station_follow_province.js');
-					// drupal_add_js(array('datalogger' => array('list_station_province' => $station_follow_provinces)),'setting');
-					//thiet lap gia tri tham so cho file javascript
-					drupal_add_js(array('datalogger' => array('list_station_province' => $station_follow_provinces)),'setting');
+          _datalogger_alter_add_js_stations($provinces, $province);
+          
 					//view cac lenh da thuc hien theo tung khu vuc 
 					/*view: thong ke lương mua
 					 *view: tra cuu so lieu mua
@@ -165,6 +141,52 @@ function datalogger_form_alter(&$form, &$form_state, &$form_id){
 		}
 	}
 }
+
+
+function _datalogger_alter_add_js_stations(&$provinces) {
+  global $user, $khuvuc;
+  
+  //$account = user_load($user->uid);  
+  //$region_station = $account->field_station_region['und'][0]['value'];
+  
+  $region_station = $khuvuc[0];
+  
+  dpm($region_station);
+  dpm($khuvuc);
+  dpm($provinces);
+  
+  for($i = 0; $i < count (array_keys($provinces)); $i++){
+
+    $province = array_keys($provinces)[$i];
+    dpm($province);
+    
+    if($province == 'All'){
+      $stations_list = views_get_view_result('view_station_filter_parameter', Null,	$region_station, 'all', 'all');
+    }
+    else{
+      $stations_list = views_get_view_result('view_station_filter_parameter', Null,	$region_station, $province, 'all');
+    }
+    dpm($stations_list);
+    
+    $stations = array();
+    // $stations['All'] = t('- Any -');
+    foreach($stations_list as $station){
+      $stations['key-' . $station->nid] = $station->node_title;
+      $stations_view[$station->nid] = $station->node_title;
+      
+    }
+    $station_follow_provinces[$province] = $stations;
+  }
+  
+  dpm($station_follow_provinces);
+  
+  // drupal_add_js(drupal_get_path('module', 'datalogger').'/list_station_follow_province.js');
+  // drupal_add_js(array('datalogger' => array('list_station_province' => $station_follow_provinces)),'setting');
+  //thiet lap gia tri tham so cho file javascript
+  drupal_add_js(array('datalogger' => array('list_station_province' => $station_follow_provinces)),'setting');
+  
+}
+
  /**
  *Begin:15/11. 
  *Implements hook_views_pre_render().
@@ -173,7 +195,8 @@ function datalogger_form_alter(&$form, &$form_state, &$form_id){
  */	
  
 function datalogger_views_pre_render(&$view) {
-  global $user;
+  //drupal_set_message($view->name);
+  global $user; 
   if($view->name == "view_list_user") {
 			for($i; $i < $view->total_rows; $i++){
 				if($view->result[$i]->uid == 1){
@@ -185,10 +208,10 @@ function datalogger_views_pre_render(&$view) {
 		if (!in_array('administrator', array_values($user->roles)) && !in_array('control datalogger', array_values($user->roles))) {
 			unset($view->field['nid']);
 		}
-		if ($user->uid != 1)	unset($view->field['nid']);		
+		//if ($user->uid != 1)	unset($view->field['nid']);		
 	}	
 	else if($view->name == "view_list_stations") {
-		if ($user->uid != 1)	unset($view->field['nid']);		
+		//if ($user->uid != 1)	unset($view->field['nid']);		
 	}	  
 } 
 
@@ -698,7 +721,7 @@ $items['gammu/sentitems/error'] = array(
     'page arguments' => array(
         '_command_form'
     ),
-    'file' => 'datalogger.admin.inc',
+    'file' => 'datalogger.admin.control-datalogger.inc',
     'access callback' => '_datalogger_menu_access_callback_command',
   );
   
@@ -1047,4 +1070,225 @@ function _datalogger_views_get_view_result($viewname, $display_id = NULL, $args 
   
   $view = views_get_current_view();
 }
+
+function _datalogger_select_area_province_station(&$form, &$form_state) {
+	module_load_include('module', 'datalogger','datalogger');
+  
+  $module_path = drupal_get_path('module', 'datalogger');
+  
+  drupal_add_js($module_path . '/list_station_follow_province.js');
+  
+	
+	$form['selectReport'] = array(
+    '#type' => 'select',
+    '#title' => t('Select the type of report: '),
+		// '#weight' => 1,
+    '#options' => array(
+      'bk1' => t('Reported rainfall data in report form BKT-14'),
+     ),
+  );
+	
+	global $user;
+	$account = user_load($user->uid,true);
+	foreach($account->field_station_region['und'] as $region){
+		if ($form_state['lock-region'] && $region['value'] == $form_state['values']['selectArea'] || !$form_state['lock-region']) 
+      $regions[$region['value']] = _datalogger_return_area($region['value']);
+	}
+	
+	$value_select_area = isset($form_state['values']['selectArea']) ? $form_state['values']['selectArea'] : key($regions);
+  $form['selectArea'] = array(
+    '#type' => 'select',
+    '#title' => t('Chọn khu vực: '),
+    '#options' => $regions,
+		'#default_value' => $value_select_area,
+		// '#weight' => 2,
+		/*'#ajax' => array(
+      'event'=>'change',
+      'callback' =>'_datalogger_ajax_dropdown_area',
+      'wrapper' => 'area-wrapper',
+			'method' => 'replace',
+      'effect' => 'fade',
+    ),*/
+  );
+	
+	$form['selectProvince'] = array(
+	 '#prefix' => '<div id="area-wrapper">',
+	 '#suffix' => '</div>',
+	);
+	
+	$value_select_province = isset($form_state['values']['province']) ? $form_state['values']['province'] : key(_datalogger_return_city2($value_select_area));
+	$form['selectProvince']['province'] = array(
+		'#type' => 'select',
+		'#title' => t('Chọn Tỉnh/ Thành phố: '),
+		'#options' => _datalogger_return_city2($value_select_area),
+		'#default_value' => $value_select_province,
+		// '#weight' => 3,
+		/*'#ajax' => array(
+      'event'=>'change',
+      'callback' =>'_datalogger_ajax_dropdown_province',
+      'wrapper' => 'province-wrapper',
+			'method' => 'replace',
+      'effect' => 'fade',
+    ),*/
+	); 
+	$form['selectStation'] = array(
+	 '#prefix' => '<div id="province-wrapper">',
+	 '#suffix' => '</div>',
+	);
+	
+	//$stations = views_get_view_result('view_station_filter_parameter', Null, 	$value_select_area, $value_select_province, 'all');
+  $stations = views_get_view_result('view_station_filter_parameter', Null, 	$value_select_area, 'all', 'all');
+	foreach($stations as $station){
+		$station_name[$station->nid] = $station->node_title;
+	}
+  
+    
+  global $khuvuc;
+  
+  // add provinces to Drupal.settings
+  $provinces = array();
+					$provinces['All'] = t('- Any -');
+					$provinces = array_merge($provinces, _datalogger_return_city2($khuvuc[0] /*$account->field_station_region['und'][0]['value']*/));
+					//$form['field_station_province_city_value']['#options'] = $provinces;
+  
+  _datalogger_alter_add_js_stations($provinces);
+	
+	$form['selectStation']['station'] = array(
+		 '#type' => 'select',
+		 '#title' => t('Select station: '),
+		 '#options' => $station_name,
+		 // '#weight' => 4,
+		 '#default_value' => isset($form_state['values']['station']) ? $form_state['values']['station']: key($station_name),
+	);
+	
+	$years = array();
+	for($i = 0; $i <30; $i++){
+		$year = 2012 + $i;
+		$years[$year] = $year;
+	}
+	
+	$months = array();
+	for($i = 1; $i < 13; $i++){
+		$months[$i] = $i;
+	}
+	
+	$form['year'] = array(
+		 '#type' => 'select',
+		 '#title' => t('Year'),
+		 '#options' => $years,
+		 '#default_value' => key($years),
+		 // '#weight' => 5,
+	);
+	
+	$form['month'] = array(
+     '#type' => 'select',
+     '#title' => t('Month'),
+     '#options' => $months,
+		 // '#weight' => 6,
+  );
+	
+	$form['day'] = array(
+     '#type' => 'date_popup',
+     '#date_format' => 'd/m/Y', 
+		 '#required' => TRUE,	
+		 // '#weight' => 7,
+  );
+	
+	
+	
+  $form['txtNameQTV'] = array(
+     '#type' => 'textfield',
+     '#title' => t('Full name of the person observation: '),
+		 // '#weight' => 8,
+  );  
+  
+  $form['txtNameNLB'] = array(
+     '#type' => 'textfield',
+     '#title' => t('Full name of the person creating the table: '),
+		 // '#weight' => 9,
+  );    
+  
+  $form['txtNameKS'] = array(
+     '#type' => 'textfield',
+     '#title' => t('Full name of the person control: '),
+		 // '#weight' => 10,
+		 // '#weight' => 10,
+  );    
+  
+  $form['txtNamePT'] = array(
+     '#type' => 'textfield',
+     '#title' => t('Full name of person Appeal: '),
+		 // '#weight' => 11,
+		 // '#weight' => 11,
+  );
+  
+  $form["notice_excel_2007"] = array(      
+      '#prefix' => '<div class="" style="margin-bottom: 15px;">',
+	  '#suffix' => '</div>', 
+	  "#markup" => t("For better rendering, downloaded file format will be Excel 2007. If you cannot read XLSX file format, please download and install Microsoft compability pack at: <a href='http://www.microsoft.com/en-us/download/details.aspx?id=3'>http://www.microsoft.com/en-us/download/details.aspx?id=3</a>."),    
+		// '#weight' => 12,
+		// '#weight' => 12,
+  ); 
+	return $from;
+}
+
+
+/**
+ *Lấy dữ liệu datalogger trả về.
+ */
+
+function _datalogger_result($sms, $pa = ''){ 	
+	global $datalogger_pattern;
+	
+	$pattern = $datalogger_pattern;
+	
+	if(empty($pa) || $pa == '') {
+		for($i = 0; $i < count($pattern); $i++ ){
+			$len = strlen($pattern[$i]);
+			$pos =  strpos($sms, $pattern[$i]);
+			if(!empty($pos)){
+				return trim(substr($sms,$pos+$len,-3));
+			}
+		}
+	}
+	else {
+		$len = strlen($pa);
+		$pos =  strpos($sms, $pa);
+		if(!empty($pos)) {
+			return trim(substr($sms, $pos + $len, -3));
+		}
+	}
+	return '';
+}
+
+function digi_debug($s, $exit=0, $file=0)
+{
+	
+	if ($file)
+	{
+		$myFile = "c:/testFile.txt";
+		$fh = fopen($myFile, 'a') or die("can't open file");
+		
+		ob_start();
+		print_r($s);
+		$out = ob_get_contents();
+		ob_end_clean();
+		
+		fwrite($fh, $out);
+		fwrite($fh, "\n\n");
+		fclose($fh);
+	}
+	else {
+		print "<pre>";
+		print_r($s);		
+		print "</pre>";
+	}
+	
+	if ($exit) exit;
+}
+
+
+
+
+   
 

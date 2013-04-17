@@ -1,25 +1,48 @@
 //thay doi gia tri tram do mưa theo tinh thanh quan ly
 (function ($){
   $(document).ready(function(){
-    $('#edit-field-station-province-city-value').change( function () {
+    var function_change = function () {
+    
+      console.log('change....' + this.id);
+      
+      var station_id;
+      
+      switch(this.id) {
+      case 'edit-province':
+        station_id = '#edit-station';
+        break;
+      case 'edit-field-station-province-city-value':
+        station_id = '#edit-field-rainfall-station-nid';
+        break;
+      }
+      
+      var tram = $(station_id);
+      
 			var filter = $(this).val();
+      console.log('$(this).val()', $(this).val());
 			// /*
-			var index = $('#edit-field-rainfall-station-nid').val();
+			var index = tram.val();
 			console.log(index);
-			$('#edit-field-rainfall-station-nid').empty();
-			var tram = $('#edit-field-rainfall-station-nid');
+			tram.empty();
+			
 			if(tram.prop) {
 				var options = tram.prop('options');
 			}
 			else {
 				var options = tram.attr('options');
 			}
+      
+      console.log(['Drupal.settings.datalogger.list_station_province', Drupal.settings.datalogger.list_station_province]);
+      
 			$.each(Drupal.settings.datalogger.list_station_province[filter], function(key, text) {
 				var nid = key.substr(4);
 				options[options.length] = new Option(text, nid);
 			});		
-			$('#edit-field-rainfall-station-nid').val(index);
+			tram.val(index);
 			// */
-		}).change();
+		}
+    
+    $('select#edit-field-station-province-city-value').change( function_change ).change();
+    $('select#edit-province').change( function_change ).change();
   });
 })(jQuery);
