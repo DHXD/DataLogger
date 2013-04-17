@@ -616,7 +616,7 @@ $items['gammu/sentitems/error'] = array(
  $items['manage/log/rainfall'] = array(
     'title' => 'Integrated log data',
     'page callback' => '_log_rainfall_form',
-    'file' => 'datalogger.admin.inc',
+    'file' => 'datalogger.admin.staticstics.inc',
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
   );
  
