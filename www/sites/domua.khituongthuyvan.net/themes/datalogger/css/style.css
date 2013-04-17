@@ -1901,3 +1901,15 @@ div#header.with-secondary-menu div.section div.section ul#superfish-1{
 div#header.with-secondary-menu div.section div.section div.region div#block-locale-language.block div.content {
 	margin-top: 34px;
 }
+
+
+/* command form */
+form#-command-form div div.form-item select.form-select
+ {
+  width: 200px;
+}
+
+form#-command-form div div.form-item select#edit-command-selects.form-select {
+  width: 500px;
+}
+
