@@ -1913,3 +1913,11 @@ form#-command-form div div.form-item select#edit-command-selects.form-select {
   width: 500px;
 }
 
+div.title {
+  font-weight: bold;
+  font-size: 15pt;
+}
+
+div#header {
+  height: 186px;
+}
