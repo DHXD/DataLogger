@@ -1049,7 +1049,7 @@ function _datalogger_new_sms_form() {
   
   
   // Setting the output of the field
-  $output = theme_table(
+  $output = theme('pager').theme_table(
     array(
       'header' => $header,
       'rows' => $rows,

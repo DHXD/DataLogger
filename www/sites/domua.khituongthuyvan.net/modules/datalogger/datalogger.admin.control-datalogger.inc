@@ -469,9 +469,10 @@ function _datalogger_submit_command_callback($form, &$form_state) {
   $form['submit_command_fieldset']['#title'] = t('Command Result') . ': ' . date('d/m/Y - H:i:s', time());
   //$element['#markup'] = "Clicked submit";
   
+  $node_view = node_view($node_command);
   if ($node_command->nid) {
     $form['submit_command_fieldset']['date_time_from'] = array(    
-      '#markup' => drupal_render(node_view($node_command)),    
+      '#markup' => drupal_render($node_view),    
     );
   }
   else {
@@ -737,15 +738,18 @@ function _command_validate($form, &$form_state) {
 
 function _send_command_submit($form, &$form_state) {
 
-  //dpm($form_state);
-
   $nid = intval(arg(1)) ? intval(arg(1)) : $form_state['values']['nid'];
   
-  if($nid == 0 && $form_state['values']['station']) $nid = $form_state['values']['station'];
+  if($nid == 0 && $form_state['values']['station']) {
+    $nid = $form_state['values']['station'];
+    $form_state['values']['station_nid'] = array('command', $nid);
+  }
   
   //dpm($form_state);
   
   //dpm($nid);
+  
+  
   
   $form['nid'] = array(
     '#type' => 'hidden', 
@@ -770,11 +774,17 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
   define('DATEYmdHi', date('YmdHi',time()));  
   
   $nids = $form_state['values']['station_nid'];
+  
+  //dpm($nids);
+  
 	for($i_nid = 1; $i_nid < count($nids); $i_nid++ ) {
     $nid = intval($nids[$i_nid]);
     
+    
 		if($nid) {  
 			$node = node_load($nid);
+      
+      //dpm($node);
       
 			$code = _datalogger_language_field($node, 'field_station_code');
       for ($i = strlen($code); $i < 6; $i++)  $code = '0' . $code;    // add 0 to max 6 chars.
