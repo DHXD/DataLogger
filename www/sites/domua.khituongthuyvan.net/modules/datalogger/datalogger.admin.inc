@@ -1317,13 +1317,6 @@ function _datalogger_regex_rain($sms) {
 
 
 
-/**s
-*begin: 25-09-12
-*/
-
-function _datalogger_convert_date($strFormat = 'ymdhis', $strDate){
-  return date($strFormat, strtotime($strDate));
-}
 
 /**
 *begin: 11-09-12

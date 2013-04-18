@@ -100,6 +100,11 @@ function _command_form($form, &$form_state) {
   $title = $options_commands[$default];
   
   
+  if (arg(1) == 0) {  // lock command
+    $options_commands = array($default => $options_commands[$default]);
+    //dpm('aaaaaaa');
+  }
+  
   $form['command_selects'] = array(
     "#type" => "select",
     "#title" => t("Command"),
@@ -113,6 +118,7 @@ function _command_form($form, &$form_state) {
     ),
   );
 	$station_nid = !empty($form_state['values']['station_nid']) ? $form_state['values']['station_nid'] : arg();
+  if ($station_nid[1] == 0) $station_nid = null;
 	$form['station_nid'] = array(
     '#type' => 'hidden',    
     '#value' => $station_nid,
@@ -423,6 +429,11 @@ function _command_form($form, &$form_state) {
       break;
   }
   
+  if (count(array_keys($form['command_fieldset'])) == 4) {    // empty 
+    $form['command_fieldset']['empty']= array(
+      '#markup' => t('(Không có).'),      
+    );
+  }
   
 	$form["submit"] = array(
       "#type" => "submit",
@@ -466,18 +477,23 @@ function _datalogger_submit_command_callback($form, &$form_state) {
   
   $element = &$form['submit_command_fieldset'];
   
-  $form['submit_command_fieldset']['#title'] = t('Command Result') . ': ' . date('d/m/Y - H:i:s', time());
-  //$element['#markup'] = "Clicked submit";
-  
-  $node_view = node_view($node_command);
-  if ($node_command->nid) {
-    $form['submit_command_fieldset']['date_time_from'] = array(    
-      '#markup' => drupal_render($node_view),    
-    );
+  if ($node_command) {
+    $form['submit_command_fieldset']['#title'] = t('Command Result') . ': ' . date('d/m/Y - H:i:s', time());
+    //$element['#markup'] = "Clicked submit";
+    
+    $node_view = node_view($node_command);
+    if ($node_command->nid) {
+      $form['submit_command_fieldset']['date_time_from'] = array(    
+        '#markup' => drupal_render($node_view),    
+      );
+    }
+    else {
+      
+    }
   }
   else {
-    
   }
+  
 	
   return $element;
 }
@@ -743,11 +759,13 @@ function _send_command_submit($form, &$form_state) {
   if($nid == 0 && $form_state['values']['station']) {
     $nid = $form_state['values']['station'];
     $form_state['values']['station_nid'] = array('command', $nid);
+    
+    dpm(array('nid', $nid));
   }
   
-  //dpm($form_state);
+  dpm($form_state[values]);
   
-  //dpm($nid);
+  dpm($nid);
   
   
   
@@ -775,7 +793,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
   
   $nids = $form_state['values']['station_nid'];
   
-  //dpm($nids);
+  dpm(array('nids', $nid));
   
 	for($i_nid = 1; $i_nid < count($nids); $i_nid++ ) {
     $nid = intval($nids[$i_nid]);
@@ -784,7 +802,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
 		if($nid) {  
 			$node = node_load($nid);
       
-      //dpm($node);
+      dpm($node);
       
 			$code = _datalogger_language_field($node, 'field_station_code');
       for ($i = strlen($code); $i < 6; $i++)  $code = '0' . $code;    // add 0 to max 6 chars.
@@ -793,6 +811,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
       
       if (!$phone) {
         drupal_set_message(t('Lỗi đọc số điện thoại trạm.'));
+        return 0;   // node
       }
 			$modem = node_load(_datalogger_language_field($node, 'field_station_modem', 'nid')); 
       switch ($select) {
@@ -1311,4 +1330,13 @@ function _datalogger_check_empty($arg1, $arg2){
 /* for ahah */
 function _command_callback($form, &$form_state) {
   return $form['command_fieldset'];
+}
+
+
+/**s
+*begin: 25-09-12
+*/
+
+function _datalogger_convert_date($strFormat = 'ymdhis', $strDate){
+  return date($strFormat, strtotime($strDate));
 }
