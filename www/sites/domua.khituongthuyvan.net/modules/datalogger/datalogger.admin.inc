@@ -922,108 +922,29 @@ function _datalogger_endsWith($sms, $needle)
 }
 
 /*Ham xu ly cac tin nhắn gửi tới*/
-function _datalogger_new_sms_form(){
-	/*
-	$output = "";
-	$result = db_query("SELECT * FROM `inbox` ORDER BY  `inbox`.`ID` DESC LIMIT 0 , 50");
-	$headers = array(
-    no => t('No.'),
-		station_name => t('Station Name'),
-    receiving_date_time => t('Receiving Date Time'),
-    sender_number => t('Sender Number'),
-    message_content => t('Message content'),
-		Modem => t('Modem'),
-    processed => t('Processed'),
-  );
- 
-  $rows = array();
-  while($row = $result->fetchObject()){
-		$number = _datalogger_convert_number($row->SenderNumber);
-		$station = views_get_view_result('view_station_find', Null, $number );
-		if(!empty($station)){
-			$station_name = $station[0]->node_title;
-		}
-		else{
-			$station_name = null;	
-		}
-    
-    $sms = $row -> TextDecoded;
-    $len_sms = strlen($row->TextDecoded);
-
-    // highlight
-    
-    //Xử lý tin nhắn được yêu cầu:88byte
-    if($len_sms == 88) {
-      $sms = '<span style="background:blue;color:white;font-weight:bold">' . $sms . '</span>';
-    }
-    //Xử lý bản tin đo mưa tự động:140byte
-    elseif($len_sms == 140) {
-      $sms = _datalogger_regex_rain($sms);      
-    }			
-    
-    
-    
-    $rows[] = array (
-			$i+=1,
-			// $station[0]->node_title,
-			$station_name,
-			$row -> UpdatedInDB,
-			$row -> SenderNumber,
-			$sms,
-			$row -> RecipientID,
-      $row -> Processed ? t('Yes') : t('No'),
-			);
-
-  }
-  $output = theme_table(
-    array(
-      "header" => $headers,
-      "rows" => $rows,
-      "attributes" => array(),
-      "sticky" => true, // Table header will be sticky
-      "caption" => t('Date').': '.date('d/m/Y',time()),
-      "colgroups" => array(),
-      "empty" => t("Table has no row!") // The message to be displayed if table is empty
-    )
-  ).theme("pager");
- 
-  return $output;
-	*/
-	
-	$page = arg(3);
-	$headers = array(
-    no => t('No.'),
-		station_name => t('Station Name'),
-    receiving_date_time => t('Receiving Date Time'),
-    sender_number => t('Sender Number'),
-    message_content => t('Message content'),
-		Modem => t('Modem'),
-    processed => t('Processed'),
-  );
-  $num_per_page = 50;
-  $offset=$num_per_page*$page;
-	$total = db_query("SELECT COUNT(*) total FROM `inbox` ORDER BY  `inbox`.`ID` DESC LIMIT 0,500");
-	$number_rows = $total->fetch()->total;
-	$last = $number_rows/$num_per_page;
-	if(!is_int($last)){
-		$last = (int)$last+1;
-	}
-	
-  //$result = db_query("SELECT * FROM `inbox` ORDER BY  `inbox`.`ID` DESC LIMIT ". $offset.",".$num_per_page."");
-	
-  /*$query = "SELECT * FROM `inbox` ORDER BY  `inbox`.`ID` DESC";
-  $result = pager_query(db_rewrite_sql($query));*/
-  
-  
-  
-  //bat dau them vao
-  
-   $output = '';
+function _datalogger_new_sms_form() {
+  // Initialising output
+  $output = '';
  
   // Table header
+  /*$header = array(
+    no => t('No.'),
+		station_name => t('Station Name'),
+    UpdatedInDB => t('Receiving Date Time'),
+    sender_number => t('Sender Number'),
+    message_content => t('Message content'),
+		Modem => t('Modem'),
+    processed => t('Processed'),
+  );*/
+  
   $header = array(
-    array('data' => 'Title', 'field' => 'title'),
-    array('data' => 'Type', 'field' => 'type'),
+    array('data' => t('No.')),		
+    array('data' => t('Station Name'), ),
+    array('data' => t('Receiving Date Time'), 'field' => 'UpdatedInDB', 'sort' => 'ASC'),
+    array('data' => t('Sender Number'), 'field' => 'SenderNumber', 'sort' => 'ASC'),
+    array('data' => t('Message content')),
+		array('data' => t('Modem'), ),
+    array('data' => t('Processed'), 'field' => 'Processed', 'sort' => 'ASC'),
   );
  
   // Setting the sort conditions
@@ -1034,78 +955,69 @@ function _datalogger_new_sms_form(){
     else
       $sort = 'DESC';
  
+    
+    $order = 'UpdatedInDB';
+    
     // Which column will be sorted
-    switch($_GET['order']) {
-      case 'Title':
-        $order = 'title';
+    foreach ($header as $h) {
+      if ($h['data'] == $_GET['order'] && isset($h['field'])) {
+        $order = $h['field'];
         break;
-      case 'Type':
-        $order = 'type';
-        break;
-      default:
-        $order = 'title';
+      }
     }
+    
   }
   else {
     $sort = 'ASC';
-    $order = 'title';
+    $order = 'UpdatedInDB';
   }
+  
+  
+  $stations = views_get_view_result('view_station_find', Null, 'all' );
+  
+  //dpm($stations);
  
- 
-  $other_database = array(
-      'database' => 'datalogger',
-      'username' => 'root', // assuming this is necessary
-      'password' => 'root', // assuming this is necessary
-      'host' => 'localhost', // assumes localhost
-      'driver' => 'mysql', // replace with your database driver
-      'prefix' => '',
-  );
+  global $databases;
+  
+  $other_database = $databases['default']['default'];
+  $other_database['prefix'] = '';
+  
   // replace 'YourDatabaseKey' with something that's unique to your module
   Database::addConnectionInfo('YourDatabaseKey', 'default', $other_database);
   db_set_active('YourDatabaseKey');
-
-  // execute queries here
   
   // Query object
   $query = db_select("inbox", "i");
    
   // Adding fields
-  $query->fields('i', array('UpdatedInDB', 'SenderNumber', 'RecipientID', 'Processed'));
+  $query->fields('i',array('UpdatedInDB','SenderNumber', 'RecipientID', 'TextDecoded', 'Processed'));
  
   // Set order by
-  ///$query->orderBy($order, $sort);
+  $query->orderBy($order, $sort);
  
   // Pagination
-  ///$query = $query->extend('TableSort')->extend('PagerDefault')->limit(2);
-  $query = $query->extend('PagerDefault')->limit(50);
+  $query = $query->extend('TableSort')->extend('PagerDefault')->limit(50);
  
   // Executing query
   $result = $query->execute();
-   
+  
   db_set_active(); // without the paramater means set back to the default for the site
-  
-  // Looping for filling the table rows 
-  /*while($data = $result->fetchObject()) {
-    // Adding the rows
-    $rows[] = array($data->title, $data->type);
-  }*/
- 
-
-  //ket thuc viec them 
+   
+  // Looping for filling the table rows
+  while($row = $result->fetchObject()) {
   
   
-  
-  $rows = array();
-  while($row = $result->fetchObject()){
-		$number = _datalogger_convert_number($row->SenderNumber);
-		$station = views_get_view_result('view_station_find', Null, $number );
-		if(!empty($station)){
-			$station_name = $station[0]->node_title;
-		}
-		else{
-			$station_name = null;	
-		}
+    $number = _datalogger_convert_number($row->SenderNumber);
     
+    $station_name = '';
+    foreach ($stations as $sta) {
+      if ($sta->field_field_station_sim_number[0]['raw']['value'] == $number) {
+        $station_name = $sta->node_title;
+        break;
+      }
+    }
+    
+		
     $sms = $row -> TextDecoded;
     $len_sms = strlen($row->TextDecoded);
 
@@ -1120,8 +1032,11 @@ function _datalogger_new_sms_form(){
       $sms = _datalogger_regex_rain($sms);      
     }			
     
+  
+    // Adding the rows
+    //$rows[] = array($data->title, $data->type);
     $rows[] = array (
-			$offset+=1,
+			$i+=1,
 			// $station[0]->node_title,
 			$station_name,
 			$row -> UpdatedInDB,
@@ -1130,44 +1045,26 @@ function _datalogger_new_sms_form(){
 			$row -> RecipientID,
       $row -> Processed ? t('Yes') : t('No'),
 			);
-
   }
-	
-  /*$retval = theme('table', array(
-                'header' => $headers,
-                'rows' => $rows
-                 ));*/
-                 
-     
   
-     
-	$output = theme_table(
+  
+  // Setting the output of the field
+  $output = theme_table(
     array(
-      "header" => $headers,
-      "rows" => $rows,
-      "attributes" => array(),
-      "sticky" => true, // Table header will be sticky
-      "caption" => t('Date').': '.date('d/m/Y',time()),
-      "colgroups" => array(),
-      "empty" => t("Table has no row!") // The message to be displayed if table is empty
+      'header' => $header,
+      'rows' => $rows,
+      'attributes' => array(),
+      'sticky' => true,
+      'caption' => '',
+      'colgroups' => array(),
+      'empty' => t("Table has no row!") // The message to be displayed if table is empty
     )
-  ).theme("pager");
-  //).theme('pager', array('quantity' => $total));
-	
-  $prevpage = $page - 1;
-  $nextpage = $page + 1;
-  if($page > 0){
-    $output = $output . l(t("<< first"),"gammu/inbox/new");
-    $output = $output . l(t("< previous"),"gammu/inbox/new/".$prevpage). "  ";
-  }
-	if($number_rows > $num_per_page){
-		if($nextpage < $last){
-			$output = $output . l(t("next >"),"gammu/inbox/new/".$nextpage);
-			$output = $output . l(t("last >>"),"gammu/inbox/new/".($last - 1));
-		}
-	}
+  ).theme('pager');
+ 
+  // Returning the output
   return $output;
 }
+
 
 function _datalogger_new_outbox_form (){
 $page = arg(3);
