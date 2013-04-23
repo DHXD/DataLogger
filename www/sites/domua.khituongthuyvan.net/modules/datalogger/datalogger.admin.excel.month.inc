@@ -9,24 +9,12 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
   
   require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel/IOFactory.php';
   
-/*
-  //$target ='Results/';
-  //$fileType = 'Excel2007';   
-  $InputFileName = 'd:/Coder/DataLogger/BKT14/BKT14-2-unicode.XLSx';
-  //$OutputFileName =  $target . '_Result.xlsx';
 
-   //Read the file (including chart template) 
-  $objReader = PHPExcel_IOFactory::createReader('Excel2007'); 
-  $objReader->setIncludeCharts(TRUE);
-  $objPHPExcel = $objReader->load($InputFileName); 
-  
-  
-  $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
-  header('Content-type: application/vnd.ms-excel');
-  header('Content-Disposition: attachment; filename="Báo cáo dữ liệu mưa - Trạm ' . $name_station->title . ' - ' . date('m',time()) . '-' . date('Y',time()) . '.xlsx"');
-  $objWriter->save('php://output');
-  drupal_exit();
-  */
+  $styleArray = array(
+    'alignment' => array(
+        'rotation' => 90,
+    ),
+  );
   
   
 	if($nid != ''){
@@ -38,7 +26,7 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
 	
 	//lay du lieu cua tram
 	$month_days_number = cal_days_in_month(CAL_GREGORIAN, substr($month, -2), $year);
-	for($day = 1; $day <= $month_days_number; $day++){
+	for($day = 1; $day < $month_days_number; $day++){
 		if(($day) < 10){
 			$day_time = '0'.($day);
 		}
@@ -87,7 +75,7 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
 						'total_rainfall_in_hour' => 0, 
 						'time_rainfall_in_hour' => 0);
 				}
-				$max_rainfall_in_day = ($max_rainfall_in_day < $hours_in_day[$i]['max_rainfall_in_hour']) ? $hours_in_day[$i]['max_rainfall_in_hour'] : $max_rainfall_in_day; 
+				
 			}
 		}
 		else{
@@ -97,10 +85,20 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
 						'time_rainfall_in_hour' => 0);
 			}
 		}
+    $max_rainfall_in_day = $hours_in_day[0]['max_rainfall_in_hour'];
+    $max_time_in_hours = $hours_in_day[0]['time_rainfall_in_hour'];
+    for($i=1; $i < 24; $i++){
+      if($hours_in_day[$i]['max_rainfall_in_hour'] >= $max_rainfall_in_day){
+        $max_rainfall_in_day = $hours_in_day[$i]['max_rainfall_in_hour'];
+        $max_time_in_hours = $hours_in_day[$i]['time_rainfall_in_hour'];
+      }
+    }
 		$day_of_month[$day]= array('max_total_rainfall_in_day' => $max_total_rainfall_in_day,
 			'max_total_time_rainfall_in_day' => $max_total_time_rainfall_in_day, 
 			'max_rainfall_in_day' => $max_rainfall_in_day,
-			'hours_in_day' => $hours_in_day);
+			'hours_in_day' => $hours_in_day,
+      'max_total_time_in_hours' => $max_time_in_hours
+      );
 	}
 	/*-----------------------------------------------------------------------------------------------------------*/
 	
@@ -112,19 +110,13 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
                  ->setDescription("Document for Office 2007 XLSX")
                  ->setKeywords("Datalogger")
                  ->setCategory("Datalogger");
-	$objPHPExcel->setActiveSheetIndex();
-	$objPHPExcel->getActiveSheet()->setCellValue('C1', 'Trạm');
-	$objPHPExcel->getActiveSheet()->setCellValue('G1', 'Tháng');
-	$objPHPExcel->getActiveSheet()->setCellValue('I1', 'Năm');
-	$objPHPExcel->getActiveSheet()->setCellValue('A2', 'Ngày \Giờ');
+	//$objPHPExcel->setActiveSheetIndex();
   
-  
-	// $month_days_number = cal_days_in_month(CAL_GREGORIAN, substr($month, -2), $year);
-	/*++++++++++++++tao sheet 1++++++++++++++++++++++++*/
-	// $objPHPExcel->createSheet();
-	//sheet từ 0
 	$objPHPExcel->setActiveSheetIndex(0);
-  
+  $objPHPExcel->getActiveSheet()->setCellValue('C1', 'Trạm');
+	$objPHPExcel->getActiveSheet()->setCellValue('I1', 'Tháng');
+	$objPHPExcel->getActiveSheet()->setCellValue('M1', 'Năm');
+	$objPHPExcel->getActiveSheet()->setCellValue('A2', 'Ngày \Giờ');
 	//thiet lap header
 	for($i =0; $i < 24; $i++){
 		$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$i).'2', $i+1);
@@ -139,64 +131,40 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
 	$k = 1;
 	//gan gia tri mac dinh cho cac o
 	// /*
-	for($i = 0; $i < $month_days_number*2; $i++){
+  
+	for($i = 0; $i < 30; $i++){
 		if($i%2 == 0){
 			$objPHPExcel->getActiveSheet()->setCellValue(chr(65).($i+6), $k++);
 			for($j = 0; $j < 24; $j++){
 				$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).($i+6), '0');
+        $objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).($i+7), '0');
 			}
 			$objPHPExcel->getActiveSheet()->mergeCells('A'.($i+6).':B'.($i+7));
 			$objPHPExcel->getActiveSheet()->setCellValue('AA'.($i+6), '=SUM(C'.($i+6).':Z'.($i+6).')');
+      $objPHPExcel->getActiveSheet()->setCellValue('AA'.($i+7), '=SUM(C'.($i+7).':Z'.($i+7).')');
 		}
-		else{
-			for($j =0; $j < 24; $j++){
-				$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).($i+6), '0');
-			}
-			$objPHPExcel->getActiveSheet()->setCellValue('AA'.($i+6), '=SUM(C'.($i+6).':Z'.($i+6).')');
-		}
+		
 	}
-	// */
-	/*
-	for($i =0; $i < $month_days_number*2; $i++){
-		if($i%2 == 0){
-			$objPHPExcel->getActiveSheet()->setCellValue('AA'.($i+6), '=SUM(C'.($i+6).':Z'.($i+6).')');
-		}
-		else{
-			$objPHPExcel->getActiveSheet()->setCellValue('AA'.($i+6), '=SUM(C'.($i+6).':Z'.($i+6).')');
-		}
-	}
-	*/
-	$objPHPExcel->getActiveSheet()->setCellValue('A'.(($month_days_number+3)*2), 'Tổng số');
-	$objPHPExcel->getActiveSheet()->setCellValue('B'.(($month_days_number+3)*2), 'mm');
-	$objPHPExcel->getActiveSheet()->setCellValue('B'.(($month_days_number+3)*2+1), 'Phút');
+
+  
+	$objPHPExcel->getActiveSheet()->setCellValue('A36', 'Tổng số');
+	$objPHPExcel->getActiveSheet()->setCellValue('B36', 'mm');
+	$objPHPExcel->getActiveSheet()->setCellValue('B37', 'Phút');
+	//$objPHPExcel->getActiveSheet()->getStyle('A38')->getAlignment()->setTextRotation(90);
+
+
 	
-	// $mm =0;
-	// $minute = 0;
-	for($j = 0; $j < 24; $j++){
-		$str_rainfall = '';
-		$str_time = '';
-		for($i = 0; $i < $month_days_number*2; $i++){
-			if($i%2 == 0){
-				$str_rainfall = $str_rainfall.','.(chr(67+$j).($i+6));
-			}
-			else{
-				$str_time = $str_time.','.(chr(67+$j).($i+6));
-			}
-		}
-		$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).(($month_days_number+3)*2), '=SUM('.$str_rainfall.')');
-		$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).(($month_days_number+3)*2+1), '=SUM('.$str_time.')');
-	}
-	
-	$objPHPExcel->getActiveSheet()->mergeCells('A'.(($month_days_number+3)*2).':A'.(($month_days_number+3)*2+1));
+	$objPHPExcel->getActiveSheet()->mergeCells('A36:A37');
 	$objPHPExcel->getActiveSheet()->mergeCells('A2:B5');
 	$objPHPExcel->getActiveSheet()->mergeCells('C1:D1');
-	$objPHPExcel->getActiveSheet()->mergeCells('E1:F1');
-	
+	$objPHPExcel->getActiveSheet()->mergeCells('E1:H1');
+  $objPHPExcel->getActiveSheet()->mergeCells('O1:Q1');
+	$objPHPExcel->getActiveSheet()->mergeCells('I1:J1');
 	$styleThinBlackBorderOutline = array(
 		'borders' => array(
 			'outline' => array(
 				'style' => PHPExcel_Style_Border::BORDER_THIN,
-				'color' => array('argb' => 'FF000000'),
+				'color' => array('rgb' => '000000'),
 			),
 		),	
 	);
@@ -205,63 +173,44 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
 	$sharedStyle1->applyFromArray(
 		array(//'fill' 	=> array(
 				'borders' => array(
+                  'top'	=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
+                  'left'	=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
 									'bottom'	=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
 									'right'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN)
 								)
 			 ));
-	$objPHPExcel->getActiveSheet()->setSharedStyle($sharedStyle1, 'A1:AA'.(($month_days_number+3)*2+1));
-
+	$objPHPExcel->getActiveSheet()->setSharedStyle($sharedStyle1, 'A1:AA37');
+  //$objPHPExcel->getActiveSheet()->setSharedStyle($sharedStyle1, 'C36:AA37');
+  
 	//chinh vi tri cac cell 
-	$objPHPExcel->getActiveSheet()->getStyle('A1:AA'.(($month_days_number+3)*2+1))->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
-	$objPHPExcel->getActiveSheet()->getStyle('A1:C'.(($month_days_number+3)*2+1))->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+	$objPHPExcel->getActiveSheet()->getStyle('A1:AA37')->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+	$objPHPExcel->getActiveSheet()->getStyle('A1:AA37')->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 	//thiet lap chieu rong cac cell
-	$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(1.5);
-  for($c = 'B'; $c <= 'Z'; $c++)
-    $objPHPExcel->getActiveSheet()->getColumnDimension($c)->setWidth(2.9);
+	$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(6);
+  $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(4.2);
+  for($c = 'C'; $c <= 'Z'; $c++)
+    $objPHPExcel->getActiveSheet()->getColumnDimension($c)->setWidth(3);
 	
-	$objPHPExcel->getActiveSheet()->getColumnDimension('AA')->setWidth(4.72);
+	$objPHPExcel->getActiveSheet()->getColumnDimension('AA')->setWidth(6);
   $objPHPExcel->getActiveSheet()->setTitle('Trang 2');
-	
+	//thiet lap chieu cao cac row
+  $objPHPExcel->getActiveSheet()->getRowDimension('1')->setRowHeight(40);
+  for ($i=2;$i<37;$i++) { 
+    $objPHPExcel->getActiveSheet()->getRowDimension($i)->setRowHeight(17);
+  }
 	// /*
 	//chen du lieu vao bao cao
 	$objPHPExcel->getActiveSheet()->setCellValue('E1', $name_station->title);
-	$objPHPExcel->getActiveSheet()->setCellValue('H1', substr($month,-1,2));
-	$objPHPExcel->getActiveSheet()->setCellValue('J1',$year);
-	/*
-	for($day = 1; $day < $month_days_number*2; $day++){
-		if(($day%2) == 0){
-			if(($day/2) < 10){
-				$day_time = '0'.($day/2);
-			}
-			else{
-				$day_time = $day/2;
-			}
-			$rainfalls = views_get_view_result('view_rainfall_hour_time','default', $nid, $year, $month, $month.$day_time);
-			for($j =0; $j < 24; $j++){
-				if(count($rainfalls) == 24){
-					$rainfall_total = $rainfalls[23 - $i]->field_field_rainfall_total[0]['rendered']['#markup'];
-					$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).($day+6),$rainfall_total);
-				}
-				else{
-					for($k = 0; $k < count($rainfalls); $k++){
-						$hour_time = (int)substr($rainfalls[$k]->field_field_rainfall_hour_time[0]['rendered']['#markup'],0,2);
-						if($j == $hour_time){
-							$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).($day+4),$rainfalls[$k]->field_field_rainfall_total[0]['rendered']['#markup']);
-						}
-					}
-				}
-			}
-		}
-	}
-	*/
-	// 
+	$objPHPExcel->getActiveSheet()->setCellValue('K1', substr($month,-1,2));
+	$objPHPExcel->getActiveSheet()->setCellValue('O1',$year);
+	
 	$font_bold = array(
 		'font' => array(
 		'bold' => true
 		)
 	);
 	$day_in_month = 1;
-	for($day = 0; $day < $month_days_number*2; $day++){
+	for($day = 0; $day < $month_days_number - 1; $day++){
 		if($day%2 == 0){
 			for($j = 0; $j < 24 ; $j++){
 				$total = $day_of_month[$day_in_month]['hours_in_day'][$j]['total_rainfall_in_hour'];
@@ -276,11 +225,165 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
 			$day_in_month++;
 		}
 	}
+  $str_rainfall = array();
+  $str_time = array();
+  for($j = 0; $j < 24; $j++){
+
+		for($i = 0; $i <= 28; $i++){
+			if($i%2 == 0){
+        $str_rainfall[$j] += $objPHPExcel->getActiveSheet()->getCell(chr(67+$j).($i+6))->getValue();
+        $str_time[$j] += $objPHPExcel->getActiveSheet()->getCell(chr(67+$j).($i+7))->getValue();
+			}
+		}
+    
+		$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).'36', $str_rainfall[$j] );
+		$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).'37', $str_time[$j] );
+    $objPHPExcel->getActiveSheet()->getStyle(chr(67+$j).'36')->applyFromArray($font_bold);
+    $objPHPExcel->getActiveSheet()->getStyle(chr(67+$j).'37')->applyFromArray($font_bold);
+	}
+  
 	//
+  //bat dau trang 3
+  
+  $objPHPExcel->createSheet();
+	$objPHPExcel->setActiveSheetIndex(1);
+  $objPHPExcel->getActiveSheet()->setCellValue('C1', 'Trạm');
+	$objPHPExcel->getActiveSheet()->setCellValue('I1', 'Tháng');
+	$objPHPExcel->getActiveSheet()->setCellValue('M1', 'Năm');
+	$objPHPExcel->getActiveSheet()->setCellValue('A2', 'Ngày \Giờ');
+  
+  
+	// $month_days_number = cal_days_in_month(CAL_GREGORIAN, substr($month, -2), $year);
+	/*++++++++++++++tao sheet 1++++++++++++++++++++++++*/
+	// $objPHPExcel->createSheet();
+	//sheet tu 0
 	
+  
+	//thiet lap header
+	for($i =0; $i < 24; $i++){
+		$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$i).'2', $i+1);
+		$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$i).'3', '|');
+		$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$i).'4', $i);
+		$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$i).'5', $i+1);
+	}
+	$objPHPExcel->getActiveSheet()->setCellValue('AA2', 'Tổng số');
+	$objPHPExcel->getActiveSheet()->setCellValue('AA3', 'mm');
+	$objPHPExcel->getActiveSheet()->setCellValue('AA4', 'phút');
+	$objPHPExcel->getActiveSheet()->setCellValue('AA5', '25');
+	//$k = ceil($month_days_number/2) +1;
+	//gan gia tri mac dinh cho cac o
+	// /*
+	for($i = 0; $i < $month_days_number*2 - 30; $i++){
+    
+		if($i%2 == 0){
+			$objPHPExcel->getActiveSheet()->setCellValue(chr(65).($i+6), $k++);
+			for($j = 0; $j < 24; $j++){
+				$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).($i+6), '0');
+        $objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).($i+7), '0'); // i = 31: set value = 0 cho dong 37
+			}
+			$objPHPExcel->getActiveSheet()->mergeCells('A'.($i+6).':B'.($i+7));
+			$objPHPExcel->getActiveSheet()->setCellValue('AA'.($i+6), '=SUM(C'.($i+6).':Z'.($i+6).')');
+      $objPHPExcel->getActiveSheet()->setCellValue('AA'.($i+7), '=SUM(C'.($i+7).':Z'.($i+7).')');
+		}
+
+	}
+
+	$objPHPExcel->getActiveSheet()->setCellValue('A'.($month_days_number+7), 'Tổng số');
+	$objPHPExcel->getActiveSheet()->setCellValue('B'.($month_days_number+7), 'mm');
+	$objPHPExcel->getActiveSheet()->setCellValue('B'.($month_days_number+8), 'Phút');
+	
+	// $mm =0;
+	// $minute = 0;
+	
+	
+	$objPHPExcel->getActiveSheet()->mergeCells('A'.($month_days_number + 7).':A'.($month_days_number + 8));
+	$objPHPExcel->getActiveSheet()->mergeCells('A2:B5');
+	$objPHPExcel->getActiveSheet()->mergeCells('C1:D1');
+	$objPHPExcel->getActiveSheet()->mergeCells('E1:H1');
+  $objPHPExcel->getActiveSheet()->mergeCells('O1:Q1');
+	$objPHPExcel->getActiveSheet()->mergeCells('I1:J1');
+	
+	$styleThinBlackBorderOutline = array(
+		'borders' => array(
+			'outline' => array(
+				'style' => PHPExcel_Style_Border::BORDER_THIN,
+				'color' => array('argb' => 'FF000000'),
+			),
+		),	
+	);
+
+	$sharedStyle1 = new PHPExcel_Style();
+	$sharedStyle1->applyFromArray(
+		array(//'fill' 	=> array(
+				'borders' => array(
+                  'top'	=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
+                  'left'	=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
+									'bottom'	=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
+									'right'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN)
+								)
+			 ));
+	$objPHPExcel->getActiveSheet()->setSharedStyle($sharedStyle1, 'A1:AA'.($month_days_number + 8));
+
+	//chinh vi tri cac cell 
+	$objPHPExcel->getActiveSheet()->getStyle('A1:AA'.($month_days_number + 8))->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+	$objPHPExcel->getActiveSheet()->getStyle('A1:C'.($month_days_number + 8))->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+	//thiet lap chieu rong cac cell
+	$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(6);
+  $objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(4.2);
+  for($c = 'C'; $c <= 'Z'; $c++)
+    $objPHPExcel->getActiveSheet()->getColumnDimension($c)->setWidth(3);
+	
+	$objPHPExcel->getActiveSheet()->getColumnDimension('AA')->setWidth(6);
+  $objPHPExcel->getActiveSheet()->setTitle('Trang 3');
+	
+	// /*
+	//chen du lieu vao bao cao
+	$objPHPExcel->getActiveSheet()->setCellValue('E1', $name_station->title);
+	$objPHPExcel->getActiveSheet()->setCellValue('K1', substr($month,-1,2));
+	$objPHPExcel->getActiveSheet()->setCellValue('O1',$year);
+
+	$font_bold = array(
+		'font' => array(
+		'bold' => true
+		)
+	);
+	//$day_in_month = 1;
+	for($i = 15; $i <= $month_days_number ; $i++){
+    $day = $i - 15;
+		if($day%2 == 0){
+			for($j = 0; $j < 24 ; $j++){
+				$total = $day_of_month[$day_in_month]['hours_in_day'][$j]['total_rainfall_in_hour'];
+				$time = $day_of_month[$day_in_month]['hours_in_day'][$j]['time_rainfall_in_hour'];
+				$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).($day +6),$total);
+				$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).($day +7),$time);
+				if($total > 0 && $time > 0){
+					$objPHPExcel->getActiveSheet()->getStyle(chr(67+$j).($day+6))->applyFromArray($font_bold);
+					$objPHPExcel->getActiveSheet()->getStyle(chr(67+$j).($day+7))->applyFromArray($font_bold);
+				}
+			}
+			$day_in_month++;
+		}
+	}
+
+  for($j = 0; $j < 24; $j++){
+		for($i = 0 ; $i < $month_days_number; $i++){
+			if($i%2 == 0){
+        $str_rainfall[$j] += $objPHPExcel->getActiveSheet()->getCell(chr(67+$j).($i+6))->getValue();
+        $str_time[$j] += $objPHPExcel->getActiveSheet()->getCell(chr(67+$j).($i+7))->getValue();
+			}
+		}
+
+		$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).($month_days_number + 7), $str_rainfall[$j] );
+		$objPHPExcel->getActiveSheet()->setCellValue(chr(67+$j).($month_days_number + 8), $str_time[$j] );
+    $objPHPExcel->getActiveSheet()->getStyle(chr(67+$j).($month_days_number + 7))->applyFromArray($font_bold);
+    $objPHPExcel->getActiveSheet()->getStyle(chr(67+$j).($month_days_number + 8))->applyFromArray($font_bold);
+	}
+	//ket thuc trang 3
+	
+  
 	/*++++++++++++++++++tao sheet 2++++++++++++++++++++++++++*/
 	$objPHPExcel->createSheet();
-	$objPHPExcel->setActiveSheetIndex(1);
+	$objPHPExcel->setActiveSheetIndex(2);
 	$objPHPExcel->getActiveSheet()->setCellValue('B1', 'Trạm');
 	$objPHPExcel->getActiveSheet()->setCellValue('F1', 'Tháng');
 	$objPHPExcel->getActiveSheet()->setCellValue('H1', 'Năm');
@@ -302,7 +405,7 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
 	$objPHPExcel->getActiveSheet()->setCellValue('H4', 'Lượng');
 	$objPHPExcel->getActiveSheet()->setCellValue('I4', 'Thời gian kéo dài');
 	$objPHPExcel->getActiveSheet()->setCellValue('H6', '(mm)');
-	$objPHPExcel->getActiveSheet()->setCellValue('I6', '(giờ, phút)');
+	$objPHPExcel->getActiveSheet()->setCellValue('I6', '(giờ?, phút)');
 	$objPHPExcel->getActiveSheet()->setCellValue('F8', 'Trong một giờ');
 	
 	$objPHPExcel->getActiveSheet()->setCellValue('F10', 'Trong một đợt liên tục');
@@ -314,7 +417,7 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
 	$objPHPExcel->getActiveSheet()->setCellValue('E7', '4');
 	
 	//phan ghi chú:
-	$objPHPExcel->getActiveSheet()->setCellValue('F15', 'Quan trắc viên');
+	$objPHPExcel->getActiveSheet()->setCellValue('F15', 'Quan trắcc viên');
 	$objPHPExcel->getActiveSheet()->setCellValue('F16', 'Người lập bảng');
 	$objPHPExcel->getActiveSheet()->setCellValue('F17', 'Người kiểm soát');
 	$objPHPExcel->getActiveSheet()->setCellValue('F18', 'Người phúc thẩm');
@@ -370,6 +473,8 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
 	$sharedStyle1->applyFromArray(
 		array(//'fill' 	=> array(
 				'borders' => array(
+                  'top'	=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
+                  'left'	=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
 									'bottom'	=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
 									'right'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN)
 								)
@@ -428,7 +533,7 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
 	$objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(15);
 	$objPHPExcel->getActiveSheet()->getColumnDimension('H')->setWidth(10);
 	$objPHPExcel->getActiveSheet()->getColumnDimension('I')->setWidth(15);
-	//tram do mưa
+	//tram do mua
 	$objPHPExcel->getActiveSheet()->setCellValue('C1', $name_station->title);
 	
 	$objPHPExcel->getActiveSheet()->setCellValue('G1',substr($month,-1,2));
@@ -456,7 +561,7 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
 	
 	$objPHPExcel->getActiveSheet()->setTitle('Trang 4');
 	//chen du lieu vao sheet 2007
-	for($day = 1; $day <= $month_days_number; $day++){
+	for($day = 1; $day < $month_days_number; $day++){
 		$objPHPExcel->getActiveSheet()->setCellValue('A'.(7+$day),$day);
 		$objPHPExcel->getActiveSheet()->setCellValue('B'.(7+$day),0);
 		$objPHPExcel->getActiveSheet()->setCellValue('C'.(7+$day),0);
@@ -464,9 +569,9 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
 		$objPHPExcel->getActiveSheet()->setCellValue('E'.(7+$day),0);
 	}
 	
-	for($day = 1; $day <= $month_days_number; $day++){
+	for($day = 1; $day < $month_days_number; $day++){
 		$objPHPExcel->getActiveSheet()->setCellValue('B'.($day+7), $day_of_month[$day]['max_rainfall_in_day']);
-		$objPHPExcel->getActiveSheet()->setCellValue('C'.($day+7), 10);
+		$objPHPExcel->getActiveSheet()->setCellValue('C'.($day+7), $day_of_month[$day]['max_total_time_in_hours']);
 		$objPHPExcel->getActiveSheet()->setCellValue('D'.($day+7), $day_of_month[$day]['max_total_rainfall_in_day']);
 		$objPHPExcel->getActiveSheet()->setCellValue('E'.($day+7), $day_of_month[$day]['max_total_time_rainfall_in_day']);
 	}
@@ -477,6 +582,12 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month){
   $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
   header('Content-type: application/vnd.ms-excel');
   header('Content-Disposition: attachment; filename="Báo cáo dữ liệu mưa - Trạm ' . $name_station->title . ' - ' . substr($month,-2,2) . '-' . $year . '.xls"');
-  $objWriter->save('php://output');
+  //$objWriter->save('php://output');
+  $f = file_directory_temp() . '/Bao cao du lieu mua_' . time() . '.xls';
+  $objWriter->save($f);
+  files($f);
+  drupal_unlink($f);
+  
   drupal_exit();
 }
+
