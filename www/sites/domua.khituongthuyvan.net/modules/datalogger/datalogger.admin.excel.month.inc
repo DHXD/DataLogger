@@ -2,7 +2,7 @@
 
 function _datalogger_export_rainfall_month_excel($nid, $year, $month){
   error_reporting(0);
-  //error_reporting(E_ALL);
+  //error_reporting(E_ALL ^ E_NOTICE);
   require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel.php';
 
 	module_load_include('inc', 'datalogger', 'datalogger.admin');
