@@ -477,7 +477,7 @@ $items['gammu/sentitems/error'] = array(
 		'weight' => -26,
 	);
 	
-	$items['manage/report/rainfalls/all/station'] = array(
+	$items['views/statistics/manage/report/rainfalls/all/station'] = array(
     'title' => 'Statistics of rainfall during the day',
 		'page callback' => 'drupal_get_form',
     'page arguments' => array(
@@ -490,7 +490,7 @@ $items['gammu/sentitems/error'] = array(
 	);
 	
   
-  $items['manage/report/rainfalls/year'] = array(
+  /*$items['manage/report/rainfalls/year'] = array(
     'title' => 'Report annual rainfall data',
 		'page callback' => 'drupal_get_form',
     'page arguments' => array(
@@ -501,6 +501,7 @@ $items['gammu/sentitems/error'] = array(
 		'type' => MENU_LOCAL_TASK,
 		'weight' => -23,
   );
+  */
 
 
 /**
@@ -644,15 +645,15 @@ $items['gammu/sentitems/error'] = array(
   );
  
  $items['manage/report/rainfalls/month'] = array(
-    'title' => 'Report monthly rainfall data',
+    'title' => 'Report monthly rainfall data (BKT14 form)',
 		'page callback' => 'drupal_get_form',
     'page arguments' => array(
         '_datalogger_report_rainfall_month_form'
     ),
-    'file' => 'datalogger.admin.inc',
+    'file' => 'datalogger.admin.report.inc',
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		 'type' => MENU_LOCAL_TASK,
-		 'weight' => -24,
+		 'weight' => -34,
   );
  
   $items['manage/init/rainfalls'] = array(
@@ -1072,14 +1073,28 @@ function _datalogger_views_get_view_result($viewname, $display_id = NULL, $args 
 }
 
 function _datalogger_select_area_province_station(&$form, &$form_state) {
-	module_load_include('module', 'datalogger','datalogger');
+
+
+  // default lock region
+  global $khuvuc;
+  $form_state['lock-region'] = true;
+  $form_state['values']['selectArea'] = $khuvuc[0];
+  
+
+	//module_load_include('module', 'datalogger','datalogger');
   
   $module_path = drupal_get_path('module', 'datalogger');
   
   drupal_add_js($module_path . '/list_station_follow_province.js');
   
+  
+  $form['stations_fieldset'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Select station'),
+  );
+  
 	
-	$form['selectReport'] = array(
+	$form['stations_fieldset']['selectReport'] = array(
     '#type' => 'select',
     '#title' => t('Select the type of report: '),
 		// '#weight' => 1,
@@ -1096,7 +1111,7 @@ function _datalogger_select_area_province_station(&$form, &$form_state) {
 	}
 	
 	$value_select_area = isset($form_state['values']['selectArea']) ? $form_state['values']['selectArea'] : key($regions);
-  $form['selectArea'] = array(
+  $form['stations_fieldset']['selectArea'] = array(
     '#type' => 'select',
     '#title' => t('Chọn khu vực: '),
     '#options' => $regions,
@@ -1111,13 +1126,18 @@ function _datalogger_select_area_province_station(&$form, &$form_state) {
     ),*/
   );
 	
-	$form['selectProvince'] = array(
+	$form['stations_fieldset']['selectProvince'] = array(
 	 '#prefix' => '<div id="area-wrapper">',
 	 '#suffix' => '</div>',
 	);
 	
 	$value_select_province = isset($form_state['values']['province']) ? $form_state['values']['province'] : key(_datalogger_return_city2($value_select_area));
-	$form['selectProvince']['province'] = array(
+  
+  global $is_dev;
+  $value_select_province = $is_dev ? 'quang_tri' : $value_select_province;
+  $default_station  = $is_dev ? 2965 : (isset($form_state['values']['station']) ? $form_state['values']['station']: key($station_name));
+  
+	$form['stations_fieldset']['selectProvince']['province'] = array(
 		'#type' => 'select',
 		'#title' => t('Chọn Tỉnh/ Thành phố: '),
 		'#options' => _datalogger_return_city2($value_select_area),
@@ -1131,13 +1151,14 @@ function _datalogger_select_area_province_station(&$form, &$form_state) {
       'effect' => 'fade',
     ),*/
 	); 
-	$form['selectStation'] = array(
+	$form['stations_fieldset']['selectStation'] = array(
 	 '#prefix' => '<div id="province-wrapper">',
 	 '#suffix' => '</div>',
 	);
 	
 	//$stations = views_get_view_result('view_station_filter_parameter', Null, 	$value_select_area, $value_select_province, 'all');
   $stations = views_get_view_result('view_station_filter_parameter', Null, 	$value_select_area, 'all', 'all');
+  $station_name = array();
 	foreach($stations as $station){
 		$station_name[$station->nid] = $station->node_title;
 	}
@@ -1149,16 +1170,16 @@ function _datalogger_select_area_province_station(&$form, &$form_state) {
   $provinces = array();
 					$provinces['All'] = t('- Any -');
 					$provinces = array_merge($provinces, _datalogger_return_city2($khuvuc[0] /*$account->field_station_region['und'][0]['value']*/));
-					//$form['field_station_province_city_value']['#options'] = $provinces;
+					//$form['stations_fieldset']['field_station_province_city_value']['#options'] = $provinces;
   
   _datalogger_alter_add_js_stations($provinces);
 	
-	$form['selectStation']['station'] = array(
+	$form['stations_fieldset']['selectStation']['station'] = array(
 		 '#type' => 'select',
 		 '#title' => t('Select station: '),
 		 '#options' => $station_name,
 		 // '#weight' => 4,
-		 '#default_value' => isset($form_state['values']['station']) ? $form_state['values']['station']: key($station_name),
+		 '#default_value' => $default_station,
 	);
 	
 	$years = array();
@@ -1172,50 +1193,56 @@ function _datalogger_select_area_province_station(&$form, &$form_state) {
 		$months[$i] = $i;
 	}
 	
-	$form['year'] = array(
+	$form['stations_fieldset']['year'] = array(
 		 '#type' => 'select',
 		 '#title' => t('Year'),
 		 '#options' => $years,
-		 '#default_value' => key($years),
+		 '#default_value' => date("Y"),
 		 // '#weight' => 5,
 	);
 	
-	$form['month'] = array(
+	$form['stations_fieldset']['month'] = array(
      '#type' => 'select',
      '#title' => t('Month'),
      '#options' => $months,
+     '#default_value' => $form_state['input']['month'],
 		 // '#weight' => 6,
   );
 	
-	$form['day'] = array(
+	$form['stations_fieldset']['day'] = array(
      '#type' => 'date_popup',
      '#date_format' => 'd/m/Y', 
 		 '#required' => TRUE,	
 		 // '#weight' => 7,
   );
 	
+  
+  
+	$form['person'] = array(
+    '#type' => 'fieldset',
+    '#title' => t('Personal Information'),
+  );
 	
-	
-  $form['txtNameQTV'] = array(
+  $form['person']['txtNameQTV'] = array(
      '#type' => 'textfield',
      '#title' => t('Full name of the person observation: '),
 		 // '#weight' => 8,
   );  
   
-  $form['txtNameNLB'] = array(
+  $form['person']['txtNameNLB'] = array(
      '#type' => 'textfield',
      '#title' => t('Full name of the person creating the table: '),
 		 // '#weight' => 9,
   );    
   
-  $form['txtNameKS'] = array(
+  $form['person']['txtNameKS'] = array(
      '#type' => 'textfield',
      '#title' => t('Full name of the person control: '),
 		 // '#weight' => 10,
 		 // '#weight' => 10,
   );    
   
-  $form['txtNamePT'] = array(
+  $form['person']['txtNamePT'] = array(
      '#type' => 'textfield',
      '#title' => t('Full name of person Appeal: '),
 		 // '#weight' => 11,
@@ -1223,10 +1250,10 @@ function _datalogger_select_area_province_station(&$form, &$form_state) {
   );
   
   $form["notice_excel_2007"] = array(      
-      '#prefix' => '<div class="" style="margin-bottom: 15px;">',
+      '#prefix' => '<div class="" style="margin-bottom: 15px; clear: both">',
 	  '#suffix' => '</div>', 
-	  "#markup" => t("For better rendering, downloaded file format will be Excel 2007. If you cannot read XLSX file format, please download and install Microsoft compability pack at: <a href='http://www.microsoft.com/en-us/download/details.aspx?id=3'>http://www.microsoft.com/en-us/download/details.aspx?id=3</a>."),    
-		// '#weight' => 12,
+    "#markup" => '',
+	  //"#markup" => t("For better rendering, downloaded file format will be Excel 2007. If you cannot read XLSX file format, please download and install Microsoft compability pack at: <a href='http://www.microsoft.com/en-us/download/details.aspx?id=3'>http://www.microsoft.com/en-us/download/details.aspx?id=3</a>."),    
 		// '#weight' => 12,
   ); 
 	return $from;

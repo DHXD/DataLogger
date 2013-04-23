@@ -6,6 +6,7 @@
 			// /*
 			var index2 = $('#edit-field-command-station-nid').val();
 			console.log(index2);
+      
 			$('#edit-field-command-station-nid').empty();
 			var tram = $('#edit-field-command-station-nid');
 			if(tram.prop) {

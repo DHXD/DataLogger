@@ -59,22 +59,19 @@ function _command_form($form, &$form_state) {
 		38 => t('Reset All'),);	
     
   if (arg(1) == '0') {
-    global $khuvuc;
-    $form_state['lock-region'] = true;
-    $form_state['values']['selectArea'] = $khuvuc[0];
     
     _datalogger_select_area_province_station($form, $form_state);
     
-    
-    unset ($form['txtNameQTV']);//['#access']=FALSE;
-    unset ($form['txtNameNLB']);//['#access']=FALSE;
-    unset ($form['txtNameKS']);//['#access']=FALSE;
-    unset ($form['txtNamePT']);//['#access']=FALSE;
-    unset ($form['selectReport']);//['#access']=FALSE;  
+    unset ($form['stations_fieldset']['day']);
+    unset ($form['stations_fieldset']['month']);
+    unset ($form['stations_fieldset']['year']); 
+    unset ($form['person']['txtNameQTV']);//['#access']=FALSE;
+    unset ($form['person']['txtNameNLB']);//['#access']=FALSE;
+    unset ($form['person']['txtNameKS']);//['#access']=FALSE;
+    unset ($form['person']['txtNamePT']);//['#access']=FALSE;
+    unset ($form['person']['selectReport']);//['#access']=FALSE;  
     unset ($form['notice_excel_2007']);
-    unset ($form['day']);
-    unset ($form['month']);
-    unset ($form['year']); 
+    
   }
   //dpm($form);
   

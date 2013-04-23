@@ -534,3 +534,8 @@ function mymodule_uninstall() {
   drupal_uninstall_schema('datalogger');
 }
 
+function datalogger_update_xx() {
+  
+  // translate t('Report monthly rainfall data (BKT14 form)');
+  
+}

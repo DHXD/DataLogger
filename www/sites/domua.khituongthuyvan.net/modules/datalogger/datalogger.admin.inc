@@ -425,13 +425,15 @@ function _datalogger_set_station_options($area, $province) {
 function _datalogger_report_rainfall_year_form($form, &$form_state){
 	drupal_set_title(t('Report annual rainfall data'));
 	_datalogger_select_area_province_station($form, $form_state);
-	$form['month']['#access']=FALSE;
-	$form['day']['#access']=FALSE;
-	$form['txtNameQTV']['#access']=FALSE;
-	$form['txtNameNLB']['#access']=FALSE;
-	$form['txtNameKS']['#access']=FALSE;
-	$form['txtNamePT']['#access']=FALSE;
-	$form['selectReport']['#access']=FALSE;
+  
+  $form['stations_fieldset']['selectReport']['#access']=FALSE;
+	$form['stations_fieldset']['month']['#access']=FALSE;
+	$form['stations_fieldset']['day']['#access']=FALSE;
+	$form['person']['txtNameQTV']['#access']=FALSE;
+	$form['person']['txtNameNLB']['#access']=FALSE;
+	$form['person']['txtNameKS']['#access']=FALSE;
+	$form['person']['txtNamePT']['#access']=FALSE;
+	
 	
 	$form["submit"] = array(
       "#type" => "submit",
@@ -476,16 +478,17 @@ function _datalogger_report_rainfall_year_form_submit(&$form, &$form_state) {
 function _datalogger_report_rainfall_all_station_in_day_form($form, &$form_state){
 	drupal_set_title(t('Statistics of rainfall during the day'));
 	_datalogger_select_area_province_station($form, $form_state);
-	$form['year']['#access']=FALSE;
-	$form['month']['#access']=FALSE;
-	$form['txtNameQTV']['#access']=FALSE;
-	$form['txtNameNLB']['#access']=FALSE;
-	$form['txtNameKS']['#access']=FALSE;
-	$form['txtNamePT']['#access']=FALSE;
-	$form['selectReport']['#access']=FALSE;
+  $form['stations_fieldset']['selectReport']['#access']=FALSE;
+	$form['stations_fieldset']['year']['#access']=FALSE;
+	$form['stations_fieldset']['month']['#access']=FALSE;
+	$form['person']['txtNameQTV']['#access']=FALSE;
+	$form['person']['txtNameNLB']['#access']=FALSE;
+	$form['person']['txtNameKS']['#access']=FALSE;
+	$form['person']['txtNamePT']['#access']=FALSE;
 	
-	$form['selectStation']['station']['#multiple']= TRUE;//cho phep chon nhieu tram do mua
-	$form['selectStation']['station']['#size']= 10;//hien thi toi da la 10 phan tu
+	
+	$form['stations_fieldset']['selectStation']['station']['#multiple']= TRUE;//cho phep chon nhieu tram do mua
+	$form['stations_fieldset']['selectStation']['station']['#size']= 10;//hien thi toi da la 10 phan tu
 	
   $form["submit"] = array(
       "#type" => "submit",
@@ -514,13 +517,15 @@ function _datalogger_report_rainfall_all_station_in_day_submit(&$form, &$form_st
 function _datalogger_report_rainfall_day_form($form, &$form_state){
 	drupal_set_title(t('Reports daily rainfall data'));
 	_datalogger_select_area_province_station($form, $form_state);
-	$form['year']['#access']=FALSE;
-	$form['month']['#access']=FALSE;
-	$form['txtNameQTV']['#access']=FALSE;
-	$form['txtNameNLB']['#access']=FALSE;
-	$form['txtNameKS']['#access']=FALSE;
-	$form['txtNamePT']['#access']=FALSE;
-	$form['selectReport']['#access']=FALSE;
+	$form['stations_fieldset']['year']['#access']=FALSE;
+	$form['stations_fieldset']['month']['#access']=FALSE;
+	$form['person']['txtNameQTV']['#access']=FALSE;
+	$form['person']['txtNameNLB']['#access']=FALSE;
+	$form['person']['txtNameKS']['#access']=FALSE;
+	$form['person']['txtNamePT']['#access']=FALSE;
+	
+  $form['stations_fieldset']['selectReport']['#access']=FALSE;
+  
 	//dpm('asd');
   $form["submit"] = array(
       "#type" => "submit",
@@ -605,48 +610,32 @@ function _datalogger_check_inbox() {
       $len_sms = strlen($row->TextDecoded);
       //Xử lý tin nhắn được yêu cầu:88byte
       if($len_sms == 88){
+        print "cmd\n";
+        /*
 				//Thực hiện chèn bản tin vào bảng command
 				_datalogger_separate_sms_command($sms, $number);
 				//Cập nhật các bản tin đã xử lý
 				_datalogger_update_process_inbox(1,$id_inbox);
+        */
       }
       //Xử lý bản tin đo mưa tự động:140byte
       elseif($len_sms == 140) {
+        print "rain\n";
       
         switch ($number) {
-		/*
-        case '01647492506': // Ham Cuong
-        case '01635662128': // Mỹ Thạnh
-       // case '01653448055': // Phan Sơn
-        case '01654635702': // Phước Hà
-
-          if ($row-> RecipientID == 'modem13') {    // nambo server
-            
-            if ($cron) {
-              // Move sms to Nam Trung Bo server          
-              module_load_include('inc', 'datalogger', 'datalogger.admin.sms');
-              if (_datalogger_sms_post_server($row)) {
-                _datalogger_update_process_inbox(30, $id_inbox);   // Cập nhật các bản tin đã xử lý
-              }
-            }
-            else _datalogger_update_process_inbox(31, $id_inbox);   // mark for cron
-            
-          }
-          
-          break;
-         */ 
+	
         default:
           // Chèn bản tin vào bảng đo mưa
           // dsm('into 140');
           _datalogger_separate_sms($sms,$number);
           // Cập nhật các bản tin đã xử lý
-          _datalogger_update_process_inbox(1, $id_inbox);
+          //////////_datalogger_update_process_inbox(1, $id_inbox);
         }
       }			
-			else _datalogger_update_process_inbox(2, $id_inbox);
+			/////else _datalogger_update_process_inbox(2, $id_inbox);
     }
 		else{
-			_datalogger_update_process_inbox(2, $id_inbox);
+			/////_datalogger_update_process_inbox(2, $id_inbox);
 		}
     flush (); // flush the output buffer
   }
@@ -745,6 +734,7 @@ function _datalogger_separate_sms($sms,$number) {
 	$arg = array($timestart, $nid, $is_valid, $measuaring, $accumulate, $battery);
 
 	_datalogger_insert_node_rainfall($arg);
+  
 }
 
 function _datalogger_separate_opp($sms){
@@ -766,13 +756,19 @@ function _datalogger_insert_node_rainfall(&$arg){
 	$timestam = $arg[0];
 	$nid = $arg[1];
 	$station = node_load($nid);
-	if( $nid != null || !empty($nid ) && (!empty($station) || $station != null)){
+  
+  
+  
+	if( $nid != null || !empty($nid ) && (!empty($station) || $station != null)) {
 		$time_unix = _datalogger_string_to_unix_date($timestam);
 		$is_data_valids = $arg[2];
 		$measuring_interval = $arg[3];//3
 		$accumulate;//4
 		$battery = $arg[5];//5
-		for($i = 5; $i >= 0; $i--){		
+		
+    
+    for($i = 5; $i >= 0; $i--) {
+    
 			$is_data_valid = $is_data_valids[$i];
 			$time = $time_unix - 60*10*$i;
 			$send_time = date('dmYHis',$time);
@@ -780,11 +776,21 @@ function _datalogger_insert_node_rainfall(&$arg){
 			$year = date('Y',$time);
 			$year_month = date('Ym',$time);
 			$year_month_date = date('Ymd',$time);
+      
 			if($is_data_valid == 0){
 				$power = $battery[$i];
-				$rainfalls = views_get_view_result('view_find_rainfall_station', NULL, $nid, $send_time);
+        
+        // trung temp
+        
+				///$rainfalls = views_get_view_result('view_find_rainfall_station', NULL, $nid, $send_time);
+        
+        print('$send_time='.$send_time);
+        
+        $rainfalls = array();
+        
 				//xoa tat ca cac node neu trung du lieu
-				if(count($rainfalls) > 0){
+				if(count($rainfalls) > 0 && FALSE){
+        
 					foreach($rainfalls as $rainfall_old){
 						$rainfall_old = node_load($rainfall_old->nid);
 						//lượng mưa đo được trong 10p
@@ -838,7 +844,8 @@ function _datalogger_insert_node_rainfall(&$arg){
 					}
 					
 					$rainfall = node_submit($rainfall);
-					node_save($rainfall);
+          
+					//////////node_save($rainfall);
 					// dsm($rainfall);
 				}
 			}
@@ -859,7 +866,7 @@ function _datalogger_insert_node_rainfall(&$arg){
 			//khong co mua - kho han
 			$station->field_station_alarm['und'][0]['value'] = 'alarm_false';	
 		}		
-		node_save($station);
+		//////node_save($station);
 	}
 	
 }
@@ -1533,21 +1540,6 @@ function _user_add_form(){
 }
 
 
-function _datalogger_report_rainfall_month_form($form, &$form_state){
-	drupal_set_title(t('Report monthly rainfall data'));
-	
-	_datalogger_select_area_province_station($form, $form_state);
-	$form['day']['#access']=FALSE;
-	
-	$form["submit2"] = array(
-      "#type" => "submit",
-      "#value" => t("Report"),
-      "#submit" => array(
-          "_datalogger_report_rainfall_month2_submit"
-      ),
-  ); 
-  return $form;
-}
 function _datalogger_report_rainfall_month_submit(&$form, &$form_state) {
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	$nid = $form_state['values']['station'];
@@ -1572,112 +1564,6 @@ function _datalogger_report_rainfall_month_submit(&$form, &$form_state) {
 	}
 }
 
-function _datalogger_report_rainfall_month2_submit(&$form, &$form_state) {
-	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
-	module_load_include('inc', 'datalogger', 'datalogger.admin.excel.month');
-	$nid = $form_state['values']['station'];
-	$year = $form_state['values']['year'];
-	$month = $form_state['values']['month'];
-	if($month < 10){
-		$month = '0'.$month;
-	}
-	$year_month = $year.$month;
-	$name_qtv = $form_state['values']['txtNameQTV'];
-	$name_nlb = $form_state['values']['txtNameNLB'];
-	$name_ks = $form_state['values']['txtNameKS'];
-	$name_pt = $form_state['values']['txtNamePT'];
-	
-	// $rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year_month, 'all');
-	/*
-	$month_days_number = cal_days_in_month(CAL_GREGORIAN, substr($year_month, -2), $year);
-	for($day = 1; $day <= $month_days_number; $day++){
-		if(($day) < 10){
-			$day_time = '0'.($day);
-		}
-		else{
-			$day_time = $day;
-		}
-		$max_rainfall_in_day = 0;
-		$max_time_rainfall_in_day = 0;
-		$hours_in_day = array();
-		$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year_month, $year_month.$day_time);
-		if(count(rainfalls) > 0){
-			foreach($rainfalls as $rainfall){
-				$hour = (int)substr($rainfall->node_title, -8, 2);
-				$rainfall_measuring = (float)$rainfall->field_field_rainfall_measuring[0]['rendered']['#markup'];
-				if($rainfall_measuring > 0){
-					$hours_in_day[$hour][] = $rainfall;
-					$total_rainfall_in_day += $rainfall_measuring;
-					$time_rainfall_in_day +=10;
-					$max_time_rainfall_in_day = ($max_time_rainfall_in_day < $time_rainfall_in_day)?$time_rainfall_in_day:$max_time_rainfall_in_day;
-					$max_rainfall_in_day = ($max_rainfall_in_day < $total_rainfall_in_day)?$total_rainfall_in_day:$max_rainfall_in_day; 
-				}
-				else{
-					$total_rainfall_in_day = 0;
-					$time_rainfall_in_day =0;
-				}
-			}
-			for($i = 23; $i >= 0; $i--){
-				$number = count($hours_in_day[$i]);
-				$total_rainfall_in_hour = 0;
-				$time_rainfall_in_hour = 0;
-				$max_rainfall_in_hour = 0; 
-				if($number > 0){
-					for($j = 0; $j < $number; $j++){
-						$rainfall_measuring = (float)$hours_in_day[$i][$j]->field_field_rainfall_measuring[0]['rendered']['#markup'];
-						$total_rainfall_in_hour += $rainfall_measuring;
-						$time_rainfall_in_hour +=10;
-						$max_rainfall_in_hour = ($max_rainfall_in_hour < $rainfall_measuring) ? $rainfall_measuring : $max_rainfall_in_hour; 
-					}
-					$hours_in_day[$i] = array('max_rainfall_in_hour' => $max_rainfall_in_hour, 
-						'total_rainfall_in_hour' => $total_rainfall_in_hour, 
-						'time_rainfall_in_hour' => $time_rainfall_in_hour);
-				}
-				else{
-					$hours_in_day[$i] = array('max_rainfall_in_hour' => 0, 
-						'total_rainfall_in_hour' => 0, 
-						'time_rainfall_in_hour' => 0);
-				}
-			}
-		}
-		else{
-			for($i = 23; $i >=0; $i--){
-				$hours_in_day[$i] = array('max_rainfall_in_hour' => 0, 
-						'total_rainfall_in_hour' => 0, 
-						'time_rainfall_in_hour' => 0);
-			}
-		}
-		$day_of_month[$day]= array('max_rainfall_in_day' => $max_rainfall_in_day,
-			'max_time_rainfall_in_day' => $max_time_rainfall_in_day, 
-			'hours_in_day' => $hours_in_day);
-	}
-	*/
-	// dsm($day_of_month);
-	// /*
-	module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
-	module_load_include('inc', 'datalogger', 'datalogger.admin.excel.month');
-	$nid = $form_state['values']['station'];
-	$year = $form_state['values']['year'];
-	$month = $form_state['values']['month'];
-	if($month < 10){
-		$month = '0'.$month;
-	}
-	$year_month = $year.$month;
-	$name_qtv = $form_state['values']['txtNameQTV'];
-	$name_nlb = $form_state['values']['txtNameNLB'];
-	$name_ks = $form_state['values']['txtNameKS'];
-	$name_pt = $form_state['values']['txtNamePT'];
-	
-	$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year_month, 'all');
-	// $rainfalls_month = views_get_view_result('view_rainfall_hour_time','default', $nid, $year, $year_month,all);
-	if(count($rainfalls) <= 0){
-		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
-	}
-	else{
-		_datalogger_export_rainfall_month_excel($nid, $year, $year_month);
-	}
-	// */
-}
 
 function _init_rainfall_node($title, $time, $rainfall, $stationCode) {
   $node = new stdClass();
