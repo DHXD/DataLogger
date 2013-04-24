@@ -616,9 +616,9 @@ function _datalogger_check_inbox() {
         print "cmd\n";
         
 				//Thực hiện chèn bản tin vào bảng command
-				_datalogger_separate_sms_command($sms, $number);
+				//_datalogger_separate_sms_command($sms, $number);
 				//Cập nhật các bản tin đã xử lý
-				_datalogger_update_process_inbox(1,$id_inbox);
+				//_datalogger_update_process_inbox(1,$id_inbox);
         
       }
       //Xử lý bản tin đo mưa tự động:140byte
