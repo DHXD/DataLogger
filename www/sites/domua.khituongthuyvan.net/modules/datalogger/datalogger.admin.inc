@@ -598,6 +598,9 @@ function _datalogger_check_inbox() {
   $processed = ($cron ? 31 : 0);
   
   $result = db_query("SELECT * FROM inbox WHERE Processed={$processed} LIMIT 0,2");
+  
+  
+  
   foreach ($result as $row) {
     // //tin nhắn từ datalogger
 		$id_inbox = $row->ID;
@@ -607,6 +610,10 @@ function _datalogger_check_inbox() {
 		$number = _datalogger_convert_number($row->SenderNumber);
 		$sms = $row->TextDecoded;
     if(_datalogger_startsWith($row->TextDecoded,'HS') && _datalogger_endsWith($row->TextDecoded,';')) {
+    
+      print "Ok1.";
+      drupal_exit();
+    
       $len_sms = strlen($row->TextDecoded);
       //Xử lý tin nhắn được yêu cầu:88byte
       if($len_sms == 88){
@@ -638,6 +645,9 @@ function _datalogger_check_inbox() {
 			/////_datalogger_update_process_inbox(2, $id_inbox);
 		}
     flush (); // flush the output buffer
+    
+    print "Ok1.";
+    drupal_exit();
   }
 	// return 'Ok';
   print "Ok.";
