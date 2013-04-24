@@ -595,13 +595,15 @@ function _datalogger_convert_number($number){
 function _datalogger_check_inbox() {
   $cron = (arg(3) == 'remote');
   
-  $processed = ($cron ? 31 : 0);
+  $processed = 0;
   
-  $result = db_query("SELECT * FROM inbox WHERE Processed={$processed} LIMIT 0,2");
+  $result = db_query("SELECT * FROM inbox WHERE Processed={$processed} LIMIT 0,10");
+  //dpm($result[0]->ID);
+  
   foreach ($result as $row) {
     // //tin nhắn từ datalogger
 		$id_inbox = $row->ID;
-    
+
     print "{$row->ID}\n";
     
 		$number = _datalogger_convert_number($row->SenderNumber);
@@ -609,14 +611,15 @@ function _datalogger_check_inbox() {
     if(_datalogger_startsWith($row->TextDecoded,'HS') && _datalogger_endsWith($row->TextDecoded,';')) {
       $len_sms = strlen($row->TextDecoded);
       //Xử lý tin nhắn được yêu cầu:88byte
+      
       if($len_sms == 88){
         print "cmd\n";
-        /*
+        
 				//Thực hiện chèn bản tin vào bảng command
 				_datalogger_separate_sms_command($sms, $number);
 				//Cập nhật các bản tin đã xử lý
 				_datalogger_update_process_inbox(1,$id_inbox);
-        */
+        
       }
       //Xử lý bản tin đo mưa tự động:140byte
       elseif($len_sms == 140) {
@@ -629,7 +632,8 @@ function _datalogger_check_inbox() {
           // dsm('into 140');
           _datalogger_separate_sms($sms,$number);
           // Cập nhật các bản tin đã xử lý
-          //////////_datalogger_update_process_inbox(1, $id_inbox);
+          _datalogger_update_process_inbox(1, $id_inbox);
+          //return $sms;
         }
       }			
 			/////else _datalogger_update_process_inbox(2, $id_inbox);
@@ -953,7 +957,7 @@ function _datalogger_new_sms_form() {
 		array('data' => t('Modem'), ),
     array('data' => t('Processed'), 'field' => 'Processed', 'sort' => 'ASC'),
   );
- 
+  
   // Setting the sort conditions
   if(isset($_GET['sort']) && isset($_GET['order'])) {
     // Sort it Ascending or Descending?
@@ -982,8 +986,8 @@ function _datalogger_new_sms_form() {
   
   $stations = views_get_view_result('view_station_find', Null, 'all' );
   
-  //dpm($stations);
- 
+  dpm($stations);
+  //return 'abc';
   global $databases;
   
   $other_database = $databases['default']['default'];
@@ -1009,8 +1013,9 @@ function _datalogger_new_sms_form() {
   $result = $query->execute();
   
   db_set_active(); // without the paramater means set back to the default for the site
-   
+    
   // Looping for filling the table rows
+  //return 0;
   while($row = $result->fetchObject()) {
   
   

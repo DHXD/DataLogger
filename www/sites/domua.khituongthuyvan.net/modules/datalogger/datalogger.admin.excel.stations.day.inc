@@ -210,6 +210,10 @@ function _datalogger_export_rainfall_month_excel($region, $province, $station_ni
   $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
   header('Content-type: application/vnd.ms-excel');
   header('Content-Disposition: attachment; filename="Báo cáo dữ liệu mưa - Trạm ' . $name_station->title . ' - ' . date('m',time()) . '-' . date('Y',time()) . '.xlsx"');
-  $objWriter->save('php://output');
+  //$objWriter->save('php://output');
+  $f = file_directory_temp() . '/Bao cao du lieu mua trong ngay_' . time() . '.xls';
+  $objWriter->save($f);
+  files($f);
+  drupal_unlink($f);
   drupal_exit();
 }
