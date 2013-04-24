@@ -601,13 +601,9 @@ function _datalogger_check_inbox() {
   $processed = 0;
   
   
-  /////
-  //////
   
-  // Kiểm tra từ mới đến cũ...............
-  
-  /////
-  $result = db_query("SELECT * FROM inbox WHERE Processed={$processed} ORDER BY UpdatedInDB DESC LIMIT 0,30");
+  // Kiểm tra từ mới đến cũ...............  
+  $result = db_query("SELECT * FROM inbox WHERE Processed={$processed} ORDER BY UpdatedInDB DESC LIMIT 0,50");
   
   
   foreach ($result as $row) {
