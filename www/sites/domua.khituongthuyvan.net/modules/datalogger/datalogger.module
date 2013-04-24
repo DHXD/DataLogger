@@ -154,10 +154,10 @@ function _datalogger_alter_add_js_stations(&$provinces) {
   //dpm($region_station);
   //dpm($khuvuc);
   //dpm($provinces);
-  
+  $a = array_keys($provinces);
   for($i = 0; $i < count (array_keys($provinces)); $i++){
 
-    $province = array_keys($provinces)[$i];
+    $province = $a[$i];
     //dpm($province);
     
     if($province == 'All'){
@@ -1136,6 +1136,7 @@ function _datalogger_select_area_province_station(&$form, &$form_state, $div_cla
   
   global $is_dev;
   $value_select_province = $is_dev ? 'quang_tri' : $value_select_province;
+  if (!$station_name || !is_array($station_name)) $station_name = array();
   $default_station  = $is_dev ? 2965 : (isset($form_state['values']['station']) ? $form_state['values']['station']: key($station_name));
   
 	$form['stations_fieldset']['selectProvince']['province'] = array(
