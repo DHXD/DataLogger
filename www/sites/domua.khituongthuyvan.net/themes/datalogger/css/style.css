@@ -1904,9 +1904,10 @@ div#header.with-secondary-menu div.section div.section div.region div#block-loca
 
 
 /* command form */
-form#-command-form div div.form-item select.form-select
+form#-command-form div div.form-item select.form-select,
+form#-datalogger-report-rainfall-month-form div div.form-item select.form-select
  {
-  width: 200px;
+  width: 234px;
 }
 
 form#-command-form div div.form-item select#edit-command-selects.form-select {
@@ -1920,4 +1921,31 @@ div.title {
 
 div#header {
   height: 186px;
+}
+
+fieldset#edit-stations-fieldset.form-wrapper,
+fieldset#edit-person.form-wrapper
+{
+  float: left;
+  width: 48%;
+  height: 426px;
+}
+ 
+
+
+
+div#content.column div.section form#-command-form div fieldset#edit-stations-fieldset.form-wrapper {
+	height: 215px !important;
+	width: 28% !important;
+	top: 0px;
+}
+
+div#content.column div.section form#-command-form div div#command-div fieldset#edit-command-fieldset.form-wrapper {
+	top: 12px !important;
+}
+
+div#content.column div.section form#-command-form div input#edit-submit.form-submit {
+	position: absolute;
+	top: 70px;
+	left:844px;
 }

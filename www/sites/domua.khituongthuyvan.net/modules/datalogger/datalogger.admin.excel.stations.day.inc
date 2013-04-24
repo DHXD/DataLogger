@@ -1,7 +1,9 @@
 <?php
-error_reporting(E_ALL);
-require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel.php';
-function _datalogger_export_rainfall_month_excel($region, $province, $station_nids, $year, $month, $day){
+
+function _datalogger_export_rainfall_stations_day_excel($region, $province, $station_nids, $year, $month, $day){
+  error_reporting(E_ALL);
+  require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel.php';
+
 	module_load_include('inc', 'datalogger', 'datalogger.admin');
 
 	$number = count($station_nids);
@@ -207,9 +209,13 @@ function _datalogger_export_rainfall_month_excel($region, $province, $station_ni
 
 	/** Include PHPExcel_IOFactory */
   require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel/IOFactory.php';
-  $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+  $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
   header('Content-type: application/vnd.ms-excel');
-  header('Content-Disposition: attachment; filename="Báo cáo dữ liệu mưa - Trạm ' . $name_station->title . ' - ' . date('m',time()) . '-' . date('Y',time()) . '.xlsx"');
-  $objWriter->save('php://output');
+  header('Content-Disposition: attachment; filename="Báo cáo dữ liệu mưa - Trạm ' . $name_station->title . ' - ' . date('m',time()) . '-' . date('Y',time()) . '.xls"');
+  //$objWriter->save('php://output');
+  $f = file_directory_temp() . '/Bao cao du lieu mua trong ngay_' . time() . '.xls';
+  $objWriter->save($f);
+  files($f);
+  drupal_unlink($f);
   drupal_exit();
 }

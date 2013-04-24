@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 
 /**
  * Implements hook_views_api().
@@ -153,4 +153,3 @@ function _views_filters_selective_get_ancestors($class) {
   }
   return $classes;
 }
-

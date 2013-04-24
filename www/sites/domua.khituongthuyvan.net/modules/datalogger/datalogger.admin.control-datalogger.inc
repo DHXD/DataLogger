@@ -59,22 +59,18 @@ function _command_form($form, &$form_state) {
 		38 => t('Reset All'),);	
     
   if (arg(1) == '0') {
-    global $khuvuc;
-    $form_state['lock-region'] = true;
-    $form_state['values']['selectArea'] = $khuvuc[0];
     
-    _datalogger_select_area_province_station($form, $form_state);
+    $div_class = 'control-datalogger';
     
+    _datalogger_select_area_province_station($form, $form_state, $div_class);
     
-    unset ($form['txtNameQTV']);//['#access']=FALSE;
-    unset ($form['txtNameNLB']);//['#access']=FALSE;
-    unset ($form['txtNameKS']);//['#access']=FALSE;
-    unset ($form['txtNamePT']);//['#access']=FALSE;
-    unset ($form['selectReport']);//['#access']=FALSE;  
+    unset ($form['stations_fieldset']['selectReport']);
+    unset ($form['stations_fieldset']['day']);
+    unset ($form['stations_fieldset']['month']);
+    unset ($form['stations_fieldset']['year']); 
+    unset ($form['person']);//['#access']=FALSE;    
     unset ($form['notice_excel_2007']);
-    unset ($form['day']);
-    unset ($form['month']);
-    unset ($form['year']); 
+    
   }
   //dpm($form);
   
@@ -428,7 +424,7 @@ function _command_form($form, &$form_state) {
       // $title =  t('Get Datalogger Firmware Version');
       break;
   }
-  
+
   if (count(array_keys($form['command_fieldset'])) == 4) {    // empty 
     $form['command_fieldset']['empty']= array(
       '#markup' => t('(Không có).'),      
@@ -760,12 +756,12 @@ function _send_command_submit($form, &$form_state) {
     $nid = $form_state['values']['station'];
     $form_state['values']['station_nid'] = array('command', $nid);
     
-    dpm(array('nid', $nid));
+    //dpm(array('nid', $nid));
   }
   
-  dpm($form_state[values]);
+  //dpm($form_state[values]);
   
-  dpm($nid);
+  //dpm($nid);
   
   
   
@@ -793,7 +789,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
   
   $nids = $form_state['values']['station_nid'];
   
-  dpm(array('nids', $nid));
+  //dpm(array('nids', $nid));
   
 	for($i_nid = 1; $i_nid < count($nids); $i_nid++ ) {
     $nid = intval($nids[$i_nid]);
@@ -802,7 +798,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
 		if($nid) {  
 			$node = node_load($nid);
       
-      dpm($node);
+      //dpm($node);
       
 			$code = _datalogger_language_field($node, 'field_station_code');
       for ($i = strlen($code); $i < 6; $i++)  $code = '0' . $code;    // add 0 to max 6 chars.
