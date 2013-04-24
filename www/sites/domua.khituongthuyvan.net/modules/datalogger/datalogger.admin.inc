@@ -538,21 +538,39 @@ function _datalogger_report_rainfall_day_form($form, &$form_state){
 }
 
 function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
-	// module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
-	module_load_include('inc', 'datalogger', 'datalogger.admin.statistics.excel');
-	$nid = $form_state['values']['station'];
+	//module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
+	module_load_include('inc', 'datalogger', 'datalogger.admin.excel.stations.day');
+  
+  $region = $form['stations_fieldset']['selectArea']['#options'][$form_state['values']['selectArea']];
+	$province = $form['stations_fieldset']['selectProvince']['province']['#options'][$form_state['values']['province']];
+	$station_nids = $form_state['values']['station'];
   $day = new DateTime($form_state['values']['day']);
   $year = $day->format('Y');
   $month = $day->format('m');
   $day = $day->format('Ymd');
-	$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year.$month, $day);
+  
+  
+  $khang = array(
+    'region' => $region,
+    'province' => $province,
+    'station_nids' => $station_nids,
+    'day' => $day,
+    'month' => $month,
+    'year' => $year
+  );
+  dpm($khang);
+  
+	$rainfalls = views_get_view_result('view_export_excel','default', $station_nids, $year, $month, $day);
+  //dpm($rainfalls[0]);
+  _datalogger_export_rainfall_station_day_excel($region, $province, $station_nids, $year, $month, $day);
 	if(count($rainfalls) <= 0){
-		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
+		//drupal_set_message(t('Rainfall stations in the no data to report'),'error');
 	}
 	else{
 		// $args = array($nid, $rainfalls, $name_qtv, $name_nlb, $name_ks, $name_pt);
 		$args = array($nid, $rainfalls);
-		_export_excel($args);
+		//_export_excel($args);
+    _datalogger_export_rainfall_station_day_excel($region, $province, $station_nids, $year, $month, $day);
 	}
 }
 
@@ -986,7 +1004,7 @@ function _datalogger_new_sms_form() {
   
   $stations = views_get_view_result('view_station_find', Null, 'all' );
   
-  dpm($stations);
+  //dpm($stations);
   //return 'abc';
   global $databases;
   
@@ -1860,7 +1878,7 @@ function _view_translate_log() {
 }
 
 function digipro_views_get_view_result($viewname, $display_id = NULL, $args = NULL,
-    $content_only = false, $data_only = false) {
+  $content_only = false, $data_only = false) {
   $view = views_get_view($viewname);
   if(is_object($view)) {
     if(is_array($args)) {

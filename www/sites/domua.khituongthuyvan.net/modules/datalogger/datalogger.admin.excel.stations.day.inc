@@ -1,7 +1,8 @@
 <?php
-error_reporting(E_ALL);
-require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel.php';
-function _datalogger_export_rainfall_month_excel($region, $province, $station_nids, $year, $month, $day){
+function _datalogger_export_rainfall_station_day_excel($region, $province, $station_nids, $year, $month, $day){
+  error_reporting(0);
+  require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel.php';
+  require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel/IOFactory.php';
 	module_load_include('inc', 'datalogger', 'datalogger.admin');
 
 	$number = count($station_nids);
@@ -21,8 +22,8 @@ function _datalogger_export_rainfall_month_excel($region, $province, $station_ni
 					$hours_in_day[$hour][] = $rainfall;
 					$total_rainfall_in_day += $rainfall_measuring;
 					$time_rainfall_in_day +=10;
-					$max_total_time_rainfall_in_day = ($max_total_time_rainfall_in_day < $time_rainfall_in_day)?$time_rainfall_in_day:$max_total_time_rainfall_in_day;
-					$max_total_rainfall_in_day = ($max_total_rainfall_in_day < $total_rainfall_in_day)?$total_rainfall_in_day:$max_total_rainfall_in_day; 
+					$max_total_time_rainfall_in_day = ($max_total_time_rainfall_in_day < $time_rainfall_in_day) ? $time_rainfall_in_day : $max_total_time_rainfall_in_day;
+					$max_total_rainfall_in_day = ($max_total_rainfall_in_day < $total_rainfall_in_day) ? $total_rainfall_in_day : $max_total_rainfall_in_day; 
 				}
 				else{
 					$total_rainfall_in_day = 0;
@@ -206,14 +207,14 @@ function _datalogger_export_rainfall_month_excel($region, $province, $station_ni
 		
 
 	/** Include PHPExcel_IOFactory */
-  require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel/IOFactory.php';
-  $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel2007');
+  $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+  
   header('Content-type: application/vnd.ms-excel');
-  header('Content-Disposition: attachment; filename="Báo cáo dữ liệu mưa - Trạm ' . $name_station->title . ' - ' . date('m',time()) . '-' . date('Y',time()) . '.xlsx"');
+  header('Content-Disposition: attachment; filename="Báo cáo dữ liệu mưa - Trạm ' . $name_station->title . ' - ' . date('m',time()) . '-' . date('Y',time()) . '.xls"');
   //$objWriter->save('php://output');
-  $f = file_directory_temp() . '/Bao cao du lieu mua trong ngay_' . time() . '.xls';
-  $objWriter->save($f);
-  files($f);
-  drupal_unlink($f);
+  $abc = file_directory_temp() . '/Bao cao du lieu mua trong ngay_' . time() . '.xls';
+  $objWriter->save($abc);
+  files($abc);
+  drupal_unlink($abc);
   drupal_exit();
 }

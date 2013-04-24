@@ -12,13 +12,6 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month, $form_stat
 	$name_nlb = $form_state['values']['txtNameNLB'];
 	$name_ks = $form_state['values']['txtNameKS'];
 	$name_pt = $form_state['values']['txtNamePT'];
-
-  $styleArray = array(
-    'alignment' => array(
-        'rotation' => 90,
-    ),
-  );
-  
   
 	if($nid != ''){
 		$name_station = node_load($nid);
