@@ -1934,3 +1934,18 @@ fieldset#edit-person.form-wrapper
 
 
 
+div#content.column div.section form#-command-form div fieldset#edit-stations-fieldset.form-wrapper {
+	height: 215px !important;
+	width: 28% !important;
+	top: 0px;
+}
+
+div#content.column div.section form#-command-form div div#command-div fieldset#edit-command-fieldset.form-wrapper {
+	top: 12px !important;
+}
+
+div#content.column div.section form#-command-form div input#edit-submit.form-submit {
+	position: absolute;
+	top: 70px;
+	left:844px;
+}
