@@ -595,56 +595,75 @@ function _datalogger_convert_number($number){
 function _datalogger_check_inbox() {
   $cron = (arg(3) == 'remote');
   
+  $debug = (arg(3) == 'debug');
+  $cmd = !$debug;
+  
   $processed = 0;
   
+  
+  
+  
+  /////
+  //////
+  
+  // Kiểm tra từ mới đến cũ...............
+  
+  /////
   $result = db_query("SELECT * FROM inbox WHERE Processed={$processed} LIMIT 0,10");
-  //dpm($result[0]->ID);
+  
   
   foreach ($result as $row) {
+  
+  
     // //tin nhắn từ datalogger
 		$id_inbox = $row->ID;
 
-    print "{$row->ID}\n";
+    if ($cmd) print "{$row->ID}\n";
     
 		$number = _datalogger_convert_number($row->SenderNumber);
 		$sms = $row->TextDecoded;
+    
     if(_datalogger_startsWith($row->TextDecoded,'HS') && _datalogger_endsWith($row->TextDecoded,';')) {
       $len_sms = strlen($row->TextDecoded);
       //Xử lý tin nhắn được yêu cầu:88byte
       
+      if ($debug) dpm($len_sms);
+      
       if($len_sms == 88){
-        print "cmd\n";
+        if ($cmd) print "cmd\n";
         
 				//Thực hiện chèn bản tin vào bảng command
-				//_datalogger_separate_sms_command($sms, $number);
+				_datalogger_separate_sms_command($sms, $number);
 				//Cập nhật các bản tin đã xử lý
-				//_datalogger_update_process_inbox(1,$id_inbox);
+				_datalogger_update_process_inbox(1,$id_inbox);
         
       }
       //Xử lý bản tin đo mưa tự động:140byte
       elseif($len_sms == 140) {
-        print "rain\n";
+        if ($cmd) print "rain\n";
       
         switch ($number) {
 	
         default:
+        
           // Chèn bản tin vào bảng đo mưa
           // dsm('into 140');
           _datalogger_separate_sms($sms,$number);
           // Cập nhật các bản tin đã xử lý
           _datalogger_update_process_inbox(1, $id_inbox);
           //return $sms;
+        
         }
       }			
-			/////else _datalogger_update_process_inbox(2, $id_inbox);
+			else _datalogger_update_process_inbox(2, $id_inbox);
     }
 		else{
-			/////_datalogger_update_process_inbox(2, $id_inbox);
+			_datalogger_update_process_inbox(2, $id_inbox);
 		}
-    flush (); // flush the output buffer
+    if ($cmd) flush (); // flush the output buffer
   }
-	// return 'Ok';
-  print "Ok.";
+	if ($debug) return 'Ok';
+  if ($cmd) print "Ok.";
   drupal_exit();
 }
 
@@ -737,8 +756,7 @@ function _datalogger_separate_sms($sms,$number) {
 	$title = $station[0]->node_title;
 	$arg = array($timestart, $nid, $is_valid, $measuaring, $accumulate, $battery);
 
-	_datalogger_insert_node_rainfall($arg);
-  
+	_datalogger_insert_node_rainfall($arg);  
 }
 
 function _datalogger_separate_opp($sms){
@@ -788,7 +806,7 @@ function _datalogger_insert_node_rainfall(&$arg){
         
 				///$rainfalls = views_get_view_result('view_find_rainfall_station', NULL, $nid, $send_time);
         
-        print('$send_time='.$send_time);
+        //print('$send_time='.$send_time);
         
         $rainfalls = array();
         
@@ -803,8 +821,8 @@ function _datalogger_insert_node_rainfall(&$arg){
 						$rainfall_old->field_rainfall_total['und'][0]['value'] = $arg[4][$i]/10;
 						
 						//chen thoi gian chan vao node
-						for($i = 0; $i < 24; $i++){
-							if($clearTime3['h'.$i] == $hour_time){
+						for($j = 0; $j < 24; $j++){
+							if($clearTime3['h'.$j] == $hour_time){
 								$rainfall->field_rainfall_hour_time[$rainfall->language][0]['value'] = $hour_time;
 							}
 						}
@@ -841,15 +859,15 @@ function _datalogger_insert_node_rainfall(&$arg){
 					$rainfall->field_rainfall_year_month_date[$rainfall->language][0]['value'] = $year_month_date;
 					
 					//chỉ trèn giá trị vào trường này khi thời gian là: 01:00:00, 02:00:00,...23:00:00h
-					for($i = 0; $i < 24; $i++){
-						if($clearTime3['h'.$i] == $hour_time){
+					for($j = 0; $j < 24; $j++){
+						if($clearTime3['h'.$j] == $hour_time){
 							$rainfall->field_rainfall_hour_time[$rainfall->language][0]['value'] = $hour_time;
 						}
 					}
 					
 					$rainfall = node_submit($rainfall);
           
-					//////////node_save($rainfall);
+					node_save($rainfall);
 					// dsm($rainfall);
 				}
 			}
@@ -870,7 +888,7 @@ function _datalogger_insert_node_rainfall(&$arg){
 			//khong co mua - kho han
 			$station->field_station_alarm['und'][0]['value'] = 'alarm_false';	
 		}		
-		//////node_save($station);
+		node_save($station);
 	}
 	
 }
@@ -979,7 +997,7 @@ function _datalogger_new_sms_form() {
     
   }
   else {
-    $sort = 'ASC';
+    $sort = 'DESC';
     $order = 'UpdatedInDB';
   }
   
