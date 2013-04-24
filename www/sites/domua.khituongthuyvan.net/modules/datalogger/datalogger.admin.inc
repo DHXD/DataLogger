@@ -1229,7 +1229,7 @@ function _datalogger_new_sentitems_form(){
   
   $rows = array();
   while($row = $result->fetchObject()){
-		$number = _datalogger_convert_number($row->SenderNumber);
+		$number = $row->SenderNumber;
 		$station = views_get_view_result('view_station_find', Null, $number );
 		if(!empty($station)){
 			$station_name = $station[0]->node_title;
@@ -1245,21 +1245,20 @@ function _datalogger_new_sentitems_form(){
     
     //X? lý tin nh?n du?c yêu c?u:88byte
     if($len_sms == 88) {
-      $sms = '<span style="background:blue;color:white;font-weight:bold">' . $sms . '</span>';
+      $sms = '<span style="color:blue;font-weight:bold">' . $sms . '</span>';
     }
-    //X? lý b?n tin do mua t? d?ng:140byte
+    
     elseif($len_sms == 140) {
       $sms = _datalogger_regex_rain($sms);      
     }			
     
     $rows[] = array (
 			$offset+=1,
-			// $station[0]->node_title,
 			$station_name,
-			$row -> UpdatedInDB,
+			//$row -> UpdatedInDB,
       $row -> SendingDateTime,
       $rorw -> DeliveryDateTime,
-			$row -> DestinationNumber,
+			$number,
 			$sms,
 			$row -> RecipientID,
       $row -> Status,
