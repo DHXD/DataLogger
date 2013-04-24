@@ -756,12 +756,12 @@ function _send_command_submit($form, &$form_state) {
     $nid = $form_state['values']['station'];
     $form_state['values']['station_nid'] = array('command', $nid);
     
-    dpm(array('nid', $nid));
+    //dpm(array('nid', $nid));
   }
   
-  dpm($form_state[values]);
+  //dpm($form_state[values]);
   
-  dpm($nid);
+  //dpm($nid);
   
   
   
@@ -789,7 +789,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
   
   $nids = $form_state['values']['station_nid'];
   
-  dpm(array('nids', $nid));
+  //dpm(array('nids', $nid));
   
 	for($i_nid = 1; $i_nid < count($nids); $i_nid++ ) {
     $nid = intval($nids[$i_nid]);
@@ -798,7 +798,7 @@ function _datalogger_send_command($nid, $select, $form, &$form_state) {
 		if($nid) {  
 			$node = node_load($nid);
       
-      dpm($node);
+      //dpm($node);
       
 			$code = _datalogger_language_field($node, 'field_station_code');
       for ($i = strlen($code); $i < 6; $i++)  $code = '0' . $code;    // add 0 to max 6 chars.
