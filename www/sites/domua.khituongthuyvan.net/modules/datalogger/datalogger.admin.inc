@@ -713,8 +713,8 @@ function _datalogger_separate_sms_command($sms, $number){
 */
 
 function _datalogger_string_to_date($str){
-	// $year = substr($str,0,2);
-	$year = date('Y', time());
+	$year = substr($str,0,2);
+	//$year = date('Y', time());
 	$month = substr($str,2,2);
 	$day = substr($str,4,2);
 	$hour = substr($str,6,2);
@@ -723,9 +723,9 @@ function _datalogger_string_to_date($str){
 	return $day.'/'.$month.'/'.$year.' '.$hour.':'.$minute.':'.$second;
 }
 function _datalogger_string_to_unix_date($str){
-	// $year = substr($str,0,2);
+	$year = substr($str,0,2);
 	//130106240000 -> 130107000000
-	$year = date('Y', time());
+	//$year = date('Y', time());
 	$month = substr($str, 2, 2);
 	$day = substr($str, 4, 2);
 	$hour = substr($str, 6, 2);
@@ -804,7 +804,7 @@ function _datalogger_insert_node_rainfall(&$arg){
         
         // trung temp
         
-				///$rainfalls = views_get_view_result('view_find_rainfall_station', NULL, $nid, $send_time);
+				////$rainfalls = views_get_view_result('view_find_rainfall_station', NULL, $nid, $send_time);
         
         //print('$send_time='.$send_time);
         
