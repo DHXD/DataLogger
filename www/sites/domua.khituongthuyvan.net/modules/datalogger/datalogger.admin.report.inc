@@ -27,7 +27,7 @@ function _datalogger_report_rainfall_month2_submit(&$form, &$form_state) {
 	$year = $form_state['values']['year'];	
   $month = $form_state['values']['month'];
   
-  dpm($form_state['values']);
+  //dpm($form_state['values']);
   
 	if($month < 10){
 		$month = '0'.$month;
