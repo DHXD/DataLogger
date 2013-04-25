@@ -462,6 +462,7 @@ $items['gammu/sentitems/error'] = array(
 	$items['manage/report/rainfalls/day'] = array(
     'title' => 'Daily rainfall data reports',
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
+    'page callback' => '_datalogger_export_rainfall_stations_day_excel',
 		'type' => MENU_DEFAULT_LOCAL_TASK, 
 		'weight' => -25,
   );
