@@ -34,6 +34,9 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month, $form_stat
 		$max_total_time_rainfall_in_day = 0;
 		$hours_in_day = array();
 		$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $month, $month.$day_time);
+    
+    if ($day == 20) dpm($rainfalls);
+    
 		if(count(rainfalls) > 0){
 			foreach($rainfalls as $rainfall){
 				$hour = (int)substr($rainfall->node_title, -8, 2);

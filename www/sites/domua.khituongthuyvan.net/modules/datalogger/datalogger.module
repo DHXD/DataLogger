@@ -24,10 +24,10 @@ function _datalogger_submit_report($form, &$form_state){
   }
 	// module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	
-	module_load_include('inc', 'datalogger', 'datalogger.admin.statistics.excel');
+	module_load_include('inc', 'datalogger', 'datalogger.admin.excel.stations.day.excel');
 	
 	if(count($view_resul) <= 0){
-		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
+		//drupal_set_message(t('Rainfall stations in the no data to report'),'error');
 	}
 	else{
 		if(count(station_nids) == 1 ){
@@ -458,6 +458,7 @@ $items['gammu/sentitems/error'] = array(
  *author: Phan Văn Tuấn
  *description: tạo menu xuất báo cáo theo năm+ngay
  */
+ /*
 	$items['manage/report/rainfalls/day'] = array(
     'title' => 'Daily rainfall data reports',
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
@@ -465,8 +466,8 @@ $items['gammu/sentitems/error'] = array(
 		'type' => MENU_DEFAULT_LOCAL_TASK, 
 		'weight' => -25,
   );
-	
- $items['manage/report/rainfalls'] = array(
+	*/
+ $items['manage/report/rainfalls/day'] = array(
     'title' => 'Daily rainfall data reports',
 		'page callback' => 'drupal_get_form',
     'page arguments' => array(
