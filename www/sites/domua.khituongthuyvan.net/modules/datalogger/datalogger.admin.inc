@@ -816,9 +816,9 @@ function _datalogger_insert_node_rainfall(&$arg){
         
         // trung temp
         
-				///$rainfalls = views_get_view_result('view_find_rainfall_station', NULL, $nid, $send_time);
+				$rainfalls = views_get_view_result('view_find_rainfall_station', NULL, $nid, $send_time);
         
-        print('$send_time='.$send_time);
+        //print('$send_time='.$send_time);
         
         $rainfalls = array();
         
@@ -879,7 +879,7 @@ function _datalogger_insert_node_rainfall(&$arg){
 					
 					$rainfall = node_submit($rainfall);
           
-					//////////node_save($rainfall);
+					node_save($rainfall);
 					// dsm($rainfall);
 				}
 			}
@@ -900,7 +900,7 @@ function _datalogger_insert_node_rainfall(&$arg){
 			//khong co mua - kho han
 			$station->field_station_alarm['und'][0]['value'] = 'alarm_false';	
 		}		
-		//////node_save($station);
+		node_save($station);
 	}
 	
 }
