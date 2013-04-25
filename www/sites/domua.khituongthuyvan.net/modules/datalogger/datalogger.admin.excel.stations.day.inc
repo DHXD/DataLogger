@@ -199,7 +199,7 @@ function _datalogger_export_rainfall_station_day_excel($region, $province, $stat
   $objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
   
   header('Content-type: application/vnd.ms-excel');
-  header('Content-Disposition: attachment; filename="Báo cáo dữ liệu mưa - Trạm ' . $name_station->title . ' - ' . date('m',time()) . '-' . date('Y',time()) . '.xls"');
+  header('Content-Disposition: attachment; filename="Báo cáo dữ liệu mưa theo ngày - Trạm ' . $name_station->title . ' - ' . date('m',time()) . '-' . date('Y',time()) . '.xls"');
   //$objWriter->save('php://output');
   $abc = file_directory_temp() . '/Bao cao du lieu mua trong ngay_' . time() . '.xls';
   $objWriter->save($abc);
