@@ -523,7 +523,7 @@ function _datalogger_report_rainfall_day_form($form, &$form_state){
 	$form['person']['txtNameNLB']['#access']=FALSE;
 	$form['person']['txtNameKS']['#access']=FALSE;
 	$form['person']['txtNamePT']['#access']=FALSE;
-	
+	$form['stations_fieldset']['selectStation']['station']['#multiple']= TRUE;
   $form['stations_fieldset']['selectReport']['#access']=FALSE;
   
 	//dpm('asd');
@@ -538,21 +538,51 @@ function _datalogger_report_rainfall_day_form($form, &$form_state){
 }
 
 function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
-	// module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
-	module_load_include('inc', 'datalogger', 'datalogger.admin.statistics.excel');
-	$nid = $form_state['values']['station'];
+	//module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
+	module_load_include('inc', 'datalogger', 'datalogger.admin.excel.stations.day');
+  
+  $region = $form['stations_fieldset']['selectArea']['#options'][$form_state['values']['selectArea']];
+	$province = $form['stations_fieldset']['selectProvince']['province']['#options'][$form_state['values']['province']];
+	$station_nids = array();
+  //$station_names = array();
+  $sotram = count($form_state['values']['station']);
+  
+  $nids = array_keys($form['stations_fieldset']['selectStation']['station']['#value']);
+  
+  for($i = 0; $i < $sotram; $i++){
+    $station_nids[$i] = $nids[$i];
+    
+  }
+  dpm($station_nids);
   $day = new DateTime($form_state['values']['day']);
   $year = $day->format('Y');
   $month = $day->format('m');
   $day = $day->format('Ymd');
-	$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year.$month, $day);
+  
+  //dpm($form);
+  //dpm($form_state);
+  $khang = array(
+    'region' => $region,
+    'province' => $province,
+    'station_nids' => $station_nids,
+    'day' => $day,
+    'month' => $month,
+    'year' => $year
+  );
+  
+  $tramdomua = implode(",", $station_nids);
+  //dpm($tramdomua);
+	$rainfalls = views_get_view_result('view_export_excel','default', $tramdomua, $year, $month, $day);
+  //dpm($rainfalls[0]);
+  _datalogger_export_rainfall_station_day_excel($region, $province, $station_nids, $year, $month, $day);
 	if(count($rainfalls) <= 0){
-		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
+		//drupal_set_message(t('Rainfall stations in the no data to report'),'error');
 	}
 	else{
 		// $args = array($nid, $rainfalls, $name_qtv, $name_nlb, $name_ks, $name_pt);
 		$args = array($nid, $rainfalls);
-		_export_excel($args);
+		//_export_excel($args);
+    _datalogger_export_rainfall_station_day_excel($region, $province, $station_nids, $year, $month, $day);
 	}
 }
 
@@ -595,69 +625,56 @@ function _datalogger_convert_number($number){
 function _datalogger_check_inbox() {
   $cron = (arg(3) == 'remote');
   
-  $debug = (arg(3) == 'debug');
-  $cmd = !$debug;
-  
   $processed = 0;
   
-  
-  
-  // Kiểm tra từ mới đến cũ...............  
-  $result = db_query("SELECT * FROM inbox WHERE Processed={$processed} ORDER BY UpdatedInDB DESC LIMIT 0,50");
-  
+  $result = db_query("SELECT * FROM inbox WHERE Processed={$processed} LIMIT 0,10");
+  //dpm($result[0]->ID);
   
   foreach ($result as $row) {
-  
-  
     // //tin nhắn từ datalogger
 		$id_inbox = $row->ID;
 
-    if ($cmd) print "{$row->ID}\n";
+    print "{$row->ID}\n";
     
 		$number = _datalogger_convert_number($row->SenderNumber);
 		$sms = $row->TextDecoded;
-    
     if(_datalogger_startsWith($row->TextDecoded,'HS') && _datalogger_endsWith($row->TextDecoded,';')) {
       $len_sms = strlen($row->TextDecoded);
       //Xử lý tin nhắn được yêu cầu:88byte
       
-      if ($debug) dpm($len_sms);
-      
       if($len_sms == 88){
-        if ($cmd) print "cmd\n";
+        print "cmd\n";
         
 				//Thực hiện chèn bản tin vào bảng command
-				_datalogger_separate_sms_command($sms, $number);
+				//_datalogger_separate_sms_command($sms, $number);
 				//Cập nhật các bản tin đã xử lý
-				_datalogger_update_process_inbox(1,$id_inbox);
+				//_datalogger_update_process_inbox(1,$id_inbox);
         
       }
       //Xử lý bản tin đo mưa tự động:140byte
       elseif($len_sms == 140) {
-        if ($cmd) print "rain\n";
+        print "rain\n";
       
         switch ($number) {
 	
         default:
-        
           // Chèn bản tin vào bảng đo mưa
           // dsm('into 140');
           _datalogger_separate_sms($sms,$number);
           // Cập nhật các bản tin đã xử lý
           _datalogger_update_process_inbox(1, $id_inbox);
           //return $sms;
-        
         }
       }			
-			else _datalogger_update_process_inbox(2, $id_inbox);
+			/////else _datalogger_update_process_inbox(2, $id_inbox);
     }
 		else{
-			_datalogger_update_process_inbox(2, $id_inbox);
+			/////_datalogger_update_process_inbox(2, $id_inbox);
 		}
-    if ($cmd) flush (); // flush the output buffer
+    flush (); // flush the output buffer
   }
-	if ($debug) return 'Ok';
-  if ($cmd) print "Ok.";
+	// return 'Ok';
+  print "Ok.";
   drupal_exit();
 }
 
@@ -707,8 +724,8 @@ function _datalogger_separate_sms_command($sms, $number){
 */
 
 function _datalogger_string_to_date($str){
-	$year = substr($str,0,2);
-	//$year = date('Y', time());
+	// $year = substr($str,0,2);
+	$year = date('Y', time());
 	$month = substr($str,2,2);
 	$day = substr($str,4,2);
 	$hour = substr($str,6,2);
@@ -717,9 +734,9 @@ function _datalogger_string_to_date($str){
 	return $day.'/'.$month.'/'.$year.' '.$hour.':'.$minute.':'.$second;
 }
 function _datalogger_string_to_unix_date($str){
-	$year = substr($str,0,2);
+	// $year = substr($str,0,2);
 	//130106240000 -> 130107000000
-	//$year = date('Y', time());
+	$year = date('Y', time());
 	$month = substr($str, 2, 2);
 	$day = substr($str, 4, 2);
 	$hour = substr($str, 6, 2);
@@ -750,7 +767,8 @@ function _datalogger_separate_sms($sms,$number) {
 	$title = $station[0]->node_title;
 	$arg = array($timestart, $nid, $is_valid, $measuaring, $accumulate, $battery);
 
-	_datalogger_insert_node_rainfall($arg);  
+	_datalogger_insert_node_rainfall($arg);
+  
 }
 
 function _datalogger_separate_opp($sms){
@@ -798,9 +816,9 @@ function _datalogger_insert_node_rainfall(&$arg){
         
         // trung temp
         
-				////$rainfalls = views_get_view_result('view_find_rainfall_station', NULL, $nid, $send_time);
+				///$rainfalls = views_get_view_result('view_find_rainfall_station', NULL, $nid, $send_time);
         
-        //print('$send_time='.$send_time);
+        print('$send_time='.$send_time);
         
         $rainfalls = array();
         
@@ -815,8 +833,8 @@ function _datalogger_insert_node_rainfall(&$arg){
 						$rainfall_old->field_rainfall_total['und'][0]['value'] = $arg[4][$i]/10;
 						
 						//chen thoi gian chan vao node
-						for($j = 0; $j < 24; $j++){
-							if($clearTime3['h'.$j] == $hour_time){
+						for($i = 0; $i < 24; $i++){
+							if($clearTime3['h'.$i] == $hour_time){
 								$rainfall->field_rainfall_hour_time[$rainfall->language][0]['value'] = $hour_time;
 							}
 						}
@@ -853,15 +871,15 @@ function _datalogger_insert_node_rainfall(&$arg){
 					$rainfall->field_rainfall_year_month_date[$rainfall->language][0]['value'] = $year_month_date;
 					
 					//chỉ trèn giá trị vào trường này khi thời gian là: 01:00:00, 02:00:00,...23:00:00h
-					for($j = 0; $j < 24; $j++){
-						if($clearTime3['h'.$j] == $hour_time){
+					for($i = 0; $i < 24; $i++){
+						if($clearTime3['h'.$i] == $hour_time){
 							$rainfall->field_rainfall_hour_time[$rainfall->language][0]['value'] = $hour_time;
 						}
 					}
 					
 					$rainfall = node_submit($rainfall);
           
-					node_save($rainfall);
+					//////////node_save($rainfall);
 					// dsm($rainfall);
 				}
 			}
@@ -882,7 +900,7 @@ function _datalogger_insert_node_rainfall(&$arg){
 			//khong co mua - kho han
 			$station->field_station_alarm['und'][0]['value'] = 'alarm_false';	
 		}		
-		node_save($station);
+		//////node_save($station);
 	}
 	
 }
@@ -991,14 +1009,14 @@ function _datalogger_new_sms_form() {
     
   }
   else {
-    $sort = 'DESC';
+    $sort = 'ASC';
     $order = 'UpdatedInDB';
   }
   
   
   $stations = views_get_view_result('view_station_find', Null, 'all' );
   
-  dpm($stations);
+  //dpm($stations);
   //return 'abc';
   global $databases;
   
@@ -1872,7 +1890,7 @@ function _view_translate_log() {
 }
 
 function digipro_views_get_view_result($viewname, $display_id = NULL, $args = NULL,
-    $content_only = false, $data_only = false) {
+  $content_only = false, $data_only = false) {
   $view = views_get_view($viewname);
   if(is_object($view)) {
     if(is_array($args)) {
