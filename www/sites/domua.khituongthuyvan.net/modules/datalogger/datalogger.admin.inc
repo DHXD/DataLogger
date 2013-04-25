@@ -523,7 +523,7 @@ function _datalogger_report_rainfall_day_form($form, &$form_state){
 	$form['person']['txtNameNLB']['#access']=FALSE;
 	$form['person']['txtNameKS']['#access']=FALSE;
 	$form['person']['txtNamePT']['#access']=FALSE;
-	
+	$form['stations_fieldset']['selectStation']['station']['#multiple']= TRUE;
   $form['stations_fieldset']['selectReport']['#access']=FALSE;
   
 	//dpm('asd');
@@ -543,13 +543,24 @@ function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
   
   $region = $form['stations_fieldset']['selectArea']['#options'][$form_state['values']['selectArea']];
 	$province = $form['stations_fieldset']['selectProvince']['province']['#options'][$form_state['values']['province']];
-	$station_nids = $form_state['values']['station'];
+	$station_nids = array();
+  //$station_names = array();
+  $sotram = count($form_state['values']['station']);
+  
+  $nids = array_keys($form['stations_fieldset']['selectStation']['station']['#value']);
+  
+  for($i = 0; $i < $sotram; $i++){
+    $station_nids[$i] = $nids[$i];
+    
+  }
+  dpm($station_nids);
   $day = new DateTime($form_state['values']['day']);
   $year = $day->format('Y');
   $month = $day->format('m');
   $day = $day->format('Ymd');
   
-  
+  //dpm($form);
+  //dpm($form_state);
   $khang = array(
     'region' => $region,
     'province' => $province,
@@ -558,9 +569,10 @@ function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
     'month' => $month,
     'year' => $year
   );
-  dpm($khang);
   
-	$rainfalls = views_get_view_result('view_export_excel','default', $station_nids, $year, $month, $day);
+  $tramdomua = implode(",", $station_nids);
+  //dpm($tramdomua);
+	$rainfalls = views_get_view_result('view_export_excel','default', $tramdomua, $year, $month, $day);
   //dpm($rainfalls[0]);
   _datalogger_export_rainfall_station_day_excel($region, $province, $station_nids, $year, $month, $day);
 	if(count($rainfalls) <= 0){

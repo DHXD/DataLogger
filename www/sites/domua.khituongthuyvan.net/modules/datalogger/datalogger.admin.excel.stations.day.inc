@@ -6,8 +6,10 @@ function _datalogger_export_rainfall_station_day_excel($region, $province, $stat
 	module_load_include('inc', 'datalogger', 'datalogger.admin');
 
 	$number = count($station_nids);
+  
 	//lay du lieu cua tram
 	foreach($station_nids as $nid){
+    //print($nid);
 		$station = node_load($nid);
 		$max_rainfall_in_day = 0;
 		$max_total_rainfall_in_day = 0;
@@ -61,6 +63,7 @@ function _datalogger_export_rainfall_station_day_excel($region, $province, $stat
 						'time_rainfall_in_hour' => 0);
 			}
 		}
+    //dpm($station->title);
 		$stations[]= array(
 			'station_name' => $station->title,
 			'max_total_rainfall_in_day' => $max_total_rainfall_in_day,
@@ -69,6 +72,7 @@ function _datalogger_export_rainfall_station_day_excel($region, $province, $stat
 			'hours_in_day' => $hours_in_day
 		);
 	}
+  //print($stations);
 	/*-----------------------------------------------------------------------------------------------------------*/
 	
   $objPHPExcel = new PHPExcel();
@@ -80,11 +84,11 @@ function _datalogger_export_rainfall_station_day_excel($region, $province, $stat
                  ->setKeywords("office 2007 openxml php")
                  ->setCategory("Test result file");
 	$objPHPExcel->setActiveSheetIndex();
-	$objPHPExcel->getActiveSheet()->setCellValue('A1', 'Bảng thống kê lượng mưa trong ngày');
+	$objPHPExcel->getActiveSheet()->setCellValue('A1', 'BẢNG THỐNG KÊ LƯỢNG MƯA TRONG NGÀY');
 	$objPHPExcel->getActiveSheet()->setCellValue('A2', 'Đài khu vực');
 	$objPHPExcel->getActiveSheet()->setCellValue('H2', 'Tỉnh');
-	$objPHPExcel->getActiveSheet()->setCellValue('S2', 'Ngày');
-	$objPHPExcel->getActiveSheet()->setCellValue('U2', 'Tháng');
+	$objPHPExcel->getActiveSheet()->setCellValue('Q2', 'Ngày');
+	$objPHPExcel->getActiveSheet()->setCellValue('T2', 'Tháng');
 	$objPHPExcel->getActiveSheet()->setCellValue('W2', 'Năm');
 	$objPHPExcel->getActiveSheet()->setCellValue('A3', 'Trạm đo mưa \Giờ');
 	//sheet luôn bắt đầy từ 0
@@ -120,8 +124,12 @@ function _datalogger_export_rainfall_station_day_excel($region, $province, $stat
 	
 	$objPHPExcel->getActiveSheet()->mergeCells('A1:AA1');
 	$objPHPExcel->getActiveSheet()->mergeCells('C2:G2');
-	$objPHPExcel->getActiveSheet()->mergeCells('I2:P2');
+	$objPHPExcel->getActiveSheet()->mergeCells('H2:I2');
+  $objPHPExcel->getActiveSheet()->mergeCells('J2:P2');
 	$objPHPExcel->getActiveSheet()->mergeCells('A3:B6');
+  $objPHPExcel->getActiveSheet()->mergeCells('Q2:R2');
+  $objPHPExcel->getActiveSheet()->mergeCells('T2:U2');
+  $objPHPExcel->getActiveSheet()->mergeCells('X2:Y2');
 	
 	$styleThinBlackBorderOutline = array(
 		'borders' => array(
@@ -137,42 +145,23 @@ function _datalogger_export_rainfall_station_day_excel($region, $province, $stat
 		array(//'fill' 	=> array(
 				'borders' => array(
 									'bottom'	=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
-									'right'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN)
+									'right'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
+                  'left'	=> array('style' => PHPExcel_Style_Border::BORDER_THIN),
+									'top'		=> array('style' => PHPExcel_Style_Border::BORDER_THIN)
 								)
 			 ));
 	$objPHPExcel->getActiveSheet()->setSharedStyle($sharedStyle1, 'A1:AA'.(($number+3)*2));
-
+  $objPHPExcel->getActiveSheet()->getStyle('A1:AA'.(($number+3)*2))->getFont()->setName('Times New Roman');
+	$objPHPExcel->getActiveSheet()->getStyle('A1:AA'.(($number+3)*2))->getFont()->setSize(10);
 	//chinh vi tri cac cell 
 	$objPHPExcel->getActiveSheet()->getStyle('A1:AA'.(($number+3)*2))->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
 	$objPHPExcel->getActiveSheet()->getStyle('A1:C'.(($number+3)*2))->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
 	//thiet lap chieu rong cac cell
-	$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setSize(30);
+	$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setSize(20);
 	$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
 	$objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(10);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('C')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('D')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('E')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('F')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('G')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('H')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('I')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('J')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('K')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('L')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('M')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('N')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('O')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('P')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('Q')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('R')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('S')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('T')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('U')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('V')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('W')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('X')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('Y')->setWidth(5);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('Z')->setWidth(5);
+	for($c = 'C'; $c <= 'Z'; $c++)
+    $objPHPExcel->getActiveSheet()->getColumnDimension($c)->setWidth(4);
 	$objPHPExcel->getActiveSheet()->getColumnDimension('AA')->setWidth(10);
 	
 	$font_bold = array(
@@ -198,9 +187,9 @@ function _datalogger_export_rainfall_station_day_excel($region, $province, $stat
 	}
 	
 	$objPHPExcel->getActiveSheet()->setCellValue('C2',$region);//khu vuc
-	$objPHPExcel->getActiveSheet()->setCellValue('I2',$province);//tinh
+	$objPHPExcel->getActiveSheet()->setCellValue('J2',$province);//tinh
 	
-	$objPHPExcel->getActiveSheet()->setCellValue('T2',substr($day,-2));//ngay
+	$objPHPExcel->getActiveSheet()->setCellValue('S2',substr($day,-2));//ngay
 	$objPHPExcel->getActiveSheet()->setCellValue('V2',substr($month,-2));//thang
 	$objPHPExcel->getActiveSheet()->setCellValue('X2',$year);//nam
 	
