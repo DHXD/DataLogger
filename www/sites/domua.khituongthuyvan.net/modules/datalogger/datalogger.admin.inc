@@ -833,8 +833,8 @@ function _datalogger_insert_node_rainfall(&$arg){
 						$rainfall_old->field_rainfall_total['und'][0]['value'] = $arg[4][$i]/10;
 						
 						//chen thoi gian chan vao node
-						for($i = 0; $i < 24; $i++){
-							if($clearTime3['h'.$i] == $hour_time){
+						for($j = 0; $j < 24; $j++){
+							if($clearTime3['h'.$j] == $hour_time){
 								$rainfall->field_rainfall_hour_time[$rainfall->language][0]['value'] = $hour_time;
 							}
 						}
@@ -871,8 +871,8 @@ function _datalogger_insert_node_rainfall(&$arg){
 					$rainfall->field_rainfall_year_month_date[$rainfall->language][0]['value'] = $year_month_date;
 					
 					//chỉ trèn giá trị vào trường này khi thời gian là: 01:00:00, 02:00:00,...23:00:00h
-					for($i = 0; $i < 24; $i++){
-						if($clearTime3['h'.$i] == $hour_time){
+					for($j = 0; $j < 24; $j++){
+						if($clearTime3['h'.$j] == $hour_time){
 							$rainfall->field_rainfall_hour_time[$rainfall->language][0]['value'] = $hour_time;
 						}
 					}
