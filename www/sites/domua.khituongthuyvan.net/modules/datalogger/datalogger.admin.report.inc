@@ -35,14 +35,14 @@ function _datalogger_report_rainfall_month2_submit(&$form, &$form_state) {
 	$year_month = $year.$month;
 	
 	
+	// kiem tra trong ham _datalogger_export_rainfall_month_excel().
+	///$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year_month, 'all');
 	
-	$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $year_month, 'all');
-	// $rainfalls_month = views_get_view_result('view_rainfall_hour_time','default', $nid, $year, $year_month,all);
-	if(count($rainfalls) <= 0){
+	/*if(count($rainfalls) <= 0){
 		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
 	}
-	else{
+	else{*/
 		_datalogger_export_rainfall_month_excel($nid, $year, $year_month, $form_state);
-	}
+	//}
 	// */
 }
