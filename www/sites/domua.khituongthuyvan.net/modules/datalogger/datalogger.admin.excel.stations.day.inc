@@ -17,16 +17,20 @@ function _datalogger_export_rainfall_station_day_excel($region, $province, $stat
 		$hours_in_day = array();
 		$rainfalls = views_get_view_result('view_rainfall_admin','page', $nid, $day);
     
+    //digi_debug(count($rainfalls), 0, 1);
+    
 		if(count(rainfalls) > 0){
 			foreach($rainfalls as $rainfall){
         //dpm($rainfall);
 				$hour = (int)substr($rainfall->node_title, -8, 2);
+        
         $minute = (int)substr($rainfall->node_title, -5, 2);
         $second = (int)substr($rainfall->node_title, -2, 2);
         if($minute =='00' && $second == '00'){
           if($hour == '00') $hour = '23';
           else $hour -=1;
         }
+        
 				$rainfall_measuring = (float)$rainfall->field_field_rainfall_measuring[0]['rendered']['#markup'];
 				if($rainfall_measuring > 0){
 					$hours_in_day[$hour][] = $rainfall;

@@ -1,6 +1,7 @@
 <?php
 
-global $khuvuc;   
+global $khuvuc; 
+global $admin_khuvuc;    
 require 'khuvuc.php';
         
 /**
@@ -60,6 +61,10 @@ function datalogger_openlayers_styles(&$map) {
   return $map['styles'];
 }
 
+function _datalogger_views_exposed_form_bieu_do_luong_mua_validate(&$form, &$form_state) {
+  
+}
+
  /**
  *Begin:15/11. 
  *Implements hook_views_form_alter().
@@ -67,7 +72,34 @@ function datalogger_openlayers_styles(&$map) {
  *Description: thay doi ket qua hien thi tren form cua view
  */	
 function datalogger_form_alter(&$form, &$form_state, &$form_id){
-	global $user;
+	global $user,$admin_khuvuc;
+	$path = current_path();
+	//$path_alias = drupal_lookup_path('alias',$path);
+	//drupal_set_message('_form_alter: '.$user->uid.'-'.$user->name.'-'.$form_id.'-'.$path.'</br>');
+	//back page: header( 'Location: '.$_SERVER['HTTP_REFERER']); 
+	
+	if(in_array($form_id, array('views_form_view_users_permission_page', 'user_register_form'))){
+		if(!in_array($user->name, $admin_khuvuc)){
+			drupal_access_denied();
+		}
+	} else if(in_array($form_id, array('user_profile_form', 'contact_personal_form'))) {
+		$user_edit = explode('/', $form['#action'])[2];
+		$user_edit_fields = user_load($user_edit);
+		
+		if($user_edit!=$user->uid && !in_array($user->name, $admin_khuvuc)){
+			drupal_access_denied();
+		}
+	} else if(strpos($path, 'config/people') && !in_array($user->name, $admin_khuvuc)){
+		drupal_access_denied();
+	}
+  
+  else if ($form_id == 'views_exposed_form' && substr($path, 0, 17) == 'bieu-do-luong-mua') {
+    //dpm ($form);
+    //$form['#validate'][] = '_datalogger_views_exposed_form_bieu_do_luong_mua_validate';
+    $form['field_rainfall_send_time_value']['min']['#required'] = TRUE;
+    $form['field_rainfall_send_time_value']['max']['#required'] = TRUE;
+  }
+  
 	
 	if(!in_array('administrator', array_values($user->roles))){
 		if($form_id = 'views_exposed_form'){
@@ -221,6 +253,9 @@ function datalogger_views_pre_render(&$view) {
  *Description: thay đổi query hiển thị trạm theo từng khu vực trên user
  */
  function datalogger_views_query_alter(&$view, &$query) {
+ 
+ 
+ 
   if($view->name == 'view_list_user' ) {
 		global $user;
 		$account = user_load($user->uid);
@@ -245,7 +280,7 @@ function datalogger_views_pre_render(&$view) {
 	//view: hien thi cac tram do mưa theo khu vuc thuc hien lenh
 	//view: hien thi cac tram do mưa theo khu vuc tren ban do
 	//view: hien thi cac lenh da thuc hien  theo khu vuc
-	if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == "view_map_alarm_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' || $view->name == 'rainfall_chart'||$view->name == 'search_rainfall' || $view->name == "view_modems" ||$view->name == "view_rainfall_default"	||$view->name == "view_map_station_deactive"||$view->name == "view_map_alarm_stations_rainfall" ||$view->name == "view_rainfall_chart_hour"	) {
+	else if($view->name == "view_list_stations" || $view->name == "view_map_stations" || $view->name == "view_map_alarm_stations" || $view->name == 'view_command_send_station' || $view->name == 'view_station_rainfall_statistics' || $view->name == 'rainfall_chart'||$view->name == 'search_rainfall' || $view->name == "view_modems" ||$view->name == "view_rainfall_default"	||$view->name == "view_map_station_deactive"||$view->name == "view_map_alarm_stations_rainfall" ||$view->name == "view_rainfall_chart_hour"	) {
 		global $user;
 		$account = user_load($user->uid);
 		if(in_array('administrator', array_values($user->roles))){
@@ -265,18 +300,28 @@ function datalogger_views_pre_render(&$view) {
 				$query->where[1]['conditions'][2]['value'] = $regions;
 			}
 		}
-		
+		//dpm($query->where);
 		// /*
-		if(count($query->where[1]['conditions'][3]['value']) == 2){
+    $filter_date = ($view->name == 'search_rainfall' ? 4 : 3);
+		if(count($query->where[1]['conditions'][$filter_date]['value']) == 2){
 			// $sql = 'DATE_FORMAT(FROM_UNIXTIME(field_data_field_rainfall_send_time.field_rainfall_send_time_value), \'%Y-%m-%d %H:%i\') >= :field_data_field_rainfall_send_time_field_rainfall_send_time_value AND DATE_FORMAT(FROM_UNIXTIME(field_data_field_rainfall_send_time.field_rainfall_send_time_value), \'%Y-%m-%d %H:%i\') <= :field_data_field_rainfall_send_time_field_rainfall_send_time_value1';
-			$sql = 'DATE_FORMAT(FROM_UNIXTIME(field_data_field_rainfall_send_time.field_rainfall_send_time_value), \'%d\/%m\/%Y %H:%i\') >= :field_data_field_rainfall_send_time_field_rainfall_send_time_value AND DATE_FORMAT(FROM_UNIXTIME(field_data_field_rainfall_send_time.field_rainfall_send_time_value), \'%d\/%m\/%Y %H:%i\') <= :field_data_field_rainfall_send_time_field_rainfall_send_time_value1';
+      
+			////$sql = 'DATE_FORMAT(FROM_UNIXTIME(field_data_field_rainfall_send_time.field_rainfall_send_time_value), \'%d\/%m\/%Y %H:%i\') >= :field_data_field_rainfall_send_time_field_rainfall_send_time_value AND DATE_FORMAT(FROM_UNIXTIME(field_data_field_rainfall_send_time.field_rainfall_send_time_value), \'%d\/%m\/%Y %H:%i\') <= :field_data_field_rainfall_send_time_field_rainfall_send_time_value1';
 			
-			$query->where[1]['conditions'][3]['field'] = $sql;
-			$time_min = $query->where[1]['conditions'][3]['value'][':field_data_field_rainfall_send_time_field_rainfall_send_time_value'];
-			$time_max = $query->where[1]['conditions'][3]['value'][':field_data_field_rainfall_send_time_field_rainfall_send_time_value1'];
+      
+      $sql = 'DATE_FORMAT(FROM_UNIXTIME(field_data_field_rainfall_send_time.field_rainfall_send_time_value), \'%Y-%m-%d %H:%i\') >= :field_data_field_rainfall_send_time_field_rainfall_send_time_value AND DATE_FORMAT(FROM_UNIXTIME(field_data_field_rainfall_send_time.field_rainfall_send_time_value), \'%Y-%m-%d %H:%i\') <= :field_data_field_rainfall_send_time_field_rainfall_send_time_value1';
 			
-			$query->where[1]['conditions'][3]['value'][':field_data_field_rainfall_send_time_field_rainfall_send_time_value'] = date('d/m/Y H:i',strtotime($time_min));
-			$query->where[1]['conditions'][3]['value'][':field_data_field_rainfall_send_time_field_rainfall_send_time_value1'] = date('d/m/Y H:i',strtotime($time_max));
+      
+			$query->where[1]['conditions'][$filter_date]['field'] = $sql;
+			$time_min = $query->where[1]['conditions'][$filter_date]['value'][':field_data_field_rainfall_send_time_field_rainfall_send_time_value'];
+			$time_max = $query->where[1]['conditions'][$filter_date]['value'][':field_data_field_rainfall_send_time_field_rainfall_send_time_value1'];
+			
+      // Doi thoi gian ve timezone UTC vi khi query module date goi lenh :
+      // SeT @@session.time_zone = '+00:00'
+      
+			$query->where[1]['conditions'][$filter_date]['value'][':field_data_field_rainfall_send_time_field_rainfall_send_time_value'] = date("Y-m-d H:i",strtotime($time_min) - 7 * 3600 );
+			$query->where[1]['conditions'][$filter_date]['value'][':field_data_field_rainfall_send_time_field_rainfall_send_time_value1'] = date("Y-m-d H:i",strtotime($time_max) - 7 * 3600);
+      
 		}
 		// */
   }
@@ -400,17 +445,40 @@ function datalogger_block_view($delta = '') {
 }
 function datalogger_action_info() {
 	GLOBAL $options_commands;
+  
+  
   return array(
 			'datalogger_send_command_action' => array(
       'type' => 'node',
       'label' => t('Send commands to multiple stations'),
       'configurable' => FALSE,
-			'aggregate' => TRUE,
+			//'aggregate' => TRUE,
       'behavior' => array('changes_property'),
       'triggers' => array('node_presave', 'node_insert', 'node_update'),
     ),
+    
+    '_datalogger_calculate_total_rain_hour' => array(
+      'type' => 'node',
+      'label' => ('Calculate total rain hour'),
+      'configurable' => FALSE,
+			//'aggregate' => TRUE,
+      //'behavior' => array('changes_property'),
+      //'triggers' => array('node_presave', 'node_insert', 'node_update'),
+    ),
   );
 }
+
+/**
+ * Action function for _datalogger_calculate_total_rain_hour.
+ */
+function _datalogger_calculate_total_rain_hour(&$entity, $context = array()) {
+  //dpm($entity);
+  module_load_include('inc', 'datalogger', 'datalogger.admin.report');
+  
+  return _datalogger_calculate_total_rain_hour_inc($entity);
+  
+}
+
 
 function datalogger_send_command_action(&$object, $context = array()){
 	$nid;
@@ -453,20 +521,7 @@ $items['gammu/sentitems/error'] = array(
     'access callback' => TRUE,
   );
 
-/**
- *Begin: 17/11. 
- *author: Phan Văn Tuấn
- *description: tạo menu xuất báo cáo theo năm+ngay
- */
- /*
-	$items['manage/report/rainfalls/day'] = array(
-    'title' => 'Daily rainfall data reports',
-		'access callback' => '_datalogger_menu_access_callback_manage_data',
-    'page callback' => '_datalogger_export_rainfall_stations_day_excel',
-		'type' => MENU_DEFAULT_LOCAL_TASK, 
-		'weight' => -25,
-  );
-	*/
+
  $items['manage/report/rainfalls/day'] = array(
     'title' => 'Daily rainfall data reports',
 		'page callback' => 'drupal_get_form',
@@ -479,7 +534,7 @@ $items['gammu/sentitems/error'] = array(
 		'weight' => -26,
 	);
 	
-	$items['views/statistics/manage/report/rainfalls/all/station'] = array(
+	/*$items['views/statistics/manage/report/rainfalls/all/station'] = array(
     'title' => 'Statistics of rainfall during the day',
 		'page callback' => 'drupal_get_form',
     'page arguments' => array(
@@ -489,7 +544,7 @@ $items['gammu/sentitems/error'] = array(
 		'access callback' => '_datalogger_menu_access_callback_manage_data',
 		'type' => MENU_LOCAL_TASK, 
 		'weight' => -25,
-	);
+	);*/
 	
   
   /*$items['manage/report/rainfalls/year'] = array(
@@ -1136,9 +1191,13 @@ function _datalogger_select_area_province_station(&$form, &$form_state) {
 	$value_select_province = isset($form_state['values']['province']) ? $form_state['values']['province'] : key(_datalogger_return_city2($value_select_area));
   
   global $is_dev;
-  $value_select_province = $is_dev ? 'quang_tri' : $value_select_province;
+  $is_dev = TRUE;
+  
+  $value_select_province = $is_dev ? 'thua_thien_hue' : $value_select_province;
+  $value_select_month = $is_dev ? '3' : 1;
+  
   if (!$station_name || !is_array($station_name)) $station_name = array();
-  $default_station  = $is_dev ? 2965 : (isset($form_state['values']['station']) ? $form_state['values']['station']: key($station_name));
+  $default_station  = $is_dev ? 2976 : (isset($form_state['values']['station']) ? $form_state['values']['station']: key($station_name));
   
 	$form['stations_fieldset']['selectProvince']['province'] = array(
 		'#type' => 'select',
@@ -1208,7 +1267,7 @@ function _datalogger_select_area_province_station(&$form, &$form_state) {
      '#type' => 'select',
      '#title' => t('Month'),
      '#options' => $months,
-     '#default_value' => $form_state['input']['month'],
+     '#default_value' => $value_select_month ? $value_select_month : $form_state['input']['month'],
 		 // '#weight' => 6,
   );
 	

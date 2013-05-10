@@ -12,7 +12,7 @@
  */
 function theme_openlayers_views_map($args) {
   return (isset($args['title']) ? '<h3>' . $args['title'] . '</h3>' : '') .
-    '<div class="openlayers-views-map">'
+    '<div id="openlayers-views-map-searchfrm"></div><div class="openlayers-views-map">'
     . $args['map']
     . '</div>';
 }

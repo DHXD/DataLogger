@@ -516,17 +516,23 @@ function _datalogger_report_rainfall_all_station_in_day_submit(&$form, &$form_st
 
 function _datalogger_report_rainfall_day_form($form, &$form_state){
 	drupal_set_title(t('Reports daily rainfall data'));
+  
 	_datalogger_select_area_province_station($form, $form_state);
 	$form['stations_fieldset']['year']['#access']=FALSE;
 	$form['stations_fieldset']['month']['#access']=FALSE;
-	$form['person']['txtNameQTV']['#access']=FALSE;
+  $form['stations_fieldset']['selectStation']['station']['#multiple']= TRUE;
+  $form['stations_fieldset']['selectProvince']['province']['#multiple']= TRUE;
+  
+  $form['stations_fieldset']['selectReport']['#access']=FALSE;
+	
+  /*$form['person']['txtNameQTV']['#access']=FALSE;
 	$form['person']['txtNameNLB']['#access']=FALSE;
 	$form['person']['txtNameKS']['#access']=FALSE;
 	$form['person']['txtNamePT']['#access']=FALSE;
-	$form['stations_fieldset']['selectStation']['station']['#multiple']= TRUE;
-  $form['stations_fieldset']['selectReport']['#access']=FALSE;
+  */
+	
   
-	//dpm('asd');
+	//dpm($form);
   $form["submit"] = array(
       "#type" => "submit",
       "#value" => t("Report"),
@@ -540,10 +546,18 @@ function _datalogger_report_rainfall_day_form($form, &$form_state){
 function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
 	//module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel.stations.day');
-  
+  //dpm($province);
   $region = $form['stations_fieldset']['selectArea']['#options'][$form_state['values']['selectArea']];
-	$province = $form['stations_fieldset']['selectProvince']['province']['#options'][$form_state['values']['province']];
-	$station_nids = array();
+  //$province = $form['stations_fieldset']['selectProvince']['province']['#options'][$form_state['values']['province']];
+  $province = array();
+  for($sotinh = 0; $sotinh < count($form_state['values']['province']); $sotinh++){
+    $tentinh = $form_state['values']['province'][0];
+    //dpm($tentinh);
+    array_push($province, $form['stations_fieldset']['selectProvince']['province']['#options'][$tentinh]);
+  }
+  //dpm($form);
+  //dpm($form_state);
+  $station_nids = array();
   //$station_names = array();
   $sotram = count($form_state['values']['station']);
   
@@ -572,15 +586,17 @@ function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
   
   $tramdomua = implode(",", $station_nids);
   //dpm($tramdomua);
+  
 	$rainfalls = views_get_view_result('view_rainfall_admin','page', $tramdomua, $day);
-  //dpm($rainfalls[0]);
+  //dpm($rainfalls);
+  
   //_datalogger_export_rainfall_station_day_excel($region, $province, $station_nids, $year, $month, $day);
 	if(count($rainfalls) <= 0){
 		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
 	}
 	else{
 		// $args = array($nid, $rainfalls, $name_qtv, $name_nlb, $name_ks, $name_pt);
-		$args = array($nid, $rainfalls);
+		//$args = array($nid, $rainfalls);
 		//_export_excel($args);
     _datalogger_export_rainfall_station_day_excel($region, $province, $station_nids, $year, $month, $day);
 	}
@@ -627,7 +643,11 @@ function _datalogger_check_inbox() {
   
   $processed = 0;
   
-  $result = db_query("SELECT * FROM inbox WHERE Processed={$processed} ORDER BY `ID` DESC LIMIT 0,10");
+  //$result = db_query("SELECT * FROM inbox WHERE Processed={$processed} ORDER BY `ID` DESC LIMIT 0,10");
+  
+  $result = db_query("SELECT * FROM inbox WHERE Processed={$processed}  LIMIT 0,10");
+  
+  
   //dpm($result[0]->ID);
   
   header('Content-Type: text/plain');
@@ -760,18 +780,20 @@ function _datalogger_separate_sms($sms,$number, $smsID) {
 	$battery = array();
 	$arg = array($arg1, $arg2, $arg3, $arg4, $arg5, $arg6);
 	
+  $total_rain_hour = 0;
 	for($i = 0; $i < 6; $i++){
 		$opp = _datalogger_separate_opp($arg[$i]);
 		$is_valid[] = $opp[0];
 		$measuaring[] = $opp[1];
 		$accumulate[] = $opp[2];
 		$battery[] = $opp[3];
+    $total_rain_hour += intval($opp[1]);
 	}
 
 	$station = _datalogger_get_station('view_station_find', $number);
 	$nid = $station[0]->nid;
 	$title = $station[0]->node_title;
-	$arg = array($timestart, $nid, $is_valid, $measuaring, $accumulate, $battery, $smsID);
+	$arg = array($timestart, $nid, $is_valid, $measuaring, $accumulate, $battery, $smsID, $total_rain_hour);
 
 	_datalogger_insert_node_rainfall($arg);
   
@@ -797,6 +819,7 @@ function _datalogger_insert_node_rainfall(&$arg){
 	$nid = $arg[1];
 	$station = node_load($nid);
   $smsID = $arg[6];
+  $total_rain_hour = $arg[7];
   
   
   
@@ -829,15 +852,18 @@ function _datalogger_insert_node_rainfall(&$arg){
         
         $rainfalls = array();
         
-				//xoa tat ca cac node neu trung du lieu
-				if(count($rainfalls) > 0 && FALSE){
+				
+				if(count($rainfalls) > 0 ){         // trung du lieu thi cap nhat lai cai cu theo gia tri moi
         
 					foreach($rainfalls as $rainfall_old){
 						$rainfall_old = node_load($rainfall_old->nid);
 						//lượng mưa đo được trong 10p
 						$rainfall_old->field_rainfall_measuring['und'][0]['value'] = $measuring_interval[$i]/10;
-						//lượng mưa đo được trong 60p
+						// luong mua tich luy
 						$rainfall_old->field_rainfall_total['und'][0]['value'] = $arg[4][$i]/10;
+            //lượng mưa đo được trong 60p            
+            $rainfall_old->field_rainfall_total_hour['und'][0]['value'] = $total_rain_hour / 10;
+            
 						
 						//chen thoi gian chan vao node
 						for($j = 0; $j < 24; $j++){
@@ -847,7 +873,7 @@ function _datalogger_insert_node_rainfall(&$arg){
 						}
 						
 						node_save($rainfall_old);
-						// node_delete($rainfall_old->nid);
+				
 					}
 				}
 
@@ -869,8 +895,11 @@ function _datalogger_insert_node_rainfall(&$arg){
 					$rainfall->field_rainfall_station[$rainfall->language][0]['nid'] = $nid;
 					//lượng mưa đo được trong 10p
 					$rainfall->field_rainfall_measuring[$rainfall->language][0]['value'] = $measuring_interval[$i]/10;
-					//lượng mưa đo được trong 60p
+					//lượng mưa tich luy
 					$rainfall->field_rainfall_total[$rainfall->language][0]['value'] = $arg[4][$i]/10;
+          // luong mua tong trong 1 gio
+          $rainfall->field_rainfall_total_hour['und'][0]['value'] = $total_rain_hour / 10;
+          
 					$rainfall->field_rainfall_send_time[$rainfall->language][0]['value'] = $time;
 					$rainfall->field_rainfall_time_send_sms[$rainfall->language][0]['value'] = $send_time;
 					$rainfall->field_rainfall_year[$rainfall->language][0]['value'] = $year;
@@ -878,6 +907,7 @@ function _datalogger_insert_node_rainfall(&$arg){
 					$rainfall->field_rainfall_year_month_date[$rainfall->language][0]['value'] = $year_month_date;
           
           $rainfall->field_rainfall_sms_id[$rainfall->language][0]['value'] = $smsID;
+          $rainfall->field_rainfall_op_idx[$rainfall->language][0]['value'] = ($i + 1);
 					
 					//chỉ trèn giá trị vào trường này khi thời gian là: 01:00:00, 02:00:00,...23:00:00h
 					for($j = 0; $j < 24; $j++){

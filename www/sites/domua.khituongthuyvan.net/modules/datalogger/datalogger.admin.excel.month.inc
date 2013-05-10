@@ -660,10 +660,10 @@ function _datalogger_export_rainfall_month_excel($nid, $year, $month, $form_stat
   header('Content-type: application/vnd.ms-excel');
   header('Content-Disposition: attachment; filename="Báo cáo dữ liệu mưa - Trạm ' . $name_station->title . ' - ' . substr($month,-2,2) . '-' . $year . '.xls"');
   $objWriter->save('php://output');
-  $f = file_directory_temp() . '/Bao cao du lieu mua_' . time() . '.xls';
-  $objWriter->save($f);
-  files($f);
-  drupal_unlink($f);
+  //$f = file_directory_temp() . '/Bao cao du lieu mua_' . time() . '.xls';
+  //$objWriter->save($f);
+  //files($f);
+  //drupal_unlink($f);
   
   drupal_exit();
 }

@@ -30,16 +30,19 @@ function entity_get_property_info($entity_type = NULL) {
   $langcode = $GLOBALS['language']->language;
 
   if (empty($info)) {
-    if ($cache = cache_get("entity_property_info:$langcode")) {
+    if (FALSE && $cache = cache_get("entity_property_info:$langcode")) {
       $info = $cache->data;
     }
     else {
       $info = module_invoke_all('entity_property_info');
+      //dpm($info);
       // Let other modules alter the entity info.
       drupal_alter('entity_property_info', $info);
       cache_set("entity_property_info:$langcode", $info);
-    }
+      
+    }    
   }
+  //dpm($info);
   return empty($entity_type) ? $info : (isset($info[$entity_type]) ? $info[$entity_type] : array());
 }
 

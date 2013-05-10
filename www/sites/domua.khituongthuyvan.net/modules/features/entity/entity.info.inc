@@ -25,14 +25,14 @@ function entity_entity_property_info() {
     }
   }
   // Add in info for all core entities.
-  foreach (_entity_metadata_core_modules() as $module) {
+  foreach (_entity_metadata_core_modules() as $module) {    
     module_load_include('inc', 'entity', "modules/$module.info");
-    if (function_exists($function = "entity_metadata_{$module}_entity_property_info")) {
+    if (function_exists($function = "entity_metadata_{$module}_entity_property_info")) {      
       if ($return = $function()) {
         $items = array_merge_recursive($items, $return);
       }
     }
-  }
+  }  
   return $items;
 }
 

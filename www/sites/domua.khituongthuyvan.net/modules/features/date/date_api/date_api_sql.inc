@@ -146,7 +146,7 @@ class date_sql_handler {
       switch ($type) {
         case 'mysql':
         case 'mysqli':
-          db_query("SET @@session.time_zone = '$offset'");
+          db_query("SeT @@session.time_zone = '$offset'");
           break;
         case 'pgsql':
           db_query("SET TIME ZONE INTERVAL '$offset' HOUR TO MINUTE");
