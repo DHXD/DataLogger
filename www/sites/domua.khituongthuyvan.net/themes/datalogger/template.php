@@ -4,28 +4,43 @@
 global $user;
 global $site_name;
 
+$module_path = drupal_get_path('module', 'datalogger');
+drupal_add_js($module_path . '/jquery.infieldlabel.min.js');
+drupal_add_js($module_path . '/swfobject/swfobject.js');
+drupal_add_js( <<< CODE
+  var flashvars = {
+    khuvuc: 2
+  };
+  var params = {
+    menu: "false",
+    wmode: "transparent"
+  };
+  var attributes = {
+    id: "myDynamicContent",
+    name: "myDynamicContent",
+    style:"z-index: -1000; margin: 0 auto;"
+  };
+
+  swfobject.embedSWF("/sites/domua.khituongthuyvan.net/files/scripts/swfobject/bannerFlash.swf", "bannerFlash", "960", "180", "9.0.0","/sites/domua.khituongthuyvan.net/files/scripts/swfobject/expressInstall.swf", flashvars, params, attributes);
+
+CODE
+ ,'inline');
+
 if (in_array('administrator', array_values($user->roles)) || in_array('control datalogger', array_values($user->roles))) {
   // variable_set('site_name', t('Phần mềm điều khiển trạm đo mưa tự động'));
   variable_set('site_name', t('Software control automatic rain gauge stations'));
-}
-else{
+} else {
   // variable_set('site_name', t('Hệ thống khai thác dữ liệu đo mưa tự động 2012'));
   variable_set('site_name', t('Data mining system automatic rain gauge 2012'));
 }
 
 if(in_array('manage data', array_values($user->roles)) && in_array('control datalogger', array_values($user->roles)) || $user->uid == 1){
   drupal_add_css(path_to_theme() . '/css/do.css');
-}
-
-else if(in_array('control datalogger', array_values($user->roles))){
+} else if(in_array('control datalogger', array_values($user->roles))){
   drupal_add_css(path_to_theme() . '/css/cam.css');
-}
-
-else if(in_array('manage data', array_values($user->roles))){
+} else if(in_array('manage data', array_values($user->roles))){
   drupal_add_css(path_to_theme() . '/css/xanhla.css');
-}
-
-else if($user->uid == 0){
+} else if($user->uid == 0){
   drupal_add_css(path_to_theme() . '/css/xanhdatroi.css');
 }
 
@@ -57,6 +72,12 @@ function datalogger_preprocess_html(&$variables) {
   // Add conditional stylesheets for IE
   drupal_add_css(path_to_theme() . '/css/ie.css', array('group' => CSS_THEME, 'browsers' => array('IE' => 'lte IE 7', '!IE' => FALSE), 'preprocess' => FALSE));
   drupal_add_css(path_to_theme() . '/css/ie6.css', array('group' => CSS_THEME, 'browsers' => array('IE' => 'IE 6', '!IE' => FALSE), 'preprocess' => FALSE));
+	
+	drupal_add_css(path_to_theme() . '/css/dropdown.css', array('group' => CSS_THEME, 'preprocess' => FALSE));
+	drupal_add_css(path_to_theme() . '/css/dropdown_ie.css', array('group' => CSS_THEME, 'browsers' => array('IE' => 'lte IE 6', '!IE' => FALSE), 'preprocess' => FALSE));
+
+	drupal_add_js(drupal_get_path('module', 'datalogger') . '/jquery_msgBox/Scripts/jquery.msgBox.js');
+	drupal_add_css(drupal_get_path('module', 'datalogger') . '/jquery_msgBox/Styles/msgBoxLight.css', array('group' => CSS_THEME, 'preprocess' => FALSE));
 }
 
 /**
@@ -67,6 +88,20 @@ function datalogger_process_html(&$variables) {
   if (module_exists('color')) {
     _color_html_alter($variables);
   }
+}
+
+function datalogger_page_alter(&$page){
+	global $user, $admin_khuvuc;
+	$user_path = explode('/', current_path())[0];
+	
+	if($user_path.'/'=='user/'){
+		$user_edit = explode('/', current_path())[1];
+		$user_edit_fields = user_load($user_edit);
+		if($user_edit!=$user->uid && !in_array($user->name, $admin_khuvuc)){
+			header( 'Location: /user');
+		}
+		//drupal_set_message('_page_alter: '.$user->uid.'-'.$user->name.'-'.$user_edit_fields->name.'</br>');
+	}
 }
 
 /**
@@ -211,8 +246,26 @@ function datalogger_preprocess_page(&$variables) {
 			}
 		}
 	}
+	
+	if (drupal_is_front_page()) {
+  
+    global $khuvuc;
+    
+    require 'khuvuc.php';
+					
+		//drupal_set_title(t('LIST OF DATALOGGER STATIONS OF @area', array('@area' => $khuvuc)));
+  }
+  
+  $block = module_invoke('superfish', 'block_view', '1');
+  if ($block['content']) {
+      $output = "<div class=\"links clearfix\">\n";
+      $output .= "<div class=\"element-invisible\">".$block['content']."</div>\n";
+      $output .= "</div>\n";
+      $variables['menu1'] = $block['content'];
+      
+  }
 }
-
+   
 function _datalogger_provinces($arg){
 	$list = array('ho_chi_minh'=> 'Ho Chi Minh',
 	'hai_phong'=> 'Hai Phong',
@@ -288,3 +341,5 @@ function _datalogger_areas($arg){
 		'south_region' => 'Southern Region',);
 	return $list[$arg];
 }
+
+  

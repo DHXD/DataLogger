@@ -24,7 +24,7 @@ function openlayers_openlayers_map_content_type_content_types($plugin) {
   $maps = openlayers_maps();
 
   foreach ($maps as $map) {
-    $types[$map->name] = array (
+    $types[$map->name] = array(
       'map' => $map->name,
       'title' => $map->title,
       'description' => $map->description,
@@ -54,7 +54,7 @@ function openlayers_map_content_type_render($subtype, $conf, $args, $context) {
   $block = new stdClass();
   $block->title = $map->title;
   $block->content = openlayers_render_map($map);
-  
+
   return $block;
 }
 

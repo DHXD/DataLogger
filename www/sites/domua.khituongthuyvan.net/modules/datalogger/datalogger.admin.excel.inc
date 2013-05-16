@@ -1,5 +1,5 @@
 <?php
-error_reporting(E_ALL);
+	error_reporting(E_ALL);
 require_once 'sites/all/libraries/PHPExcel/Classes/PHPExcel.php';
 
 function _export_excel($args){
@@ -42,7 +42,9 @@ function _export_excel($args){
     {
       $objPHPExcel->createSheet();
     }
-    // for( ; $row < $page*$limit_row; $row++){
+ 
+
+  // for( ; $row < $page*$limit_row; $row++){
 		// $objPHPExcel->createSheet();
 		//sheet luôn bắt đầy từ 0
     $objPHPExcel->setActiveSheetIndex($page);
@@ -215,10 +217,11 @@ function _export_excel($args){
       $cell->setCellValue('E'.$i,"60");//thoi gian keo dai mot dot quan trac
       $i++;  
     }
-    
-    $name_station = node_load($nid);
-    //trạm đo mưa
-    $objPHPExcel->getActiveSheet()->setCellValue('C1', $name_station->title);
+    if($nid != null){
+			$name_station = node_load($nid);
+			//trạm đo mưa
+			$objPHPExcel->getActiveSheet()->setCellValue('C1', $name_station->title);
+		}
     // //tháng
     // $objPHPExcel->getActiveSheet()->setCellValue('G1', substr($year_month,4,2));
     // //năm

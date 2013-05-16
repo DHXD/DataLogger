@@ -484,9 +484,9 @@ h1#site-name {
 }
 
 #main-menu-links {
-	font-size: 0.929em;
+	font-size: 12px;
 	margin: 0;
-	padding: 0 15px;
+	padding: 0 10px;
 }
 
 #main-menu-links li {
@@ -499,7 +499,6 @@ h1#site-name {
 #main-menu-links a {
 	color: #333;
 	background: #ccc;
-	background: rgba(255, 255, 255, 0.7);
 	float: left; /* LTR */
 	height: 2.4em;
 	line-height: 2.4em;
@@ -594,6 +593,10 @@ h1#site-name {
 .content {
 	margin-top: 10px;
   width: 180px;  
+}
+.field-item p{
+	margin-top: 10px;
+  width: 680px;  
 }
 
 h1#page-title {
@@ -701,7 +704,7 @@ h1#page-title {
 }
 
 ul.links {
-	color: #68696b;
+	color: #ffffff;
 	font-size: 0.821em;
 }
 
@@ -1358,7 +1361,9 @@ input.form-text,textarea.form-textarea,select.form-select {
 select.form-select {
 	width:260px;
 }
-
+select.form-select {
+	width:150px;
+}
 #edit-field-station-regions-value-wrapper,
 #edit-field-station-code-value-wrapper,
 #edit-field-rainfall-type-statistics-value-wrapper,
@@ -1464,6 +1469,7 @@ input.form-button-disabled,input.form-button-disabled:hover,input.form-button-di
 /* Animated throbber */
 html.js input.form-autocomplete {
 	background-position: 100% 4px; /* LTR */
+	width: 150px;
 }
 
 html.js input.throbbing {
@@ -1831,4 +1837,126 @@ div.field-name-field-command-result div.field-items div.field-item {
   font-size: 12pt;
   background: blue;
   color: white;
+}
+
+.title_center{
+
+	color:#000;
+	font-size:18px;
+	text-align:center;
+  font-weight: bold;
+}
+
+
+body.page-manager-user .panel-col-first {
+width: 250px;
+}
+.classname {
+	-moz-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	-webkit-box-shadow:inset 0px 1px 0px 0px #ffffff;
+	box-shadow:inset 0px 1px 0px 0px #ffffff;
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #ededed), color-stop(1, #a69aa6) );
+	background:-moz-linear-gradient( center top, #ededed 5%, #a69aa6 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#ededed', endColorstr='#a69aa6');
+	background-color:#ededed;
+	-moz-border-radius:6px;
+	-webkit-border-radius:6px;
+	border-radius:6px;
+	border:1px solid #3d343d;
+	display:inline-block;
+	color:#615561;
+	font-family:arial;
+	font-size:13px;
+	font-weight:bold;
+	padding:4px 4px;
+	text-decoration:none;
+	text-shadow:1px 1px 0px #ffffff;
+}.classname:hover {
+	background:-webkit-gradient( linear, left top, left bottom, color-stop(0.05, #a69aa6), color-stop(1, #ededed) );
+	background:-moz-linear-gradient( center top, #a69aa6 5%, #ededed 100% );
+	filter:progid:DXImageTransform.Microsoft.gradient(startColorstr='#a69aa6', endColorstr='#ededed');
+	background-color:#a69aa6;
+}.classname:active {
+	position:relative;
+	top:1px;
+}
+
+.sf-menu.sf-style-default a {
+	padding: 0.75em 12px  !important;
+}
+
+div#header {
+	margin-bottom: 48px;
+}
+
+div#header.with-secondary-menu div.section div.section div#name-and-slogan.element-invisible{
+	width: 700px;
+	height: 150px;
+}
+div#header.with-secondary-menu div.section div.section ul#superfish-1{
+	margin-top: 8px;
+	width: 960px;
+}
+
+div#header.with-secondary-menu div.section div.section div.region div#block-locale-language.block div.content {
+	margin-top: 34px;
+}
+
+
+
+form#-command-form div div.form-item select#edit-command-selects.form-select {
+  width: 500px;
+}
+
+div.title {
+  font-weight: bold;
+  font-size: 15pt;
+}
+
+div#header {
+  height: 186px;
+}
+
+fieldset#edit-stations-fieldset.form-wrapper,
+fieldset#edit-person.form-wrapper
+{
+  float: left;
+  width: 48%;
+  height: 426px;
+}
+ 
+
+
+
+div#content.column div.section form#-command-form div fieldset#edit-stations-fieldset.form-wrapper {
+	height: 215px !important;
+	width: 28% !important;
+	top: 0px;
+}
+
+div#content.column div.section form#-command-form div div#command-div fieldset#edit-command-fieldset.form-wrapper {
+	top: 12px !important;
+}
+
+div#content.column div.section form#-command-form div input#edit-submit.form-submit {
+	position: absolute;
+	top: 70px;
+	left:844px;
+}
+
+/* Report form */
+form#-command-form div div.form-item select.form-select,
+form#-datalogger-report-rainfall-month-form div div.form-item select.form-select,
+form#-datalogger-report-rainfall-day-form div div.form-item select.form-select
+ {
+  width: 284px !important;
+}
+
+form#-datalogger-report-rainfall-day-form  div.fieldset-wrapper input,
+form#-datalogger-report-rainfall-month-form  div.fieldset-wrapper input {
+  width: 300px;
+}
+
+input#edit-day-datepicker-popup-0 {
+  width: 124px !important;
 }

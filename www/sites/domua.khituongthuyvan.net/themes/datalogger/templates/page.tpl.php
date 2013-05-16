@@ -87,80 +87,87 @@
 ?>
 <div id="page-wrapper"><div id="page">
 
-  <div id="header" class="<?php print $secondary_menu ? 'with-secondary-menu': 'without-secondary-menu'; ?>"><div class="section clearfix">
-
-    <?php if ($logo): ?>
-      <a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home" id="logo">
-        <img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
-      </a>
-    <?php endif; ?>
-
-    <?php if ($site_name || $site_slogan): ?>
-      <div id="name-and-slogan"<?php if ($hide_site_name && $hide_site_slogan) { print ' class="element-invisible"'; } ?>>
-
-        <?php if ($site_name): ?>
-          <?php if ($title): ?>
-            <div id="site-name"<?php if ($hide_site_name) { print ' class="element-invisible"'; } ?>>
-              <strong>
-                <a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home"><span><?php print $site_name; ?></span></a>
-              </strong>
-            </div>
-          <?php else: /* Use h1 when the content title is empty */ ?>
-            <h1 id="site-name"<?php if ($hide_site_name) { print ' class="element-invisible"'; } ?>>
-              <a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home"><span><?php print $site_name; ?></span></a>
-            </h1>
-          <?php endif; ?>
+  <div id="header" class="<?php print $secondary_menu ? 'with-secondary-menu': 'without-secondary-menu'; ?>">
+    <div style="position:relative;" class="section clearfix"> 
+      <div style="z-index: 2; position: absolute; display: block;" class="section clearfix" >
+        <?php if ($logo): ?>
+          <a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home" id="logo">
+            <img src="<?php print $logo; ?>" alt="<?php print t('Home'); ?>" />
+          </a>
         <?php endif; ?>
 
-        <?php if ($site_slogan): ?>
-          <div id="site-slogan"<?php if ($hide_site_slogan) { print ' class="element-invisible"'; } ?>>
-            <?php print t($site_slogan); ?>
-          </div>
-        <?php endif; ?>
+        <?php if ($site_name || $site_slogan): ?>
+          <div id="name-and-slogan"<?php if ($hide_site_name && $hide_site_slogan) { print ' class="element-invisible"'; } ?>>
 
-      </div> <!-- /#name-and-slogan -->
-    <?php endif; ?>
+            <?php if ($site_name): ?>
+              <?php if ($title): ?>
+                <div id="site-name"></div>
+              <?php else:  ?>
+                <h1 id="site-name"<?php if ($hide_site_name) { print ' class="element-invisible"'; } ?>>
+                  <a href="<?php print $front_page; ?>" title="<?php print t('Home'); ?>" rel="home"><span><?php print $site_name; ?></span></a>
+                </h1>
+              <?php endif; ?>
+            <?php endif; ?>
 
-    <?php print render($page['header']); ?>
+           <?php if ($site_slogan): ?>
+              <div id="site-slogan"<?php if ($hide_site_slogan) { print ' class="element-invisible"'; } ?>>
+                <?php print t($site_slogan);?><br>
 
-    <?php if ($main_menu): ?>
-      <div id="main-menu" class="navigation">
-        <?php print theme('links__system_main_menu', array(
-          'links' => $main_menu,
-          'attributes' => array(
-            'id' => 'main-menu-links',
-            'class' => array('links', 'clearfix'),
-          ),
-          'heading' => array(
-            'text' => t('Main menu'),
-            'level' => 'h2',
-            'class' => array('element-invisible'),
-          ),
-        )); ?>
-      </div> <!-- /#main-menu -->
-    <?php endif; ?>
+           <?php
+            
+            global $khuvuc;
+           // echo(t('ĐÀI KHÍ TƯỢNG THUỶ VĂN - @area', array('@area' => $khuvuc[1])));
+            ?>
 
-    <?php //dpm($secondary_menu); 
-      $secondary_menu['menu-2']['title'] = t('Welcome !username ! ', array('!username ' => $user->name)) . t('My account');
+              </div>
+            <?php endif; ?>
+       
       
-      if ($secondary_menu): ?>
-      <div id="secondary-menu" class="navigation">
-        <?php print theme('links__system_secondary_menu', array(
-          'links' => $secondary_menu,
-          'attributes' => array(
-            'id' => 'secondary-menu-links',
-            'class' => array('links', 'inline', 'clearfix'),
-          ),
-          'heading' => array(
-            'text' => t('Secondary menu'),
-            'level' => 'h2',
-            'class' => array('element-invisible'),
-          ),
-        )); ?>
-      </div> <!-- /#secondary-menu -->
-    <?php endif; ?>
 
-  </div></div> <!-- /.section, /#header -->
+          </div> <!-- /#name-and-slogan -->
+        <?php endif; ?>
+
+        <?php print render($page['header']); ?>
+
+         
+         <div style="clear: both"></div>
+         <?php    
+             print $menu1;
+         ?>
+         
+
+        <?php 
+          //dpm($secondary_menu); 
+          $secondary_menu['menu-2']['title'] = t('Welcome !username ! ', array('!username ' => $user->name));//.t('My account');
+          //$secondary_menu['menu-2']['title']= t('Welcome');
+          //$secondary_menu['menu-2']['title'] = t('!username ! ', array('!username ' => $user->name));
+          
+       //unset ($secondary_menu['menu-2']['href']);
+
+          if ($secondary_menu): ?>
+          <div id="secondary-menu" class="navigation">
+            <?php 	
+          print theme('links__system_secondary_menu', array(
+              'links' => $secondary_menu,
+              'attributes' => array(
+                'id' => 'secondary-menu-links',
+                'class' => array('links','inline', 'clearfix'),
+              ),
+              'heading' => array(
+                'text' => t('Secondary menu'),
+                'level' => 'h2',
+                'class' => array('element-invisible'),
+              )
+            )); ?>
+          </div> <!-- /#secondary-menu -->
+        <?php endif; ?>
+
+      </div>
+      <div style="z-index:1; position:absolute;" id='bannerFlash'>
+
+      </div>
+    </div>
+  </div> <!-- /.section, /#header -->
 
   <?php if ($messages): ?>
     <div id="messages"><div class="section clearfix">
@@ -191,9 +198,15 @@
       <a id="main-content"></a>
       <?php print render($title_prefix); ?>
       <?php if ($title): ?>
-        <h1 class="title" id="page-title">
-          <?php print $title; ?>
-        </h1>
+	  
+	  <div class="title <?php if (drupal_is_front_page()) print 'title_center'?>" id="page-title" >
+	  <?php
+			  print $title; 
+			
+		?>
+		 
+       </div>
+	   
       <?php endif; ?>
       <?php print render($title_suffix); ?>
       <?php if ($tabs): ?>
@@ -201,13 +214,14 @@
           <?php print render($tabs); ?>
         </div>
       <?php endif; ?>
-      <?php print render($page['help']); ?>
+      <?php //print render($page['help']); ?>
       <?php if ($action_links): ?>
         <ul class="action-links">
           <?php print render($action_links); ?>
         </ul>
       <?php endif; ?>
       <?php print render($page['content']); ?>
+	  
       <?php print $feed_icons; ?>
 
     </div></div> <!-- /.section, /#content -->
@@ -248,3 +262,4 @@
   </div></div> <!-- /.section, /#footer-wrapper -->
 
 </div></div> <!-- /#page, /#page-wrapper -->
+

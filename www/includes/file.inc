@@ -398,8 +398,8 @@ function file_create_url($uri) {
     }
   }
   elseif ($scheme == 'http' || $scheme == 'https') {
-    // Check for http so that we don't have to implement getExternalUrl() for
-    // the http wrapper.
+    // Check for HTTP so that we don't have to implement getExternalUrl() for
+    // the HTTP wrapper.
     return $uri;
   }
   else {
@@ -1113,6 +1113,9 @@ function file_munge_filename($filename, $extensions, $alerts = TRUE) {
 
   // Allow potentially insecure uploads for very savvy users and admin
   if (!variable_get('allow_insecure_uploads', 0)) {
+    // Remove any null bytes. See http://php.net/manual/en/security.filesystem.nullbytes.php
+    $filename = str_replace(chr(0), '', $filename);
+
     $whitelist = array_unique(explode(' ', trim($extensions)));
 
     // Split the filename up by periods. The first part becomes the basename
@@ -1896,7 +1899,6 @@ function file_save_data($data, $destination = NULL, $replace = FILE_EXISTS_RENAM
  */
 function file_unmanaged_save_data($data, $destination = NULL, $replace = FILE_EXISTS_RENAME) {
   // Write the data to a temporary file.
-  
   $temp_name = drupal_tempnam('temporary://', 'file');
   if (file_put_contents($temp_name, $data) === FALSE) {
     drupal_set_message(t('The file could not be created.'), 'error');
@@ -2237,7 +2239,7 @@ function drupal_realpath($uri) {
   if ($wrapper = file_stream_wrapper_get_instance_by_uri($uri)) {
     return $wrapper->realpath();
   }
-  // Check that the uri has a value. There is a bug in PHP 5.2 on *BSD systems
+  // Check that the URI has a value. There is a bug in PHP 5.2 on *BSD systems
   // that makes realpath not return FALSE as expected when passing an empty
   // variable.
   // @todo Remove when Drupal drops support for PHP 5.2.
@@ -2490,7 +2492,7 @@ function file_get_content_headers($file) {
   }
 
   return array(
-    'Content-Type' => $type . '; name="' . $name . '"',
+    'Content-Type' => $type,
     'Content-Length' => $file->filesize,
     'Content-Disposition' => $disposition . '; filename="' . $name . '"',
     'Cache-Control' => 'private',
