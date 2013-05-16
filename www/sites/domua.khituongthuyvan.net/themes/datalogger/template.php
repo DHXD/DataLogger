@@ -23,7 +23,7 @@ drupal_add_js( <<< CODE
     style:"z-index: -1000; margin: 0 auto;"
   };
 
-  swfobject.embedSWF("/sites/domua.khituongthuyvan.net/files/scripts/swfobject/bannerFlash.swf", "bannerFlash", "960", "180", "9.0.0","/sites/domua.khituongthuyvan.net/files/scripts/swfobject/expressInstall.swf", flashvars, params, attributes);
+  swfobject.embedSWF("/sites/domua.khituongthuyvan.net/modules/datalogger/scripts/bannerFlash.swf", "bannerFlash", "960", "180", "9.0.0","/sites/domua.khituongthuyvan.net/modules/datalogger/scripts/swfobject/expressInstall.swf", flashvars, params, attributes);
 
 CODE
  ,'inline');
