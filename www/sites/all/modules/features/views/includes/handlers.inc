@@ -1198,7 +1198,7 @@ function views_get_timezone() {
         db_query("SET TIME ZONE INTERVAL '$offset' HOUR TO MINUTE");
       }
       elseif ($db_type == 'mysql') {
-        db_query("SET @@session.time_zone = '$offset'");
+        db_query("SEt @@session.time_zone = '$offset'");
       }
 
       $already_set = true;

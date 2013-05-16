@@ -516,17 +516,23 @@ function _datalogger_report_rainfall_all_station_in_day_submit(&$form, &$form_st
 
 function _datalogger_report_rainfall_day_form($form, &$form_state){
 	drupal_set_title(t('Reports daily rainfall data'));
+  
 	_datalogger_select_area_province_station($form, $form_state);
 	$form['stations_fieldset']['year']['#access']=FALSE;
 	$form['stations_fieldset']['month']['#access']=FALSE;
-	$form['person']['txtNameQTV']['#access']=FALSE;
+  $form['stations_fieldset']['selectStation']['station']['#multiple']= TRUE;
+  $form['stations_fieldset']['selectProvince']['province']['#multiple']= TRUE;
+  
+  $form['stations_fieldset']['selectReport']['#access']=FALSE;
+	
+  /*$form['person']['txtNameQTV']['#access']=FALSE;
 	$form['person']['txtNameNLB']['#access']=FALSE;
 	$form['person']['txtNameKS']['#access']=FALSE;
 	$form['person']['txtNamePT']['#access']=FALSE;
-	$form['stations_fieldset']['selectStation']['station']['#multiple']= TRUE;
-  $form['stations_fieldset']['selectReport']['#access']=FALSE;
+  */
+	
   
-	//dpm('asd');
+	//dpm($form);
   $form["submit"] = array(
       "#type" => "submit",
       "#value" => t("Report"),
@@ -540,10 +546,18 @@ function _datalogger_report_rainfall_day_form($form, &$form_state){
 function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
 	//module_load_include('inc', 'datalogger', 'datalogger.admin.excel');
 	module_load_include('inc', 'datalogger', 'datalogger.admin.excel.stations.day');
-  
+  //dpm($province);
   $region = $form['stations_fieldset']['selectArea']['#options'][$form_state['values']['selectArea']];
-	$province = $form['stations_fieldset']['selectProvince']['province']['#options'][$form_state['values']['province']];
-	$station_nids = array();
+  //$province = $form['stations_fieldset']['selectProvince']['province']['#options'][$form_state['values']['province']];
+  $province = array();
+  for($sotinh = 0; $sotinh < count($form_state['values']['province']); $sotinh++){
+    $tentinh = $form_state['values']['province'][0];
+    //dpm($tentinh);
+    array_push($province, $form['stations_fieldset']['selectProvince']['province']['#options'][$tentinh]);
+  }
+  //dpm($form);
+  //dpm($form_state);
+  $station_nids = array();
   //$station_names = array();
   $sotram = count($form_state['values']['station']);
   
@@ -572,15 +586,17 @@ function _datalogger_report_rainfall_day_form_submit(&$form, &$form_state) {
   
   $tramdomua = implode(",", $station_nids);
   //dpm($tramdomua);
-	$rainfalls = views_get_view_result('view_export_excel','page', $tramdomua, $year, $month, $day);
-  //dpm($rainfalls[0]);
+  
+	$rainfalls = views_get_view_result('view_rainfall_admin','page', $tramdomua, $day);
+  //dpm($rainfalls);
+  
   //_datalogger_export_rainfall_station_day_excel($region, $province, $station_nids, $year, $month, $day);
 	if(count($rainfalls) <= 0){
 		drupal_set_message(t('Rainfall stations in the no data to report'),'error');
 	}
 	else{
 		// $args = array($nid, $rainfalls, $name_qtv, $name_nlb, $name_ks, $name_pt);
-		$args = array($nid, $rainfalls);
+		//$args = array($nid, $rainfalls);
 		//_export_excel($args);
     _datalogger_export_rainfall_station_day_excel($region, $province, $station_nids, $year, $month, $day);
 	}
@@ -627,49 +643,59 @@ function _datalogger_check_inbox() {
   
   $processed = 0;
   
-  $result = db_query("SELECT * FROM inbox WHERE Processed={$processed} LIMIT 0,10");
+  //$result = db_query("SELECT * FROM inbox WHERE Processed={$processed} ORDER BY `ID` DESC LIMIT 0,10");
+  
+  $result = db_query("SELECT * FROM inbox WHERE Processed={$processed}  LIMIT 0,10");
+  
+  
   //dpm($result[0]->ID);
+  
+  header('Content-Type: text/plain');
   
   foreach ($result as $row) {
     // //tin nhắn từ datalogger
 		$id_inbox = $row->ID;
 
-    print "{$row->ID}\n";
+    print "Inbox ID: {$row->ID}\n";
     
 		$number = _datalogger_convert_number($row->SenderNumber);
 		$sms = $row->TextDecoded;
+    $smsID = $row->ID;
     if(_datalogger_startsWith($row->TextDecoded,'HS') && _datalogger_endsWith($row->TextDecoded,';')) {
       $len_sms = strlen($row->TextDecoded);
       //Xử lý tin nhắn được yêu cầu:88byte
       
       if($len_sms == 88){
-        print "cmd\n";
+        print "Command.\n";
         
 				//Thực hiện chèn bản tin vào bảng command
-				//_datalogger_separate_sms_command($sms, $number);
+				_datalogger_separate_sms_command($sms, $number);
 				//Cập nhật các bản tin đã xử lý
-				//_datalogger_update_process_inbox(1,$id_inbox);
+				_datalogger_update_process_inbox(1,$id_inbox);
         
       }
       //Xử lý bản tin đo mưa tự động:140byte
       elseif($len_sms == 140) {
-        print "rain\n";
+        print "Rain.\n";
       
         switch ($number) {
 	
         default:
           // Chèn bản tin vào bảng đo mưa
           // dsm('into 140');
-          _datalogger_separate_sms($sms,$number);
+          _datalogger_separate_sms($sms,$number, $id_inbox);
           // Cập nhật các bản tin đã xử lý
           _datalogger_update_process_inbox(1, $id_inbox);
           //return $sms;
         }
       }			
-			/////else _datalogger_update_process_inbox(2, $id_inbox);
+			else {
+        print "Other.\n";
+        _datalogger_update_process_inbox(2, $id_inbox);
+      }
     }
 		else{
-			/////_datalogger_update_process_inbox(2, $id_inbox);
+			_datalogger_update_process_inbox(2, $id_inbox);
 		}
     flush (); // flush the output buffer
   }
@@ -745,7 +771,7 @@ function _datalogger_string_to_unix_date($str){
 	return mktime($hour,$minute,$second,$month,$day,$year);
 }
 
-function _datalogger_separate_sms($sms,$number) {
+function _datalogger_separate_sms($sms,$number, $smsID) {
   list($code, $timenow, $timestart, $arg1, $arg2, $arg3, $arg4, $arg5, $arg6, $chk) = explode(",", $sms);
 	$id = substr($code,2,6);
 	$is_valid = array();
@@ -754,18 +780,20 @@ function _datalogger_separate_sms($sms,$number) {
 	$battery = array();
 	$arg = array($arg1, $arg2, $arg3, $arg4, $arg5, $arg6);
 	
+  $total_rain_hour = 0;
 	for($i = 0; $i < 6; $i++){
 		$opp = _datalogger_separate_opp($arg[$i]);
 		$is_valid[] = $opp[0];
 		$measuaring[] = $opp[1];
 		$accumulate[] = $opp[2];
 		$battery[] = $opp[3];
+    $total_rain_hour += intval($opp[1]);
 	}
 
 	$station = _datalogger_get_station('view_station_find', $number);
 	$nid = $station[0]->nid;
 	$title = $station[0]->node_title;
-	$arg = array($timestart, $nid, $is_valid, $measuaring, $accumulate, $battery);
+	$arg = array($timestart, $nid, $is_valid, $measuaring, $accumulate, $battery, $smsID, $total_rain_hour);
 
 	_datalogger_insert_node_rainfall($arg);
   
@@ -790,6 +818,8 @@ function _datalogger_insert_node_rainfall(&$arg){
 	$timestam = $arg[0];
 	$nid = $arg[1];
 	$station = node_load($nid);
+  $smsID = $arg[6];
+  $total_rain_hour = $arg[7];
   
   
   
@@ -822,15 +852,18 @@ function _datalogger_insert_node_rainfall(&$arg){
         
         $rainfalls = array();
         
-				//xoa tat ca cac node neu trung du lieu
-				if(count($rainfalls) > 0 && FALSE){
+				
+				if(count($rainfalls) > 0 ){         // trung du lieu thi cap nhat lai cai cu theo gia tri moi
         
 					foreach($rainfalls as $rainfall_old){
 						$rainfall_old = node_load($rainfall_old->nid);
 						//lượng mưa đo được trong 10p
 						$rainfall_old->field_rainfall_measuring['und'][0]['value'] = $measuring_interval[$i]/10;
-						//lượng mưa đo được trong 60p
+						// luong mua tich luy
 						$rainfall_old->field_rainfall_total['und'][0]['value'] = $arg[4][$i]/10;
+            //lượng mưa đo được trong 60p            
+            $rainfall_old->field_rainfall_total_hour['und'][0]['value'] = $total_rain_hour / 10;
+            
 						
 						//chen thoi gian chan vao node
 						for($j = 0; $j < 24; $j++){
@@ -840,7 +873,7 @@ function _datalogger_insert_node_rainfall(&$arg){
 						}
 						
 						node_save($rainfall_old);
-						// node_delete($rainfall_old->nid);
+				
 					}
 				}
 
@@ -862,13 +895,19 @@ function _datalogger_insert_node_rainfall(&$arg){
 					$rainfall->field_rainfall_station[$rainfall->language][0]['nid'] = $nid;
 					//lượng mưa đo được trong 10p
 					$rainfall->field_rainfall_measuring[$rainfall->language][0]['value'] = $measuring_interval[$i]/10;
-					//lượng mưa đo được trong 60p
+					//lượng mưa tich luy
 					$rainfall->field_rainfall_total[$rainfall->language][0]['value'] = $arg[4][$i]/10;
+          // luong mua tong trong 1 gio
+          $rainfall->field_rainfall_total_hour['und'][0]['value'] = $total_rain_hour / 10;
+          
 					$rainfall->field_rainfall_send_time[$rainfall->language][0]['value'] = $time;
 					$rainfall->field_rainfall_time_send_sms[$rainfall->language][0]['value'] = $send_time;
 					$rainfall->field_rainfall_year[$rainfall->language][0]['value'] = $year;
 					$rainfall->field_rainfall_year_month[$rainfall->language][0]['value'] = $year_month;
 					$rainfall->field_rainfall_year_month_date[$rainfall->language][0]['value'] = $year_month_date;
+          
+          $rainfall->field_rainfall_sms_id[$rainfall->language][0]['value'] = $smsID;
+          $rainfall->field_rainfall_op_idx[$rainfall->language][0]['value'] = ($i + 1);
 					
 					//chỉ trèn giá trị vào trường này khi thời gian là: 01:00:00, 02:00:00,...23:00:00h
 					for($j = 0; $j < 24; $j++){
@@ -925,6 +964,8 @@ function _datalogger_generate_rainfalls_form_submit($form, &$form_state) {
     
     $station_nid = $form_state['values']['station'];
     
+    
+    
     $is_valid = 1;
   
     for($i = 0; $i < 6; $i++) {
@@ -937,7 +978,7 @@ function _datalogger_generate_rainfalls_form_submit($form, &$form_state) {
       $battery[$i] = floatval(rand(124, 138)) / 10.0;
     }
     
-    $arg = array('Lượng mưa ', $station_nid, $is_valid, $measuaring, $accumulated, $battery);
+    $arg = array('Lượng mưa ', $station_nid, $is_valid, $measuaring, $accumulated, $battery, $smsID);
     
     _datalogger_insert_node_rainfall($arg);
     
@@ -968,26 +1009,16 @@ function _datalogger_new_sms_form() {
   $output = '';
  
   // Table header
-  /*$header = array(
-    no => t('No.'),
-		station_name => t('Station Name'),
-    UpdatedInDB => t('Receiving Date Time'),
-    sender_number => t('Sender Number'),
-    message_content => t('Message content'),
-		Modem => t('Modem'),
-    processed => t('Processed'),
-  );*/
-  
   $header = array(
     array('data' => t('No.')),		
-    array('data' => t('Station Name'), ),
+    array('data' => t('Station Name'), 'field' => 'StationName', 'sort' => 'ASC'),
     array('data' => t('Receiving Date Time'), 'field' => 'UpdatedInDB', 'sort' => 'ASC'),
     array('data' => t('Sender Number'), 'field' => 'SenderNumber', 'sort' => 'ASC'),
     array('data' => t('Message content')),
-		array('data' => t('Modem'), ),
+		array('data' => t('Modem'), 'field' => 'RecipientID', 'sort' => 'ASC'),
     array('data' => t('Processed'), 'field' => 'Processed', 'sort' => 'ASC'),
   );
-  
+ 
   // Setting the sort conditions
   if(isset($_GET['sort']) && isset($_GET['order'])) {
     // Sort it Ascending or Descending?
@@ -995,8 +1026,7 @@ function _datalogger_new_sms_form() {
       $sort = 'ASC';
     else
       $sort = 'DESC';
- 
-    
+
     $order = 'UpdatedInDB';
     
     // Which column will be sorted
@@ -1006,18 +1036,11 @@ function _datalogger_new_sms_form() {
         break;
       }
     }
-    
-  }
-  else {
+  } else {
     $sort = 'ASC';
     $order = 'UpdatedInDB';
   }
-  
-  
-  $stations = views_get_view_result('view_station_find', Null, 'all' );
-  
-  //dpm($stations);
-  //return 'abc';
+ 
   global $databases;
   
   $other_database = $databases['default']['default'];
@@ -1028,43 +1051,32 @@ function _datalogger_new_sms_form() {
   db_set_active('YourDatabaseKey');
   
   // Query object
-  $query = db_select("inbox", "i");
-   
+  $query = db_select("datalogger_node", "n");
+  $query->innerJoin("datalogger_field_data_field_station_sim_number", "s", "n.nid = s.entity_id");
+  $query->innerJoin("inbox", "i", "CONCAT('0', substr(i.SenderNumber, 4)) = s.field_station_sim_number_value");
+	
   // Adding fields
-  $query->fields('i',array('UpdatedInDB','SenderNumber', 'RecipientID', 'TextDecoded', 'Processed'));
+  $query->addField('n', 'title', 'StationName');
+  $query->fields('i', array('UpdatedInDB','SenderNumber', 'RecipientID', 'TextDecoded', 'Processed'));
  
   // Set order by
   $query->orderBy($order, $sort);
  
   // Pagination
   $query = $query->extend('TableSort')->extend('PagerDefault')->limit(50);
- 
+	
   // Executing query
   $result = $query->execute();
   
   db_set_active(); // without the paramater means set back to the default for the site
-    
+  
   // Looping for filling the table rows
-  //return 0;
   while($row = $result->fetchObject()) {
   
-  
-    $number = _datalogger_convert_number($row->SenderNumber);
-    
-    $station_name = '';
-    foreach ($stations as $sta) {
-      if ($sta->field_field_station_sim_number[0]['raw']['value'] == $number) {
-        $station_name = $sta->node_title;
-        break;
-      }
-    }
-    
-		
     $sms = $row -> TextDecoded;
     $len_sms = strlen($row->TextDecoded);
 
     // highlight
-    
     //Xử lý tin nhắn được yêu cầu:88byte
     if($len_sms == 88) {
       $sms = '<span style="background:blue;color:white;font-weight:bold">' . $sms . '</span>';
@@ -1072,15 +1084,13 @@ function _datalogger_new_sms_form() {
     //Xử lý bản tin đo mưa tự động:140byte
     elseif($len_sms == 140) {
       $sms = _datalogger_regex_rain($sms);      
-    }			
-    
-  
+    }
+		
     // Adding the rows
     //$rows[] = array($data->title, $data->type);
     $rows[] = array (
 			$i+=1,
-			// $station[0]->node_title,
-			$station_name,
+			$row -> StationName,
 			$row -> UpdatedInDB,
 			$row -> SenderNumber,
 			$sms,
@@ -1088,8 +1098,7 @@ function _datalogger_new_sms_form() {
       $row -> Processed ? t('Yes') : t('No'),
 			);
   }
-  
-  
+	
   // Setting the output of the field
   $output = theme('pager').theme_table(
     array(
@@ -1109,104 +1118,115 @@ function _datalogger_new_sms_form() {
 
 
 function _datalogger_new_outbox_form (){
-$page = arg(3);
-	$headers = array(
-    no => t('No.'),
-		station_name => t('Station Name'),
-    sending_date_time => t('Sending Date Time'),
-    delivery_date_time => t('Delivery Date Time'),
-    sending_time_out => t('Sending Time out'),
-    destination_number => t('Destination Number'),
-    message_content => t('Message content'),
-		Modem => t('Modem'),
+  // Initialising output
+  $output = '';
+ 
+  // Table header
+  $header = array(
+    array('data' => t('No.')),		
+    array('data' => t('Station Name'), 'field' => 'StationName', 'sort' => 'ASC'),
+    array('data' => t('Sending Date Time'), 'field' => 'UpdatedInDB', 'sort' => 'ASC'),
+    array('data' => t('Delivery Date Time'), 'field' => 'SendingDateTime', 'sort' => 'ASC'),
+    array('data' => t('Sending Time out'), 'field' => 'SendingTimeout', 'sort' => 'ASC'),
+		array('data' => t('Destination Number'), 'field' => 'DestinationNumber', 'sort' => 'ASC'),
+    array('data' => t('Message content')),
+    array('data' => t('Modem'), 'field' => 'SenderID', 'sort' => 'ASC'),
   );
-  $num_per_page = 50;
-  $offset=$num_per_page*$page;
-	$total = db_query("SELECT COUNT(*) total FROM `outbox` ORDER BY  `outbox`.`ID` DESC LIMIT 0,500");
-	$number_rows = $total->fetch()->total;
-	$last = $number_rows/$num_per_page;
-	if(!is_int($last)){
-		$last = (int)$last+1;
-	}
-	
-  $result = db_query("SELECT * FROM `outbox` ORDER BY  `outbox`.`ID` DESC LIMIT ". $offset.",".$num_per_page."");
-	
-  /*$query = "SELECT * FROM `sentitems` ORDER BY  `sentitems`.`ID` DESC";
-  $result = pager_query(db_rewrite_sql($query));*/
-  
-  
-  $rows = array();
-  while($row = $result->fetchObject()){
-		$number = _datalogger_convert_number($row->SenderNumber);
-		$station = views_get_view_result('view_station_find', Null, $number );
-		if(!empty($station)){
-			$station_name = $station[0]->node_title;
-		}
-		else{
-			$station_name = null;	
-		}
+ 
+  // Setting the sort conditions
+  if(isset($_GET['sort']) && isset($_GET['order'])) {
+    // Sort it Ascending or Descending?
+    if($_GET['sort'] == 'asc')
+      $sort = 'ASC';
+    else
+      $sort = 'DESC';
+
+    $order = 'UpdatedInDB';
     
+    // Which column will be sorted
+    foreach ($header as $h) {
+      if ($h['data'] == $_GET['order'] && isset($h['field'])) {
+        $order = $h['field'];
+        break;
+      }
+    }
+  } else {
+    $sort = 'ASC';
+    $order = 'UpdatedInDB';
+  }
+ 
+  global $databases;
+  
+  $other_database = $databases['default']['default'];
+  $other_database['prefix'] = '';
+  
+  // replace 'YourDatabaseKey' with something that's unique to your module
+  Database::addConnectionInfo('YourDatabaseKey', 'default', $other_database);
+  db_set_active('YourDatabaseKey');
+  
+  // Query object
+  $query = db_select("datalogger_node", "n");
+  $query->innerJoin("datalogger_field_data_field_station_sim_number", "s", "n.nid = s.entity_id");
+  $query->innerJoin("outbox", "o", "CONCAT('0', substr(o.DestinationNumber, 4)) = s.field_station_sim_number_value");
+	
+  // Adding fields
+  $query->addField('n', 'title', 'StationName');
+  $query->fields('o', array('UpdatedInDB', 'SendingDateTime', 'SendingTimeout', 'DestinationNumber', 'TextDecoded', 'SenderID'));
+ 
+  // Set order by
+  $query->orderBy($order, $sort);
+ 
+  // Pagination
+  $query = $query->extend('TableSort')->extend('PagerDefault')->limit(50);
+	
+  // Executing query
+  $result = $query->execute();
+  
+  db_set_active(); // without the paramater means set back to the default for the site
+  
+  // Looping for filling the table rows
+  while($row = $result->fetchObject()) {
+  
     $sms = $row -> TextDecoded;
     $len_sms = strlen($row->TextDecoded);
 
-    // highlight
-    
-    //X? lý tin nh?n du?c yêu c?u:88byte
+    // highlight    
+    //Xử lý tin nhắn được yêu cầu:88byte
     if($len_sms == 88) {
       $sms = '<span style="background:blue;color:white;font-weight:bold">' . $sms . '</span>';
     }
-    //X? lý b?n tin do mua t? d?ng:140byte
+    //Xử lý bản tin đo mưa tự động:140byte
     elseif($len_sms == 140) {
       $sms = _datalogger_regex_rain($sms);      
-    }			
-    
+    }
+		
+    // Adding the rows
     $rows[] = array (
-			$offset+=1,
-			// $station[0]->node_title,
-			$station_name,
+			$i+=1,
+			$row -> StationName,
 			$row -> UpdatedInDB,
-      $row -> SendingDateTime,
-      $row -> SendingTimeout,
+			$row -> SendingDateTime,
+			$row -> SendingTimeout,
 			$row -> DestinationNumber,
 			$sms,
-			$row -> RecipientID,
+      $row -> SenderID,
 			);
-
   }
 	
-  /*$retval = theme('table', array(
-                'header' => $headers,
-                'rows' => $rows
-                 ));*/
-                 
-     
-  
-     
-	$output = theme_table(
+  // Setting the output of the field
+  $output = theme('pager').theme_table(
     array(
-      "header" => $headers,
-      "rows" => $rows,
-      "attributes" => array(),
-      "sticky" => true, // Table header will be sticky
-      "caption" => t('Date').': '.date('d/m/Y',time()),
-      "colgroups" => array(),
-      "empty" => t("Table has no row!") // The message to be displayed if table is empty
+      'header' => $header,
+      'rows' => $rows,
+      'attributes' => array(),
+      'sticky' => true,
+      'caption' => t('Date').': '.date('d/m/Y',time()),
+      'colgroups' => array(),
+      'empty' => t("Table has no row!") // The message to be displayed if table is empty
     )
-  ).theme("pager");
-  //).theme('pager', array('quantity' => $total));
-	
-  $prevpage = $page - 1;
-  $nextpage = $page + 1;
-  if($page > 0){
-    $output = $output . l(t("<< first"),"gammu/outbox/new");
-    $output = $output . l(t("< previous"),"gammu/outbox/new/".$prevpage). "  ";
-  }
-	if($number_rows > $num_per_page){
-		if($nextpage < $last){
-			$output = $output . l(t("next >"),"gammu/outbox/new/".$nextpage);
-			$output = $output . l(t("last >>"),"gammu/outbox/new/".($last - 1));
-		}
-	}
+  ).theme('pager');
+ 
+  // Returning the output
   return $output;
 }
 

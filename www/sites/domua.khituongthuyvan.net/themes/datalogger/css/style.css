@@ -1903,12 +1903,6 @@ div#header.with-secondary-menu div.section div.section div.region div#block-loca
 }
 
 
-/* command form */
-form#-command-form div div.form-item select.form-select,
-form#-datalogger-report-rainfall-month-form div div.form-item select.form-select
- {
-  width: 234px;
-}
 
 form#-command-form div div.form-item select#edit-command-selects.form-select {
   width: 500px;
@@ -1948,4 +1942,21 @@ div#content.column div.section form#-command-form div input#edit-submit.form-sub
 	position: absolute;
 	top: 70px;
 	left:844px;
+}
+
+/* Report form */
+form#-command-form div div.form-item select.form-select,
+form#-datalogger-report-rainfall-month-form div div.form-item select.form-select,
+form#-datalogger-report-rainfall-day-form div div.form-item select.form-select
+ {
+  width: 284px !important;
+}
+
+form#-datalogger-report-rainfall-day-form  div.fieldset-wrapper input,
+form#-datalogger-report-rainfall-month-form  div.fieldset-wrapper input {
+  width: 300px;
+}
+
+input#edit-day-datepicker-popup-0 {
+  width: 124px !important;
 }

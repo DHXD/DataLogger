@@ -15,10 +15,22 @@ function _datalogger_export_rainfall_station_day_excel($region, $province, $stat
 		$max_total_rainfall_in_day = 0;
 		$max_total_time_rainfall_in_day = 0;
 		$hours_in_day = array();
-		$rainfalls = views_get_view_result('view_export_excel','default', $nid, $year, $month, $day);
+		$rainfalls = views_get_view_result('view_rainfall_admin','page', $nid, $day);
+    
+    //digi_debug(count($rainfalls), 0, 1);
+    
 		if(count(rainfalls) > 0){
 			foreach($rainfalls as $rainfall){
+        //dpm($rainfall);
 				$hour = (int)substr($rainfall->node_title, -8, 2);
+        
+        $minute = (int)substr($rainfall->node_title, -5, 2);
+        $second = (int)substr($rainfall->node_title, -2, 2);
+        if($minute =='00' && $second == '00'){
+          if($hour == '00') $hour = '23';
+          else $hour -=1;
+        }
+        
 				$rainfall_measuring = (float)$rainfall->field_field_rainfall_measuring[0]['rendered']['#markup'];
 				if($rainfall_measuring > 0){
 					$hours_in_day[$hour][] = $rainfall;
@@ -123,7 +135,7 @@ function _datalogger_export_rainfall_station_day_excel($region, $province, $stat
 	
 	
 	$objPHPExcel->getActiveSheet()->mergeCells('A1:AA1');
-	$objPHPExcel->getActiveSheet()->mergeCells('C2:G2');
+	$objPHPExcel->getActiveSheet()->mergeCells('B2:G2');
 	$objPHPExcel->getActiveSheet()->mergeCells('H2:I2');
   $objPHPExcel->getActiveSheet()->mergeCells('J2:P2');
 	$objPHPExcel->getActiveSheet()->mergeCells('A3:B6');
@@ -159,10 +171,10 @@ function _datalogger_export_rainfall_station_day_excel($region, $province, $stat
 	//thiet lap chieu rong cac cell
 	$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setSize(20);
 	$objPHPExcel->getActiveSheet()->getColumnDimension('A')->setWidth(10);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(10);
+	$objPHPExcel->getActiveSheet()->getColumnDimension('B')->setWidth(4);
 	for($c = 'C'; $c <= 'Z'; $c++)
     $objPHPExcel->getActiveSheet()->getColumnDimension($c)->setWidth(4);
-	$objPHPExcel->getActiveSheet()->getColumnDimension('AA')->setWidth(10);
+	$objPHPExcel->getActiveSheet()->getColumnDimension('AA')->setWidth(7);
 	
 	$font_bold = array(
 		'font' => array(
@@ -186,7 +198,7 @@ function _datalogger_export_rainfall_station_day_excel($region, $province, $stat
 		}
 	}
 	
-	$objPHPExcel->getActiveSheet()->setCellValue('C2',$region);//khu vuc
+	$objPHPExcel->getActiveSheet()->setCellValue('B2',$region);//khu vuc
 	$objPHPExcel->getActiveSheet()->setCellValue('J2',$province);//tinh
 	
 	$objPHPExcel->getActiveSheet()->setCellValue('S2',substr($day,-2));//ngay
