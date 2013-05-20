@@ -7,7 +7,7 @@ function _command_form($form, &$form_state) {
   
   drupal_add_js($module_path . '/datalogger_form_command.js');
 
-  // GLOBAL $options_commands;
+  
 	$options_commands = array(
     //Data call command
     1 => t('Real Data Call'),
@@ -96,9 +96,11 @@ function _command_form($form, &$form_state) {
   $title = $options_commands[$default];
   
   
-  if (arg(1) == 0) {  // lock command
+  if (arg(1) === '0') {  // lock command
     $options_commands = array($default => $options_commands[$default]);
-    //dpm('aaaaaaa');
+    //dpm('lock');
+    //dpm(arg(1));
+    //dpm($_REQUEST);
   }
   
   $form['command_selects'] = array(
@@ -460,6 +462,7 @@ function _command_form($form, &$form_state) {
 	
   $form['#validate'][] = '_command_validate';
 	// }
+  
 	
   return $form;
 }
