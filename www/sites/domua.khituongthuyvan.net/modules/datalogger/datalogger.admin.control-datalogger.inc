@@ -1,5 +1,8 @@
 <?php
 
+global $timeInterval;
+$timeInterval = array('10', '20', '30', '60', '120', '180', '360');
+
 function _command_form($form, &$form_state) {
   global $user;
   
