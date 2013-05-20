@@ -1,4 +1,4 @@
-/**
+﻿/**
  * @file
  * JS Implementation of OpenLayers behavior.
  */
@@ -209,7 +209,10 @@ Drupal.openlayers.addBehavior('openlayers_behavior_popup', function (data, optio
 				if (result == "Yes") {
 					go_feature(feature);
 				} else if (result == "No"){
+<<<<<<< HEAD
 					//features.shift();
+=======
+>>>>>>> 7cb3cc3319a5b0c14905a6166e700d6fd2da8102
 					features.splice(0, 1);
 					if(features.length > 0) confirm_feature(features);
 				}
@@ -221,6 +224,10 @@ Drupal.openlayers.addBehavior('openlayers_behavior_popup', function (data, optio
 		geo_location = feature.attributes.field_station_geo_location.replace(/[^. 0-9]+/g,'').replace(/^\s+|\s+$/g, '');
 		longgitude = geo_location.split(' ')[0];
 		latitude = geo_location.split(' ')[1];
+<<<<<<< HEAD
+=======
+		
+>>>>>>> 7cb3cc3319a5b0c14905a6166e700d6fd2da8102
 		// Zoom & center
 		var center= new OpenLayers.LonLat(longgitude,latitude - .5).transform(new OpenLayers.Projection("EPSG:4326"),map.getProjectionObject());
 		map.setCenter(center, 9);
@@ -230,5 +237,10 @@ Drupal.openlayers.addBehavior('openlayers_behavior_popup', function (data, optio
 	
 	jQuery('label[for=olvm-title-txt]').inFieldLabels();
 	jQuery('label[for=olvm-phone-txt]').inFieldLabels();
+<<<<<<< HEAD
 
 });
+=======
+	
+});
+>>>>>>> 7cb3cc3319a5b0c14905a6166e700d6fd2da8102
