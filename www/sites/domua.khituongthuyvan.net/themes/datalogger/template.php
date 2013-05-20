@@ -3,13 +3,14 @@
  
 global $user;
 global $site_name;
+global $khuvuc;
 
 $module_path = drupal_get_path('module', 'datalogger');
 drupal_add_js($module_path . '/jquery.infieldlabel.min.js');
 drupal_add_js($module_path . '/swfobject/swfobject.js');
 drupal_add_js( <<< CODE
   var flashvars = {
-    khuvuc: 2
+    khuvuc: {$khuvuc[2]}
   };
   var params = {
     menu: "false",
