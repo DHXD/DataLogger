@@ -5,8 +5,6 @@ $station_name = array();
 foreach($stations as $station){
 	$station_name[$station->nid] = $station->node_title;
 }
-global $timeInterval;
-$timeInterval = array('10', '20', '30', '60', '120', '180', '360');
 
 global $clearTime;
 $clearTime = array('00:00','01:00','02:00','03:00','04:00','05:00','06:00','07:00','08:00','09:00','10:00','11:00','12:00','13:00','14:00','15:00','16:00','17:00','18:00','19:00','20:00','21:00','22:00','23:00');
@@ -643,9 +641,9 @@ function _datalogger_check_inbox() {
   
   $processed = 0;
   
-  //$result = db_query("SELECT * FROM inbox WHERE Processed={$processed} ORDER BY `ID` DESC LIMIT 0,10");
+  $result = db_query("SELECT * FROM inbox WHERE Processed={$processed} ORDER BY `ID` DESC LIMIT 0,25");
   
-  $result = db_query("SELECT * FROM inbox WHERE Processed={$processed}  LIMIT 0,10");
+  //$result = db_query("SELECT * FROM inbox WHERE Processed={$processed}  LIMIT 0,10");
   
   
   //dpm($result[0]->ID);
