@@ -9,6 +9,7 @@
     $admin_khuvuc = array('khuvuctrungtrungbo', 'root');
     break;
  
+  case 'kttvntb.gov.vn':
   case '113.160.248.129':
   case 'namtrungbo.domua.khituongthuyvan.net':
     $khuvuc = array('south_central_region','KHU VỰC NAM TRUNG BỘ', 3);
