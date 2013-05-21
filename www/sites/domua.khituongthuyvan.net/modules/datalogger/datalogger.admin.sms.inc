@@ -1,6 +1,24 @@
 <?php
 
 /*
+ * Helper function to insert to SQL server.
+ */
+function _datalogger_insert_sql_server(&$row) {
+  
+  db_set_active('sqlsrv');
+
+  // execute queries here
+  $sql = "INSERT INTO outbox(DestinationNumber, TextDecoded, CreatorID) VALUES('$phone', '$sms', '')";
+  // $nid = db_query($sql);
+  
+  $query="UPDATE inbox SET Processed=:process WHERE ID=:pr";
+	$result = db_query($query, array(':process'=>$process, ':pr'=>$id_inbox));
+
+  db_set_active(); // without the paramater means set back to the default for the site
+  //drupal_set_message(t('The queries have been made.'));
+}
+
+/*
  * Helper function to post sms to server.
  */
 function _datalogger_sms_post_server(&$row) {
