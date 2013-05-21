@@ -9,6 +9,7 @@
     $admin_khuvuc = array('khuvuctrungtrungbo', 'root');
     break;
  
+  case 'kttvntb.gov.vn':
   case '113.160.248.129':
   case 'namtrungbo.domua.khituongthuyvan.net':
     $khuvuc = array('south_central_region','KHU VỰC NAM TRUNG BỘ', 3);
@@ -21,7 +22,7 @@
     $admin_khuvuc = array('khuvucbactrungbo', 'root');
     break;
    
-  case '210.245.110.1':
+  case '210.245.110.15':
   case 'nambo.domua.khituongthuyvan.net':
    $khuvuc = array('south_region','KHU VỰC NAM BỘ', 4);
     $admin_khuvuc = array('khuvucnambo', 'root');
@@ -32,6 +33,10 @@
    $khuvuc = array('central_highlands','KHU VỰC TÂY NGUYÊN', 5);
     $admin_khuvuc = array('khuvuctaynguyen', 'root');
     break; 
+  case 'admin.domua.khituongthuyvan.net':
+    $khuvuc = array('cron','KHU VỰC CRON', 0);
+    $admin_khuvuc = array('khuvuc_cron', 'root');
+    break;
   default:
     die('Khong truy cap duoc phan mem Do mua theo ten mien nay. Hay lien he voi quan tri he thong de duoc ho tro.');
   }
