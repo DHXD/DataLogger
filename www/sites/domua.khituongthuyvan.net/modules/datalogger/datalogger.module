@@ -931,7 +931,13 @@ function _datalogger_return_area($arg = null){
 }
 
 function _datalogger_return_city($arg = null){
-	$areas = _datalogger_return_city2(null);
+  global $khuvuc;
+  
+	//$areas = _datalogger_return_city2(null);
+  
+  return _datalogger_return_city2($khuvuc[0]);
+  
+  
 	$provinces = array();
 	foreach($areas as $area){
 		$provinces = array_merge($provinces, $area);
